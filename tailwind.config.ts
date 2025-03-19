@@ -78,3 +78,5 @@ const config = {
 } satisfies Config;
 
 export default config;
+
+// <div className="w-full p-[1px] bg-gradient-to-r from-transparent via-foreground/10 to-transparent my-8" /> super simple gradient line for decor
