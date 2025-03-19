@@ -39,7 +39,7 @@ export const signUpAction = async (formData: FormData) => {
   }
 };
 
-export const signInAction = async (formData: FormData) => {
+export const customSignInAction = async (formData: FormData) => {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const supabase = await createClient();
@@ -54,6 +54,27 @@ export const signInAction = async (formData: FormData) => {
   }
 
   return redirect("/protected");
+};
+
+export const googleSignInAction = async function () {
+  const supabase = await createClient();
+  const origin = (await headers()).get("origin");
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${origin}/auth/callback`, // Redirect to the appropriate callback URL
+    },
+  });
+
+  if (error) {
+    console.error("Google Sign-In Error:", error.message);
+    return encodedRedirect("error", "/sign-in", error.message);
+  }
+
+  if (data?.url) {
+    redirect(data.url); // Redirect user to Google's OAuth screen
+  }
 };
 
 export const forgotPasswordAction = async (formData: FormData) => {
