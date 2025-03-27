@@ -36,35 +36,43 @@ export default async function Signup(props: {
       <div className="bg-white p-8 rounded-xl shadow-lg w-96 flex flex-col items-center">
         <h2 className="text-xl font-bold mb-4 text-black">Sign Up</h2>
         {/* Sign In Form */}
-        <form action={signUpAction} className="w-full flex flex-col">
-          {/* Username Field */}
-          <Input type="text" name="username" placeholder="Username" className="mb-3" required/>
-          
+        <form action={signUpAction} className="w-full flex flex-col space-y-4">
+         
           {/* Email Field */}
-          <Input type="email" name="email" placeholder="Email Address" className="mb-3" required/>
-          
+          <Input type="email" name="email" placeholder="Email Address" required/>
+         
           {/* Password Field */}
-          <Input type="password" name="password" placeholder="Password" className="mb-2" required/>
-          
-          {/* Affiliation Select */}
+          <Input type="password" name="password" placeholder="Password" required/>
+
+          {/* Username Field */}
+          <Input type="username" name="username" placeholder="Username" required/>
+         
           <Select name="affiliation">
-            <SelectTrigger className="w-full mb-5 bg-[#696047] text-white hover:bg-[#57503A] transition">
+            <SelectTrigger className="w-full bg-[#696047] text-white hover:bg-[#57503A] focus:ring-0 focus:outline-none border-none">
               <SelectValue placeholder="Select Affiliation" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="visitor">Visitor</SelectItem>
-              <SelectItem value="student">Student</SelectItem>
-              <SelectItem value="staff">Staff</SelectItem>
-              <SelectItem value="faculty">Faculty</SelectItem>
-              <SelectItem value="owner">Owner</SelectItem>
+            <SelectContent className="bg-[#696047] text-white border-none shadow-lg">
+              <SelectItem className="hover:bg-[#57503A] focus:bg-[#57503A]" value="visitor">Visitor</SelectItem>
+              <SelectItem className="hover:bg-[#57503A] focus:bg-[#57503A]" value="student">Student</SelectItem>
+              <SelectItem className="hover:bg-[#57503A] focus:bg-[#57503A]" value="staff">Staff</SelectItem>
+              <SelectItem className="hover:bg-[#57503A] focus:bg-[#57503A]" value="faculty">Faculty</SelectItem>
+              <SelectItem className="hover:bg-[#57503A] focus:bg-[#57503A]" value="owner">Owner</SelectItem>
             </SelectContent>
           </Select>
-          
+         
           {/* Continue Button */}
           <SubmitButton pendingText="Signing Up..." formAction={signUpAction}>
             Sign Up
           </SubmitButton>
         </form>
+        
+        {/* Login Link */}
+        <div className="mt-4 text-sm text-gray-600">
+          Already have an account?{" "}
+          <Link href="/sign-in" className="text-blue-600 hover:underline">
+            Log In
+          </Link>
+        </div>
       </div>
     </div>
   );
