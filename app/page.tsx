@@ -15,7 +15,7 @@ export default async function Home() {
       
       {/* Hero Section */}
       <div
-        className="flex flex-col items-center justify-center flex-grow bg-cover bg-center text-white p-8 text-center"
+        className="flex flex-col text-white p-8 text-center"
         style={{
           backgroundImage:
             "url('https://www.eduopinions.com/wp-content/uploads/2017/09/Visayas-State-University-VSU-campus.jpg')",
