@@ -171,3 +171,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .header-auth {
+    @apply w-full h-16 flex items-center px-6 bg-gray-100 shadow-md;
+  }
+
+  .header-auth-logo {
+    @apply text-xl font-semibold text-black;
+  }
+}
