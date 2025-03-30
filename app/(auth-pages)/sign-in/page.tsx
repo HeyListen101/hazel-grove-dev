@@ -1,4 +1,4 @@
-import { customSignInAction, googleSignInAction } from "@/app/server/actions";
+import { customSignInAction, googleSignInAction } from "@/app/server/auth-actions";
 import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
