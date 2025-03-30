@@ -179,5 +179,10 @@
 
   .header-auth-logo {
     @apply text-xl font-semibold text-black;
+    font-family: 'Outfit';
+    font-weight: 500;
+    font-size: 36px;
+    line-height: 45px;
+    color: #1F1C15;
   }
 }

@@ -28,8 +28,8 @@ export const signUpAction = async (formData: FormData) => {
     options: {
       emailRedirectTo: `${origin}/auth/callback`,
       data: {
-        username,
-        affiliation,
+        name: username,
+        affiliation: affiliation || 'visitor',
       },
     },
   });
