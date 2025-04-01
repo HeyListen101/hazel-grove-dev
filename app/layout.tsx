@@ -1,5 +1,3 @@
-"use client";
-import { usePathname } from "next/navigation";
 import { ThemeProvider } from "next-themes";
 import { Geist } from "next/font/google";
 import "./globals.css";
@@ -9,16 +7,16 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+export const metadata = {
+  title: "Visita",
+  description: "Go to the market without even going to the market!",
+};
+
 export default function RootLayout({
   children,
-}: {
+} : {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-  // Keep track of paths that should have no layout
-  const noLayoutPaths = ["/", "/sign-in", "/sign-up"];
-  const shouldApplyLayout = !noLayoutPaths.includes(pathname);
-
   return (
     <html lang="en">
       <body className={geistSans.className}>

@@ -1,8 +1,11 @@
-import { createClient } from "@/utils/supabase/server";
-import backgroundImage from "@/components/assets/background-images/MapPage.png";
-import AuthButton from "@/components/header-auth";
 import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { createClient } from "@/utils/supabase/server";
+
+import AuthButton from "@/components/header-auth";
 import VisitaLogo from "@/components/visita-logo";
+import backgroundImage from "@/components/assets/background-images/MapPage.png";
+import ChatBox from "@/components/chat-component"
 
 export default async function ProtectedPage() {
   const supabase = await createClient();
@@ -14,28 +17,36 @@ export default async function ProtectedPage() {
     return redirect("/sign-in");
   }
 
+  const { data } = await supabase.from("chatmessage").select();
+
   return (
-    <div className="flex flex-col min-h-screen">
-      <div className="header-auth flex justify-between items-center">
+    <div
+    // Temporary background image
+      className="flex flex-col w-screen h-screen overflow-hidden relative"
+      style={{
+        backgroundImage: `url(${backgroundImage.src})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      {/* Header */}
+      <div className="header-auth flex justify-between items-center shadow-md">
         <VisitaLogo />
         <AuthButton />
       </div>
 
-      <main
-        className="flex-grow min-h-screen"
-        style={{
-          backgroundImage: `url(${backgroundImage.src})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundAttachment: "fixed",
-        }}
-      >
-        {/* Your main content goes here */}
-        <div className="container mx-auto p-4">
-          {/* Page content */}
+      <main className="flex-grow w-full h-full relative z-10">
+        {/* #TODO: IMPLEMENT MAP AND STORE INFORMATION HERE */}
+        <div className="map-container mx-auto p-4">
+          {/* Map */}
         </div>
       </main>
+
+       {/* Community Chat */}
+      <div className="fixed bottom-5 left-[13] flex items-center space-x-2 z-10">
+        <ChatBox messages={data ?? []}/>
+      </div>
     </div>
-  );
+  );  
 }
