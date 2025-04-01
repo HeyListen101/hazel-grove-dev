@@ -5,7 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import AuthButton from "@/components/header-auth";
 import VisitaLogo from "@/components/visita-logo";
 import backgroundImage from "@/components/assets/background-images/MapPage.png";
-import ChatButton from "@/components/chat-component"
+import ChatBox from "@/components/chat-component"
 
 export default async function ProtectedPage() {
   const supabase = await createClient();
@@ -16,6 +16,8 @@ export default async function ProtectedPage() {
   if (!user) {
     return redirect("/sign-in");
   }
+
+  const { data } = await supabase.from("chatmessage").select();
 
   return (
     <div
@@ -29,7 +31,7 @@ export default async function ProtectedPage() {
       }}
     >
       {/* Header */}
-      <div className="header-auth flex justify-between items-center relative z-10">
+      <div className="header-auth flex justify-between items-center shadow-md">
         <VisitaLogo />
         <AuthButton />
       </div>
@@ -43,7 +45,7 @@ export default async function ProtectedPage() {
 
        {/* Community Chat */}
       <div className="fixed bottom-5 left-[13] flex items-center space-x-2 z-10">
-        <ChatButton/>
+        <ChatBox messages={data ?? []}/>
       </div>
     </div>
   );  
