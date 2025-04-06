@@ -4,10 +4,32 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const Rectangles = () => {
   const [scale, setScale] = useState(1);
+  const [selectedRectangle, setSelectedRectangle] = useState<string | null>(null);
   const containerRef = useRef(null);
   const originalWidth = 2560;
   const originalHeight = 1440;
-  const headerHeight = 60; // Reduced from 64 to 60 to match CSS change
+  const headerHeight = 60;
+  const [hoveredRectangle, setHoveredRectangle] = useState<string | null>(null);
+
+  const showTooltips = process.env.NEXT_PUBLIC_SHOW_TOOLTIPS === 'true';
+
+  const isClickable = (rectangleId: string): boolean => {
+    // Define which rectangles should NOT be clickable
+    const nonClickableRectangles = [
+      'rectangle2',
+      'rectangle29',
+      'rectangle30',
+      'rectangle31',
+      'rectangle32',
+      'rectangle33',  
+      'rectangle34',
+      'rectangle35',
+      'rectangle36',
+      'rectangle37',
+    ];
+
+    return !nonClickableRectangles.includes(rectangleId);
+  };
 
   useEffect(() => {
     const calculateScale = () => {
@@ -27,6 +49,24 @@ const Rectangles = () => {
     window.addEventListener('resize', calculateScale);
     return () => window.removeEventListener('resize', calculateScale);
   }, []);
+
+  const handleRectangleClick = (rectangleId: string) => {
+    setSelectedRectangle(rectangleId);
+    // You can add additional logic here, like showing details about the selected area
+    console.log(`Rectangle ${rectangleId} clicked`);
+  };
+
+  const getStyleWithSelection = (rectangleId: string, baseStyle: React.CSSProperties): React.CSSProperties => {
+    if (selectedRectangle === rectangleId) {
+      return {
+        ...baseStyle,
+        border: '3px solid #FFFF00', // Yellow highlight for selected rectangle
+        boxShadow: '0 0 10px rgba(255, 255, 0, 0.7)',
+        zIndex: 10, // Bring selected rectangle to front
+      };
+    }
+    return baseStyle;
+  };
 
   const styles: { [key: string]: React.CSSProperties } = {
     rectangle69: {
@@ -388,6 +428,7 @@ const Rectangles = () => {
       left: '1079px',
       top: '179px',
       background: 'linear-gradient(180deg, #FFFFFF 0%, #D6D8D9 5%, #D6D8D9 95%, #FFFFFF 100%)',
+      
     },
     rectangle36: {
       position: 'absolute',
@@ -397,6 +438,7 @@ const Rectangles = () => {
       top: '787px',
       background: 'rgba(153, 157, 160, 0.4)',
       borderRadius: '25px 25px 0px 0px',
+      
     },
     rectangle35: {
       position: 'absolute',
@@ -406,6 +448,7 @@ const Rectangles = () => {
       top: '439px',
       background: 'rgba(153, 157, 160, 0.4)',
       borderRadius: '25px 25px 0px 0px',
+      
     },
     rectangle34: {
       position: 'absolute',
@@ -415,6 +458,7 @@ const Rectangles = () => {
       top: '787px',
       background: 'rgba(153, 157, 160, 0.4)',
       borderRadius: '25px 25px 0px 0px',
+      
     },
     rectangle33: {
       position: 'absolute',
@@ -424,6 +468,7 @@ const Rectangles = () => {
       top: '333px',
       background: 'rgba(153, 157, 160, 0.4)',
       borderRadius: '0px 18px 0px 0px',
+      
     },
     rectangle32: {
       position: 'absolute',
@@ -433,6 +478,7 @@ const Rectangles = () => {
       top: '1044px',
       background: 'rgba(153, 157, 160, 0.4)',
       borderRadius: '0px',
+      
     },
     rectangle31: {
       position: 'absolute',
@@ -442,6 +488,7 @@ const Rectangles = () => {
       top: '1044px',
       background: 'rgba(153, 157, 160, 0.4)',
       borderRadius: '0px',
+      
     },
     rectangle30: {
       position: 'absolute',
@@ -451,6 +498,7 @@ const Rectangles = () => {
       top: '1234px',
       background: 'rgba(153, 157, 160, 0.4)',
       borderRadius: '0px',
+      
     },
     rectangle29: {
       position: 'absolute',
@@ -460,6 +508,7 @@ const Rectangles = () => {
       top: '385px',
       background: 'linear-gradient(180deg, #D6D8D9 94.51%, #FFFFFF 100%)',
       borderRadius: '0px',
+      
     },
     rectangle28: {
       position: 'absolute',
@@ -753,6 +802,7 @@ const Rectangles = () => {
       top: '299px',
       background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.4) 0%, rgba(153, 157, 160, 0.4) 10%)',
       borderRadius: '0px',
+      
     },
     rectangle1: {
       position: 'absolute',
@@ -765,6 +815,78 @@ const Rectangles = () => {
     },
   };
 
+  const rectangleData = [
+    {id:'rectangle69', style: styles.rectangle69, title: 'rectangle69', isClickable:isClickable('rectangle69')},
+    {id: 'rectangle68', style: styles.rectangle68, title:'rectangle68', isClickable:isClickable('rectangle68')},
+    {id: 'rectangle67', style: styles.rectangle67, title:'rectangle67', isClickable:isClickable('rectangle67')},
+    {id:'rectangle66', style: styles.rectangle66, title:'rectangle66', isClickable:isClickable('rectangle66')},
+    {id:'rectangle65', style: styles.rectangle65, title:'rectangle65', isClickable:isClickable('rectangle65')},
+    {id:'rectangle64', style: styles.rectangle64, title:'rectangle64', isClickable:isClickable('rectangle64')},
+    {id:'rectangle63', style: styles.rectangle63, title:'rectangle63', isClickable:isClickable('rectangle63')},
+    {id:'rectangle62', style: styles.rectangle62, title:'rectangle62', isClickable:isClickable('rectangle62')},
+    {id:'rectangle61', style: styles.rectangle61, title:'rectangle61', isClickable:isClickable('rectangle61')},
+    {id:'rectangle60', style: styles.rectangle60, title:'rectangle60', isClickable:isClickable('rectangle60')},
+    {id:'rectangle59', style: styles.rectangle59, title:'rectangle59', isClickable:isClickable('rectangle59')},
+    {id:'rectangle58', style: styles.rectangle58, title:'rectangle58', isClickable:isClickable('rectangle58')},
+    {id:'rectangle57', style: styles.rectangle57, title:'rectangle57', isClickable:isClickable('rectangle57')},
+    {id:'rectangle56', style: styles.rectangle56, title:'rectangle56', isClickable:isClickable('rectangle56')},
+    {id:'rectangle55', style: styles.rectangle55, title:'rectangle55', isClickable:isClickable('rectangle55')},
+    {id:'rectangle54', style: styles.rectangle54, title:'rectangle54', isClickable:isClickable('rectangle54')},
+    {id:'rectangle53', style: styles.rectangle53, title:'rectangle53', isClickable:isClickable('rectangle53')},
+    {id:'rectangle52', style: styles.rectangle52, title:'rectangle52', isClickable:isClickable('rectangle52')},
+    {id:'rectangle51', style: styles.rectangle51, title:'rectangle51', isClickable:isClickable('rectangle51')},
+    {id:'rectangle50', style: styles.rectangle50, title:'rectangle50', isClickable:isClickable('rectangle50')},
+    {id:'rectangle49', style: styles.rectangle49, title:'rectangle49', isClickable:isClickable('rectangle49')},
+    {id:'rectangle48', style: styles.rectangle48, title:'rectangle48', isClickable:isClickable('rectangle48')},
+    {id:'rectangle47', style: styles.rectangle47, title:'rectangle47', isClickable:isClickable('rectangle47')},
+    {id:'rectangle46', style: styles.rectangle46, title:'rectangle46', isClickable:isClickable('rectangle46')},
+    {id:'rectangle45', style: styles.rectangle45, title:'rectangle45', isClickable:isClickable('rectangle45')},
+    {id:'rectangle44', style: styles.rectangle44, title:'rectangle44', isClickable:isClickable('rectangle44')},
+    {id:'rectangle43', style: styles.rectangle43, title:'rectangle43', isClickable:isClickable('rectangle43')},
+    {id:'rectangle42', style: styles.rectangle42, title:'rectangle42', isClickable:isClickable('rectangle42')},
+    {id:'rectangle41', style: styles.rectangle41, title:'rectangle41', isClickable:isClickable('rectangle41')},
+    {id:'rectangle40', style: styles.rectangle40, title:'rectangle40', isClickable:isClickable('rectangle40')},
+    {id:'rectangle39', style: styles.rectangle39, title:'rectangle39', isClickable:isClickable('rectangle39')},
+    {id:'rectangle38', style: styles.rectangle38, title:'rectangle38', isClickable:isClickable('rectangle38')},
+    {id:'rectangle37', style: styles.rectangle37, title:'rectangle37', isClickable:isClickable('rectangle37')},
+    {id:'rectangle36', style: styles.rectangle36, title:'rectangle36', isClickable:isClickable('rectangle36')},
+    {id:'rectangle35', style: styles.rectangle35, title:'rectangle35', isClickable:isClickable('rectangle35')},
+    {id:'rectangle34', style: styles.rectangle34, title:'rectangle34', isClickable:isClickable('rectangle34')},
+    {id:'rectangle33', style: styles.rectangle33, title:'rectangle33', isClickable:isClickable('rectangle33')},
+    {id:'rectangle32', style: styles.rectangle32, title:'rectangle32', isClickable:isClickable('rectangle32')},
+    {id:'rectangle31', style: styles.rectangle31, title:'rectangle31', isClickable:isClickable('rectangle31')},
+    {id:'rectangle30', style: styles.rectangle30, title:'rectangle30', isClickable:isClickable('rectangle30')},
+    {id:'rectangle29', style: styles.rectangle29, title:'rectangle29', isClickable:isClickable('rectangle29')},
+    {id:'rectangle28', style: styles.rectangle28, title:'rectangle28', isClickable:isClickable('rectangle28')},
+    {id:'rectangle27', style: styles.rectangle27, title:'rectangle27', isClickable:isClickable('rectangle27')},
+    {id:'rectangle26', style: styles.rectangle26, title:'rectangle26', isClickable:isClickable('rectangle26')},
+    {id:'rectangle25', style: styles.rectangle25, title:'rectangle25', isClickable:isClickable('rectangle25')},
+    {id:'rectangle24', style: styles.rectangle24, title:'rectangle24', isClickable:isClickable('rectangle24')},
+    {id:'rectangle23', style: styles.rectangle23, title:'rectangle23', isClickable:isClickable('rectangle23')},
+    {id:'rectangle22', style: styles.rectangle22, title:'rectangle22', isClickable:isClickable('rectangle22')},
+    {id:'rectangle21', style: styles.rectangle21, title:'rectangle21', isClickable:isClickable('rectangle21')},
+    {id:'rectangle20', style: styles.rectangle20, title:'rectangle20', isClickable:isClickable('rectangle20')},
+    {id:'rectangle19', style: styles.rectangle19, title:'rectangle19', isClickable:isClickable('rectangle19')},
+    {id:'rectangle18', style: styles.rectangle18, title:'rectangle18', isClickable:isClickable('rectangle18')},
+    {id:'rectangle17', style: styles.rectangle17, title:'rectangle17', isClickable:isClickable('rectangle17')},
+    {id:'rectangle16', style: styles.rectangle16, title:'rectangle16', isClickable:isClickable('rectangle16')},
+    {id:'rectangle15', style: styles.rectangle15, title:'rectangle15', isClickable:isClickable('rectangle15')},
+    {id:'rectangle14', style: styles.rectangle14, title:'rectangle14', isClickable:isClickable('rectangle14')},
+    {id:'rectangle13', style: styles.rectangle13, title:'rectangle13', isClickable:isClickable('rectangle13')},
+    {id:'rectangle12', style: styles.rectangle12, title:'rectangle12', isClickable:isClickable('rectangle12')},
+    {id:'rectangle11', style: styles.rectangle11, title:'rectangle11', isClickable:isClickable('rectangle11')},
+    {id:'rectangle10', style: styles.rectangle10, title:'rectangle10', isClickable:isClickable('rectangle10')},
+    {id:'rectangle9', style: styles.rectangle9, title:'rectangle9', isClickable:isClickable('rectangle9')},
+    {id:'rectangle8', style: styles.rectangle8, title:'rectangle8', isClickable:isClickable('rectangle8')},
+    {id:'rectangle7', style: styles.rectangle7, title:'rectangle7', isClickable:isClickable('rectangle7')},
+    {id:'rectangle6', style: styles.rectangle6, title:'rectangle6', isClickable:isClickable('rectangle6')},
+    {id:'rectangle5', style: styles.rectangle5, title:'rectangle5', isClickable:isClickable('rectangle5')},
+    {id:'rectangle4', style: styles.rectangle4, title:'rectangle4', isClickable:isClickable('rectangle4')},
+    {id:'rectangle3', style: styles.rectangle3, title:'rectangle3', isClickable:isClickable('rectangle3')},
+    {id:'rectangle2', style: styles.rectangle2, title:'rectangle2', isClickable:isClickable('rectangle2')},
+    {id:'rectangle1', style: styles.rectangle1, title:'rectangle1', isClickable:isClickable('rectangle1')},
+  ];
+
   return (
     <div
       ref={containerRef}
@@ -773,8 +895,7 @@ const Rectangles = () => {
         height: '100%',
         position: 'relative',
         overflow: 'hidden',
-      }}
-    >
+      }}>
       <div
         style={{
           position: 'absolute',
@@ -784,81 +905,25 @@ const Rectangles = () => {
           transformOrigin: 'center top',
           left: '50%',
           marginLeft: `-${originalWidth / 2}px`,
-          top: '-0.5rem', // Added slight top position to compensate
+          top: '-0.5rem',
         }}
       >
-        <div style={styles.rectangle69}></div>
-        <div style={styles.rectangle68}></div>
-        <div style={styles.rectangle67}></div>
-        <div style={styles.rectangle66}></div>
-        <div style={styles.rectangle65}></div>
-        <div style={styles.rectangle64}></div>
-        <div style={styles.rectangle63}></div>
-        <div style={styles.rectangle62}></div>
-        <div style={styles.rectangle61}></div>
-        <div style={styles.rectangle60}></div>
-        <div style={styles.rectangle59}></div>
-        <div style={styles.rectangle58}></div>
-        <div style={styles.rectangle57}></div>
-        <div style={styles.rectangle56}></div>
-        <div style={styles.rectangle55}></div>
-        <div style={styles.rectangle54}></div>
-        <div style={styles.rectangle53}></div>
-        <div style={styles.rectangle52}></div>
-        <div style={styles.rectangle51}></div>
-        <div style={styles.rectangle50}></div>
-        <div style={styles.rectangle49}></div>
-        <div style={styles.rectangle48}></div>
-        <div style={styles.rectangle47}></div>
-        <div style={styles.rectangle46}></div>
-        <div style={styles.rectangle45}></div>
-        <div style={styles.rectangle44}></div>
-        <div style={styles.rectangle43}></div>
-        <div style={styles.rectangle42}></div>
-        <div style={styles.rectangle41}></div>
-        <div style={styles.rectangle40}></div>
-        <div style={styles.rectangle39}></div>
-        <div style={styles.rectangle38}></div>
-        <div style={styles.rectangle37}></div>
-        <div style={styles.rectangle36}></div>
-        <div style={styles.rectangle35}></div>
-        <div style={styles.rectangle34}></div>
-        <div style={styles.rectangle33}></div>
-        <div style={styles.rectangle32}></div>
-        <div style={styles.rectangle31}></div>
-        <div style={styles.rectangle30}></div>
-        <div style={styles.rectangle29}></div>
-        <div style={styles.rectangle28}></div>
-        <div style={styles.rectangle27}></div>
-        <div style={styles.rectangle26}></div>
-        <div style={styles.rectangle25}></div>
-        <div style={styles.rectangle24}></div>
-        <div style={styles.rectangle23}></div>
-        <div style={styles.rectangle22}></div>
-        <div style={styles.rectangle21}></div>
-        <div style={styles.rectangle20}></div>
-        <div style={styles.rectangle19}></div>
-        <div style={styles.rectangle18}></div>
-        <div style={styles.rectangle17}></div>
-        <div style={styles.rectangle16}></div>
-        <div style={styles.rectangle15}></div>
-        <div style={styles.rectangle14}></div>
-        <div style={styles.rectangle13}></div>
-        <div style={styles.rectangle12}></div>
-        <div style={styles.rectangle11}></div>
-        <div style={styles.rectangle10}></div>
-        <div style={styles.rectangle9}></div>
-        <div style={styles.rectangle8}></div>
-        <div style={styles.rectangle7}></div>
-        <div style={styles.rectangle6}></div>
-        <div style={styles.rectangle5}></div>
-        <div style={styles.rectangle4}></div>
-        <div style={styles.rectangle3}></div>
-        <div style={styles.rectangle2}></div>
-        <div style={styles.rectangle1}></div>
-      </div>
+        {rectangleData.map(rect => (
+        <div
+          key={rect.id}
+          style={rect.isClickable ? getStyleWithSelection(rect.id, rect.style) : rect.style}
+          onClick={isClickable(rect.id) ? () => handleRectangleClick(rect.id) : undefined}
+          onMouseEnter={rect.isClickable ? () => setHoveredRectangle(rect.id) : undefined}
+          onMouseLeave={rect.isClickable ? () => setHoveredRectangle(null) : undefined}
+          title={showTooltips && rect.isClickable ? rect.title : undefined}
+          role={rect.isClickable ? "Button" : undefined}
+          tabIndex={rect.isClickable ? 0 : undefined}
+          onKeyDown={rect.isClickable ? (e) => e.key === 'Enter' && handleRectangleClick(rect.id) : undefined}
+          className={rect.isClickable ? "cursor-pointer transition-opacity duration-200 hover:opacity-80" : "pointer-events-none"}
+        ></div>
+      ))}
     </div>
-  );
-};
-
+  </div>
+);
+}
 export default Rectangles;
