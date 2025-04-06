@@ -6,15 +6,15 @@ import MessageComponent from "@/components/ui/message-card";
 import { Button } from "@/components/ui/button";
 import { Send, Smile, X } from "lucide-react";
 
-// Define ChatMessage type to match your actual database fields
+// chatmessage table structure since supabase needs docker automatically create the table for you
 type ChatMessage = {
-  chatmessageid: string;  // lowercase to match database
-  sentby: string;         // lowercase to match database
-  content: string;        // using content instead of context
-  longitude: number;      // number instead of string
-  latitude: number;       // number instead of string
-  datecreated: string;    // lowercase to match database
-  isarchived: boolean;    // lowercase to match database
+  chatmessageid: string;  
+  sentby: string;         
+  content: string; 
+  longitude: number;      
+  latitude: number;       
+  datecreated: string;    
+  isarchived: boolean;    
 };
 
 export default function ChatComponent({ messages }: { messages: ChatMessage[] }) {

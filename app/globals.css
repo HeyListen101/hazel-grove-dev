@@ -185,4 +185,16 @@
     line-height: 45px;
     color: #1F1C15;
   }
+
+  .map-container {
+    @apply w-full;
+    height: calc(100vh - 4.5rem + 6rem);
+    overflow: hidden;
+    position: relative;
+    margin-top: -4.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+  }
 }

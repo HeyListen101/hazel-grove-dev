@@ -20,7 +20,7 @@ export default async function Home() {
         }}
       >
         <h2 className="text-4xl font-bold mb-4">Welcome to Visita</h2>
-        <p className="text-lg mb-6">Connecting visitors and students with ease.</p>
+        <p className="text-lg mb-6">Go to the market, without actually going to the market!</p>
       </div>
     </div>
   );
