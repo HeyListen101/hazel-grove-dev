@@ -52,7 +52,7 @@ const Rectangles = () => {
 
   const handleRectangleClick = (rectangleId: string) => {
     setSelectedRectangle(rectangleId);
-    // You can add additional logic here, like showing details about the selected area
+    // #TODO: Implement store and product information management system here
     console.log(`Rectangle ${rectangleId} clicked`);
   };
 
