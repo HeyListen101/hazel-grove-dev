@@ -171,3 +171,30 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .header-auth {
+    @apply w-full py-[13.5] flex items-center px-6 bg-gray-100 shadow-md;
+  }
+
+  .header-auth-logo {
+    @apply text-xl font-semibold text-black;
+    font-family: 'Outfit';
+    font-weight: 500;
+    font-size: 36px;
+    line-height: 45px;
+    color: #1F1C15;
+  }
+
+  .map-container {
+    @apply w-full;
+    height: calc(100vh - 4.5rem + 6rem);
+    overflow: hidden;
+    position: relative;
+    margin-top: -4.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+  }
+}
