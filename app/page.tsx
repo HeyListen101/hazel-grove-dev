@@ -1,4 +1,5 @@
 import AuthButton from "@/components/header-auth";
+import backgroundImage from "@/components/assets/background-images/LandingPage.png";
 
 export default async function Home() {
   return (
@@ -13,8 +14,7 @@ export default async function Home() {
       <div
         className="flex flex-col flex-grow justify-center items-center text-white text-center w-full"
         style={{
-          backgroundImage:
-            "url('https://www.eduopinions.com/wp-content/uploads/2017/09/Visayas-State-University-VSU-campus.jpg')",
+          backgroundImage:`url(${backgroundImage.src})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
