@@ -22,7 +22,7 @@ export default async function ProtectedPage() {
   return (
     <div className="flex flex-col w-screen h-screen overflow-hidden">
       {/* Header */}
-      <div className="header-auth flex justify-between items-center shadow-md p-2 h-16 bg-white backdrop-blur-sm z-20">
+      <div className="header-auth flex justify-between items-center shadow-md p-[32] h-16 bg-white backdrop-blur-sm z-20">
         <VisitaLogo />
         <AuthButton />
       </div>
