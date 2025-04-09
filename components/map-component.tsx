@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 
-type RectangleData = {
+interface RectangleData {
   id: string;
   style: React.CSSProperties;
   title: string;
@@ -18,12 +18,8 @@ const Rectangles = () => {
   const originalWidth = 2560;
   const originalHeight = 1440;
   const headerHeight = 60;
-  const [hoveredRectangle, setHoveredRectangle] = useState<string | null>(null);
-
-  const showTooltips = process.env.NEXT_PUBLIC_SHOW_TOOLTIPS === 'true';
-
+  // Removed unused hoveredRectangle 
   const isClickable = (rectangleId: string): boolean => {
-    // Define which rectangles should NOT be clickable
     const nonClickableRectangles = [
       'rectangle2',
       'rectangle29',
@@ -1577,154 +1573,156 @@ const Rectangles = () => {
           top: '-0.5rem',
         }}
       >
-        {rectangleData.map(rect => (
-          <div
-            key={rect.id}
-            style={rect.isClickable ? getStyleWithSelection(rect.id, rect.style) : rect.style}
-            onClick={rect.isClickable ? () => handleRectangleClick(rect.id) : undefined}
-            onMouseEnter={rect.isClickable ? () => setHoveredRectangle(rect.id) : undefined}
-            onMouseLeave={rect.isClickable ? () => setHoveredRectangle(null) : undefined}
-            title={rect.isClickable ? rect.title : undefined}
-            role={rect.isClickable ? "button" : undefined}
-            tabIndex={rect.isClickable ? 0 : undefined}
-            onKeyDown={rect.isClickable ? (e) => e.key === 'Enter' && handleRectangleClick(rect.id) : undefined}
-            className={rect.isClickable ? "cursor-pointer transition-colors duration-200 hover:bg-opacity-80" : "pointer-events-none"}
-          >
-            {/* Display icon if available */}
-            {rect.icon && rect.isClickable && (
-              <div style={{ 
-                position: 'absolute', 
-                top: '50%', 
-                left: '50%', 
-                transform: 'translate(-50%, -50%)',
-                zIndex: 10,
-                color: rect.iconColor || 'white'
-              }}>
-                {rect.icon}
-              </div>
-            )}
-            
-            {/* Display "Viewing" tooltip for selected rectangle */}
-            {selectedRectangle === rect.id && rect.isClickable && (() => {
-              const position = getTooltipPosition(rect.id);
-              
-              // Set styles based on position
-              let tooltipStyle: React.CSSProperties = {
-                position: 'absolute',
-                background: 'rgb(97, 85, 63)',
-                color: 'white',
-                padding: '8px 16px',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                whiteSpace: 'nowrap',
-                zIndex: 1000,
-                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
-                pointerEvents: 'none',
-                opacity: '1 !important', // Force opacity to always be 1
-              };
-              
-              let pointerStyle: React.CSSProperties = {
-                position: 'absolute',
-                width: '0',
-                height: '0',
-                opacity: '1 !important', // Force opacity to always be 1
-              };
-              
-              // Position tooltip and pointer based on location
-              if (position === 'left') {
-                tooltipStyle = {
-                  ...tooltipStyle,
-                  top: '50%',
-                  right: '100%',
-                  transform: 'translateY(-50%)',
-                  marginRight: '0px', // Remove margin to eliminate gap
-                  paddingRight: '10px', // Add padding instead
-                  background: 'rgb(97, 85, 63)', // Fully opaque background
-                  zIndex: 1000, // Higher z-index to ensure it's in front
-                };
-                pointerStyle = {
-                  ...pointerStyle,
-                  top: '50%',
-                  right: '-10px',
-                  transform: 'translateY(-50%)',
-                  borderTop: '10px solid transparent',
-                  borderBottom: '10px solid transparent',
-                  borderLeft: '10px solid rgb(97, 85, 63)', // Match the opaque color
-                  zIndex: 1000, // Same high z-index
-                };
-              } else if (position === 'right') {
-                tooltipStyle = {
-                  ...tooltipStyle,
-                  top: '50%',
-                  left: '100%',
-                  transform: 'translateY(-50%)',
-                  marginLeft: '15px',
-                  background: 'rgb(97, 85, 63)', // Fully opaque background
-                  zIndex: 1000, // Higher z-index
-                };
-                pointerStyle = {
-                  ...pointerStyle,
-                  top: '50%',
-                  left: '-10px',
-                  transform: 'translateY(-50%)',
-                  borderTop: '10px solid transparent',
-                  borderBottom: '10px solid transparent',
-                  borderRight: '10px solid rgb(97, 85, 63)', // Match the opaque color
-                  zIndex: 1000, // Same high z-index
-                };
-              } else if (position === 'bottom') {
-                tooltipStyle = {
-                  ...tooltipStyle,
-                  top: '100%',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  marginTop: '15px',
-                  background: 'rgb(97, 85, 63)', // Fully opaque background
-                  zIndex: 1000, // Higher z-index
-                };
-                pointerStyle = {
-                  ...pointerStyle,
-                  bottom: '100%',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  borderLeft: '10px solid transparent',
-                  borderRight: '10px solid transparent',
-                  borderBottom: '10px solid rgb(97, 85, 63)', // Match the opaque color
-                  zIndex: 1000, // Same high z-index
-                };
-              } else { // 'top' (default)
-                tooltipStyle = {
-                  ...tooltipStyle,
-                  bottom: '100%',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  marginBottom: '15px',
-                  background: 'rgb(97, 85, 63)', // Fully opaque background
-                  zIndex: 1000, // Higher z-index
-                };
-                pointerStyle = {
-                  ...pointerStyle,
-                  top: '100%',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  borderLeft: '10px solid transparent',
-                  borderRight: '10px solid transparent',
-                  borderTop: '10px solid rgb(97, 85, 63)', // Match the opaque color
-                  zIndex: 1000, // Same high z-index
-                };
-              }
-              
-              return (
-                <div style={tooltipStyle}>
-                  {process.env.NEXT_PUBLIC_SHOW_TOOLTIPS === 'true' ? rect.title : 'Viewing'}
-                  {/* Speech bubble pointer */}
-                  <div style={pointerStyle}></div>
+        {rectangleData.map(rect => {
+          const isRectangle46 = rect.id === 'rectangle46';
+          const clickable = rect.isClickable && !isRectangle46; // Disable click for rectangle46
+
+          return (
+            <div
+              key={rect.id}
+              style={clickable ? getStyleWithSelection(rect.id, rect.style) : rect.style}
+              onClick={clickable ? () => handleRectangleClick(rect.id) : undefined}
+              role={clickable ? "Button" : undefined}
+              tabIndex={clickable ? 0 : undefined}
+              onKeyDown={clickable ? (e) => e.key === 'Enter' && handleRectangleClick(rect.id) : undefined}
+              className={clickable ? "cursor-pointer transition-colors duration-200 hover:bg-opacity-80" : "pointer-events-none"}
+            >
+              {/* Icon Display */}
+              {rect.icon && (rect.isClickable || isRectangle46) && (
+                <div style={{ 
+                  position: 'absolute', 
+                  top: '50%', 
+                  left: '50%', 
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: 10,
+                  color: rect.iconColor || 'white'
+                }}>
+                  {rect.icon}
                 </div>
-              );
-            })()}
-          </div>
-        ))}
+              )}
+              
+              {/* Tooltip */}
+              {selectedRectangle === rect.id && rect.isClickable && (() => {
+                const position = getTooltipPosition(rect.id);
+                
+                // Set styles based on position
+                let tooltipStyle: React.CSSProperties = {
+                  position: 'absolute',
+                  background: 'rgb(97, 85, 63)',
+                  color: 'white',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  whiteSpace: 'nowrap',
+                  zIndex: 1000,
+                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+                  pointerEvents: 'none',
+                  opacity: '1 !important', // Force opacity to always be 1
+                };
+                
+                let pointerStyle: React.CSSProperties = {
+                  position: 'absolute',
+                  width: '0',
+                  height: '0',
+                  opacity: '1 !important', // Force opacity to always be 1
+                };
+                
+                // Position tooltip and pointer based on location
+                if (position === 'left') {
+                  tooltipStyle = {
+                    ...tooltipStyle,
+                    top: '50%',
+                    right: '100%',
+                    transform: 'translateY(-50%)',
+                    marginRight: '0px', // Remove margin to eliminate gap
+                    paddingRight: '10px', // Add padding instead
+                    background: 'rgb(97, 85, 63)', // Fully opaque background
+                    zIndex: 1000, // Higher z-index to ensure it's in front
+                  };
+                  pointerStyle = {
+                    ...pointerStyle,
+                    top: '50%',
+                    right: '-10px',
+                    transform: 'translateY(-50%)',
+                    borderTop: '10px solid transparent',
+                    borderBottom: '10px solid transparent',
+                    borderLeft: '10px solid rgb(97, 85, 63)', // Match the opaque color
+                    zIndex: 1000,
+                  };
+                } else if (position === 'right') {
+                  tooltipStyle = {
+                    ...tooltipStyle,
+                    top: '50%',
+                    left: '100%',
+                    transform: 'translateY(-50%)',
+                    marginLeft: '15px',
+                    background: 'rgb(97, 85, 63)',
+                    zIndex: 1000,
+                  };
+                  pointerStyle = {
+                    ...pointerStyle,
+                    top: '50%',
+                    left: '-10px',
+                    transform: 'translateY(-50%)',
+                    borderTop: '10px solid transparent',
+                    borderBottom: '10px solid transparent',
+                    borderRight: '10px solid rgb(97, 85, 63)',
+                    zIndex: 1000,
+                  };
+                } else if (position === 'bottom') {
+                  tooltipStyle = {
+                    ...tooltipStyle,
+                    top: '100%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    marginTop: '15px',
+                    background: 'rgb(97, 85, 63)',
+                    zIndex: 1000,
+                  };
+                  pointerStyle = {
+                    ...pointerStyle,
+                    bottom: '100%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    borderLeft: '10px solid transparent',
+                    borderRight: '10px solid transparent',
+                    borderBottom: '10px solid rgb(97, 85, 63)',
+                    zIndex: 1000,
+                  };
+                } else { // 'top' (default)
+                  tooltipStyle = {
+                    ...tooltipStyle,
+                    bottom: '100%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    marginBottom: '15px',
+                    background: 'rgb(97, 85, 63)', 
+                    zIndex: 1000,
+                  };
+                  pointerStyle = {
+                    ...pointerStyle,
+                    top: '100%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    borderLeft: '10px solid transparent',
+                    borderRight: '10px solid transparent',
+                    borderTop: '10px solid rgb(97, 85, 63)', // 
+                    zIndex: 1000,
+                  };
+                }
+                
+                return (
+                  // Speech bubble pointer
+                  <div style={tooltipStyle}>
+                    {process.env.NEXT_PUBLIC_SHOW_TOOLTIPS === 'true' ? rect.title : 'Viewing'}
+                    <div style={pointerStyle}></div>
+                  </div>
+                );
+              })()}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -188,7 +188,7 @@
 
   .map-container {
     @apply w-full;
-    height: calc(100vh - 7.5rem + 7.5rem);
+    height: calc(100vh - 7.5rem + 8rem);
     overflow: hidden;
     position: relative;
     margin-top: -4.5rem;
