@@ -1,18 +1,36 @@
 "use client";
 
-type MessageProps = {
+import { useEffect, useState } from "react";
+import { getSupabaseAuth } from "@/utils/supabase/auth-singleton";
+
+interface MessageProps {
   sentBy: string;
   context: string;
   dateCreated: string;
 };
 
 export default function MessageComponent({ sentBy, context, dateCreated }: MessageProps) {
-  // Determine if current user based on sentBy value
-  // This is a simplistisc approach - you might want to compare with the actual user ID
-  const isCurrentUser = sentBy === "User";
+  const [isCurrentUser, setIsCurrentUser] = useState(false);
+  const [displayName, setDisplayName] = useState(sentBy.substring(0, 2).toUpperCase());
   
-  // Format the name for display and avatar
-  const displayName = isCurrentUser ? "You" : sentBy.substring(0, 2).toUpperCase();
+  useEffect(() => {
+    // Check if the message was sent by the current user
+    const checkCurrentUser = async () => {
+      const supabaseAuth = getSupabaseAuth();
+      const user = await supabaseAuth.getUser();
+      
+      if (user && user.id === sentBy) {
+        setIsCurrentUser(true);
+        setDisplayName("You");
+      } else {
+        setIsCurrentUser(false);
+        // Use the first two characters of the sender's ID as avatar text
+        setDisplayName(sentBy.substring(0, 2).toUpperCase());
+      }
+    };
+    
+    checkCurrentUser();
+  }, [sentBy]);
   
   return (
     <div className={`flex items-start gap-2 mb-4 ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>

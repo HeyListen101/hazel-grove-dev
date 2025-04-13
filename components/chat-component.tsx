@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { getSupabaseAuth } from "@/utils/supabase/auth-singleton";
 import MessageComponent from "@/components/ui/message-card";
 import { Button } from "@/components/ui/button";
 import { Send, X } from "lucide-react";
 import EmojiPicker from 'emoji-picker-react';
-import { Shirt } from "lucide-react";
 
-// chatmessage table structure since supabase needs docker automatically create the table for us
-type ChatMessage = {
+// chatmessage table structure since supabase needs docker to automatically create the table for us
+interface ChatMessage {
   chatmessageid: string;  
   sentby: string;         
   content: string; 
@@ -21,11 +21,15 @@ type ChatMessage = {
 
 export default function ChatComponent({ messages }: { messages: ChatMessage[] }) {
   const supabase = createClient();
+  const supabaseAuth = getSupabaseAuth();
   const [showChat, setShowChat] = useState(false);
   const [chats, setChats] = useState<ChatMessage[]>(messages || []);
   const [message, setMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showEmojis, setShowEmojis] = useState(false);
+  const [currentUser, setCurrentUser] = useState<string>("User");
+  const [channel, setChannel] = useState<ReturnType<typeof supabase.channel> | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
   
   // Add this function to handle emoji selection
   const onEmojiClick = (emojiObject: any) => {
@@ -34,16 +38,37 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
   };
 
   useEffect(() => {
-    const channel = supabase
-      .channel("realtime messages")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "chatmessage" }, (payload) => {
-        const newMessage = payload.new as ChatMessage;
-        setChats((prevChats) => [...prevChats, newMessage]);
+    // Get the current user when component mounts
+    const fetchUser = async () => {
+      const user = await supabaseAuth.getUser();
+      if (user) {
+        // Use email or id as the user identifier
+        setCurrentUser(user.id);
+      }
+    };
+    
+    fetchUser();
+    
+    // Create a new broadcast channel
+    const newChannel = supabase.channel('chat-room');
+    
+    newChannel
+      .on('broadcast', { event: 'message' }, (payload) => {
+        // Add the received message to our chat state
+        const broadcastMessage = payload.payload as ChatMessage;
+        setChats((prevChats) => [...prevChats, broadcastMessage]);
       })
-      .subscribe();
-
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          setIsConnected(true);
+        }
+      });
+    
+    setChannel(newChannel);
+    
     return () => {
-      supabase.removeChannel(channel);
+      // Clean up the channel when component unmounts
+      supabase.removeChannel(newChannel);
     };
   }, []);
 
@@ -52,24 +77,27 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chats]);
 
-    const sendMessage = async () => {
-    if (!message.trim()) return;
+  const sendMessage = async () => {
+    if (!message.trim() || !channel || !isConnected) return;
     
-    // Create a temporary ID for optimistic UI update
-    const tempId = crypto.randomUUID();
+    // Get the current message content from textarea
+    const messageContent = message.trim();
     
-    // Add message to local state immediately (optimistic update)
+    // Create a new message object
     const newMessage: ChatMessage = {
-      chatmessageid: tempId,
-      sentby: "User", // TODO: Replace with actual user data
-      content: message,
+      chatmessageid: crypto.randomUUID(),
+      sentby: currentUser,
+      content: messageContent,
       longitude: 0,
       latitude: 0,
       datecreated: new Date().toISOString(),
       isarchived: false
     };
     
+    // Update local state immediately for the sender
     setChats((prevChats) => [...prevChats, newMessage]);
+    
+    // Clear the input field
     setMessage("");
     
     // Reset textarea height to default
@@ -78,16 +106,27 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
       textarea.style.height = '32px';
     }
     
-    // Send to database
+    // Send the message via broadcast channel
+    await channel.send({
+      type: 'broadcast',
+      event: 'message',
+      payload: newMessage,
+    });
+    
+    // Log what we're sending to the database
+    const dbPayload = { 
+      sentby: currentUser,
+      content: messageContent,
+      longitude: 0,
+      latitude: 0
+    };
+    console.log('Sending to database:', dbPayload);
+    
+    // Also save to database for persistence (optional)
     try {
-      await supabase.from("chatmessage").insert([{ 
-        sentby: "User", 
-        content: message,
-        longitude: 0,
-        latitude: 0
-      }]);
+      await supabase.from("chatmessage").insert([dbPayload]);
     } catch (error) {
-      console.error("Failed to send message:", error);
+      console.error("Failed to save message to database:", error);
     }
   };
 
