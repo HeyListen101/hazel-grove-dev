@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { rectangleData, getTooltipPosition } from '@/components/assets/background-images/map';
 import MapRectangle from './map-rectangle';
+import StoreComponent from './store-component';
 
 const Rectangles = () => {
   const [scale, setScale] = useState(1);
@@ -32,8 +33,17 @@ const Rectangles = () => {
   }, []);
 
   const handleRectangleClick = (rectangleId: string) => {
-    setSelectedRectangle(rectangleId);
-    console.log(`Rectangle ${rectangleId} clicked`);
+    // Toggle selection - if clicking the same rectangle, deselect it
+    setSelectedRectangle(prevSelected => 
+      prevSelected === rectangleId ? null : rectangleId
+    );
+    console.log(`Rectangle ${rectangleId} ${selectedRectangle === rectangleId ? 'deselected' : 'selected'}`);
+  };
+
+  // Handle store selection/deselection from StoreComponent
+  const handleStoreSelect = (storeId: string | null) => {
+    setSelectedRectangle(storeId);
+    console.log(`Store selection changed to: ${storeId}`);
   };
 
   return (
@@ -57,6 +67,15 @@ const Rectangles = () => {
           top: '-0.5rem',
         }}
       >
+        {/* Store component - always render it but control visibility with props */}
+        <StoreComponent 
+          scaleValue={scale} 
+          storeId={selectedRectangle || ""} 
+          isSelected={!!selectedRectangle}
+          onStoreSelect={handleStoreSelect}
+        />
+
+        {/* Map rectangles */}
         {rectangleData.map(rect => (
           <MapRectangle
             key={rect.id}

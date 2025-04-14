@@ -5,6 +5,7 @@ import AuthButton from "@/components/header-auth";
 import VisitaLogo from "@/components/visita-logo";
 import ChatBox from "@/components/chat-component";
 import Rectangles from "@/components/map-component";
+import StoreComponent from "@/components/store-component";
 
 export default async function ProtectedPage() {
   const supabase = await createClient();
