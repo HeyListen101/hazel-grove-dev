@@ -78,7 +78,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   if (loading && products.length === 0) {
     return (
-      <div className="stores-container cursor-pointer" style={{ borderRadius: '9px', overflow: 'hidden' }}>
+      <div className="cursor-pointer" style={{ borderRadius: '9px', overflow: 'hidden' }}>
         <div className="bg-emerald-700 text-white p-4">
           <p className="text-center">Loading...</p>
         </div>

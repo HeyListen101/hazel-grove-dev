@@ -46,6 +46,8 @@ const Rectangles = () => {
     console.log(`Store selection changed to: ${storeId}`);
   };
 
+  // #TODO: Reimplement fetchStore here so that map component can know which store is closed or not
+  // #TODO: Base on store-component.tsx, if store is closed, make store color red  
   return (
     <div
       ref={containerRef}

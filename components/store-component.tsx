@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import ProductCard from './ui/product-card';
 import { createClient } from "@/utils/supabase/client";
+import VisitaPlaceholder from './visita-placeholder';
 
 interface Store {
   storeid: string;
@@ -29,7 +30,6 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   isSelected = false,
 }) => {
   const supabase = createClient();
-  // State to track which store is currently selected
   const [selectedStoreId, setSelectedStoreId] = useState(storeId);
   const [isStoreSelected, setIsStoreSelected] = useState(isSelected);
   const [loading, setLoading] = useState(true);
@@ -37,33 +37,37 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   const [storeName, setStoreName] = useState('Store');
   const [isOpen, setIsOpen] = useState(true);
 
-  // Fetch stores from Supabase
-   // Fetch stores from Supabase
-   const fetchStores = async (id: string) => {
+    // Fetch stores from Supabase
+    const fetchStores = async (id: string) => {
     try {
       setLoading(true);
       setError(null);
-  
+
       const { data: { session } } = await supabase.auth.getSession();
       console.log('User authenticated:', !!session);
-  
+
+      // Joined the tables and selected everything from both tables
       const { data: store, error } = await supabase
         .from('store')
-        .select('*')
-        .eq('storeid', id); // <-- use the id passed in
-  
+        .select(`
+          *,
+          storestatus:storestatus(*)
+        `) 
+        .eq('storeid', id);
+
       const storeData = store ? store[0] : null;
       
       if (storeData) {
         setStoreName(storeData.name);
         setSelectedStoreId(storeData.storeid);
+        setIsOpen(storeData.storestatus.status === true);
         console.log('Store Data:', storeData);
       } else {
         setStoreName('No Data');
         setIsOpen(false);
         console.log('No store data found');
       }
-  
+
     } catch (error) {
       setError('Failed to load stores');
       console.error('Error fetching stores:', error);
@@ -83,7 +87,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
       if (onStoreSelect) onStoreSelect(storeId);
   
       if (storeId) {
-        fetchStores(storeId); // <-- pass it directly
+        fetchStores(storeId);
       }
     }
   };
@@ -97,29 +101,31 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   }, [storeId, isSelected]);
 
   return (
-    <div 
-      className={`stores-container ${isStoreSelected ? 'selected-store' : 'bg-[#000000]'}`}
-    >
-    {/* Header */}
-    <div className="">
-      <h1 className="text-3xl font-bold">{storeName}</h1>
-      <span className="text-3xl">{isOpen ? 'Open' : 'Closed'}</span>
-    </div>
-    
-    {/* Eatery Button
-    <div className="bg-emerald-700 p-4 pb-6">
-        <button className="bg-white text-emerald-700 px-4 py-2 rounded-full font-bold flex items-center">
-          <span className="mr-2">🍴</span> Eatery
-        </button>
-      </div> */}
-
-      {/* Use the ProductCard component to display dynamic store data
-      <ProductCard 
-        storeid={isStoreSelected ? selectedStoreId : ""} 
-        currentPage={1} 
-        itemsPerPage={5}
-      /> */}
-    </div>
+    <>
+      {isStoreSelected ? (
+        <div className="stores-container">
+          {/* Header */}
+          <div className="">
+            <h1 className="text-3xl font-bold">{storeName}</h1>
+            <span className="text-3xl">{isOpen ? 'Open' : 'Closed'}</span>
+          </div>
+          {/* Eatery Button
+          <div className="bg-emerald-700 p-4 pb-6">
+              <button className="bg-white text-emerald-700 px-4 py-2 rounded-full font-bold flex items-center">
+                <span className="mr-2">🍴</span> Eatery
+              </button>
+            </div> */}
+          {/* Use the ProductCard component to display dynamic store data */}
+          <ProductCard 
+            storeid={selectedStoreId} 
+            currentPage={1} 
+            itemsPerPage={5}
+          />
+        </div>
+      ) : (
+          <VisitaPlaceholder />
+      )}
+    </>
   );
 };
 
