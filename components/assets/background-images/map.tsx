@@ -1,3 +1,19 @@
+"use client";
+
+import { createClient } from "@/utils/supabase/client";
+
+interface Store {
+  storeid: string;
+  owner: string;
+  storestatus: string;
+  name: string;
+  longitude: number;
+  latitude: number;
+  datecreated: string;
+  isarchived: boolean;
+} 
+
+
 interface RectangleData {
   id: string;
   style: React.CSSProperties;
@@ -6,6 +22,50 @@ interface RectangleData {
   icon?: React.ReactNode;
   iconColor?: string;
 }
+
+// Create a mapping between store IDs and rectangle IDs
+const storeToRectangleMap: Record<string, string> = {
+  "02c63a3c-31b6-4421-8e92-b8ee97a0285b": "rectangle65",
+  // Add more mappings as needed
+};
+
+// Initialize Supabase client
+const supabase = createClient();
+
+// Function to fetch all stores from the database
+export const fetchStores = async (): Promise<{storeData: Store[], storeStatusMap: Record<string, boolean>}> => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    console.log('User authenticated:', session);
+
+    // Joined the tables and selected everything from both tables
+    const { data: stores, error } = await supabase
+      .from('store')
+      .select(`
+        *,
+        storestatus:storestatus(*)
+      `);
+
+    if (error) {
+      console.error('Error fetching stores:', error);
+      return { storeData: [], storeStatusMap: {} };
+    }
+
+    // Create a map of store IDs to their status
+    const storeStatusMap: Record<string, boolean> = {};
+    
+    stores?.forEach(store => {
+      const isOpen = store.storestatus?.status === true;
+      storeStatusMap[store.storeid] = isOpen;
+    });
+
+    console.log('Stores fetched:', stores?.length);
+    return { storeData: stores || [], storeStatusMap };
+  } catch (error) {
+    console.error('Error in fetchStores:', error);
+    return { storeData: [], storeStatusMap: {} };
+  }
+};
 
 export const mapCSS: { [key: string]: React.CSSProperties } = {
     rectangle69: {

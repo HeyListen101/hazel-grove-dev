@@ -204,9 +204,10 @@
     height: 891px;
     left: 217px;
     top: 406px;
-    borderRadius: 9px;
     z-index: 15;
+    background: #12387e;
+    borderRadius: 1rem; /* This adds rounded corners */
+    overflow: hidden; /* This ensures content doesn't overflow the rounded corners */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   }
-
-
 }

@@ -36,9 +36,14 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [storeName, setStoreName] = useState('Store');
   const [isOpen, setIsOpen] = useState(true);
+  
+  // Add pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 5;
 
-    // Fetch stores from Supabase
-    const fetchStores = async (id: string) => {
+  // Fetch stores from Supabase
+  const fetchStores = async (id: string) => {
     try {
       setLoading(true);
       setError(null);
@@ -62,6 +67,16 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
         setSelectedStoreId(storeData.storeid);
         setIsOpen(storeData.storestatus.status === true);
         console.log('Store Data:', storeData);
+        
+        // Get total count of products for pagination
+        const { count } = await supabase
+          .from('product')
+          .select('*', { count: 'exact', head: true })
+          .eq('store', id);
+          
+        if (count !== null) {
+          setTotalPages(Math.ceil(count / itemsPerPage));
+        }
       } else {
         setStoreName('No Data');
         setIsOpen(false);
@@ -92,38 +107,83 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
     }
   };
   
+  // Handle pagination
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+  
+  // Update total pages when product data changes
+  const handleTotalPagesUpdate = (pages: number) => {
+    setTotalPages(pages);
+  };
+  
   useEffect(() => {
     // Only fetch stores if we have a valid storeId and the store is selected
     if (storeId && isSelected) {
       handleStoreClick();
       fetchStores(storeId);
+      // Reset to first page when selecting a new store
+      setCurrentPage(1);
     }
   }, [storeId, isSelected]);
 
   return (
     <>
       {isStoreSelected ? (
-        <div className="stores-container">
+        <div className="stores-container rounded-lg shadow-lg overflow-hidden">
           {/* Header */}
-          <div className="">
+          <div className="p-4">
             <h1 className="text-3xl font-bold">{storeName}</h1>
             <span className="text-3xl">{isOpen ? 'Open' : 'Closed'}</span>
           </div>
-          {/* Eatery Button
           <div className="bg-emerald-700 p-4 pb-6">
-              <button className="bg-white text-emerald-700 px-4 py-2 rounded-full font-bold flex items-center">
-                <span className="mr-2">🍴</span> Eatery
-              </button>
-            </div> */}
+            <button className="bg-white text-emerald-700 px-4 py-2 rounded-full font-bold flex items-center">
+              <span className="mr-2">🍴</span> Eatery
+            </button>
+          </div>
+          
           {/* Use the ProductCard component to display dynamic store data */}
           <ProductCard 
             storeid={selectedStoreId} 
-            currentPage={1} 
-            itemsPerPage={5}
+            currentPage={currentPage}
+            itemsPerPage={itemsPerPage}
+            onTotalPagesChange={handleTotalPagesUpdate}
+            showPagination={false} // Hide pagination in ProductCard
           />
+          
+          {/* Pagination controls moved to StoreComponent */}
+          <div className="bg-white p-4 border-t border-gray-200">
+            <div className="flex justify-between text-gray-500">
+              <button 
+                className={`flex items-center ${currentPage === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-emerald-700 hover:text-emerald-900'}`}
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+              >
+                <span className="mr-2">◄</span> Prev
+              </button>
+              <span className="text-gray-600">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button 
+                className={`flex items-center ${currentPage === totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-emerald-700 hover:text-emerald-900'}`}
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+              >
+                Next <span className="ml-2">►</span>
+              </button>
+            </div>
+          </div>
         </div>
       ) : (
-          <VisitaPlaceholder />
+        <VisitaPlaceholder />
       )}
     </>
   );
