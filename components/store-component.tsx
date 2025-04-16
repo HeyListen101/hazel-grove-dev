@@ -79,7 +79,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
       
       const { data, error, count } = await supabase
         .from('product')
-        .select('*, productstatus(productstatusid)')
+        .select('*, productstatus(*)')
         .eq('store', storeId)
         .order('productstatus', { ascending: true });
       
@@ -90,11 +90,8 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
       // Process the products data
       const processedProducts = data?.map(product => {
         // Ensure price is properly formatted
-        let processedPrice = product.price;
-        
-        // Log the price to debug
-        console.log(`Product ${product.name} price:`, product.price, typeof product.price);
-        
+        let processedPrice = product.productstatus.price;
+
         return {
           ...product,
           price: processedPrice,
@@ -146,7 +143,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             // Fetch the new product and add it to the list
             const { data } = await supabase
               .from('product')
-              .select('*, productstatus(productstatusid)')
+              .select('*, productstatus(*)')
               .eq('productid', payload.new.productid)
               .single();
               
