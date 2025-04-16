@@ -160,7 +160,7 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
           </div>
 
           {/* Messages */}
-          <div className="p-2 space-y-1 max-h-96 overflow-y-auto bg-[#F0F0F0] flex flex-col">
+          <div className="p-2 space-y-1 h-96 max-h-96 overflow-y-auto bg-[#F0F0F0] flex flex-col">
             {chats && chats.length > 0 ? (
               chats.map((chat, index) => (
                 <MessageComponent

@@ -9,7 +9,7 @@ interface MessageProps {
   dateCreated: string;
 };
 
-export default function MessageComponent({ sentBy, context, dateCreated }: MessageProps) {
+export default function MessageComponent({ sentBy, context }: MessageProps) {
   const [isCurrentUser, setIsCurrentUser] = useState(false);
   const [displayName, setDisplayName] = useState(sentBy.substring(0, 2).toUpperCase());
   

@@ -62,60 +62,59 @@ const Rectangles = () => {
       }
     };
     
-    loadAllStores();
+  loadAllStores();
 
-    // Set up realtime subscription to storestatus table
-    const storeStatusChannel = supabase
-      .channel('store-status-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*', // Listen to all events (insert, update, delete)
-          schema: 'public',
-          table: 'storestatus',
-        },
-        async (payload) => {
-          console.log('Realtime update received:', payload);
+  // Set up realtime subscription to storestatus table
+  const storeStatusChannel = supabase
+    .channel('store-status-changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*', // Listen to all events (insert, update, delete)
+        schema: 'public',
+        table: 'storestatus',
+      },
+      async (payload) => {
+        console.log('Realtime update received:', payload);
+        
+        // More efficient approach: only update the specific store that changed
+        if (payload.new && 'storeid' in payload.new) {
+          const storeId = payload.new.storeid;
+          const isStoreOpen = payload.new.status === true;
           
-          // More efficient approach: only update the specific store that changed
-          if (payload.new && 'storeid' in payload.new) {
-            const storeId = payload.new.storeid;
-            const isStoreOpen = payload.new.status === true;
-            
-            // Update the store status map for just this store
-            setStoreStatusMap(prev => ({
-              ...prev,
-              [storeId]: isStoreOpen
-            }));
-            
-            // Update just this rectangle
-            setRectangleData(prevRectangles => 
-              prevRectangles.map(rect => {
-                if (rect.id === storeId) {
-                  return {
-                    ...rect,
-                    iconColor: !isStoreOpen ? 'red' : originalRectangleData.find(r => r.id === storeId)?.iconColor || rect.iconColor,
-                    style: !isStoreOpen ? {
-                      ...rect.style,
-                      background: '#f07474'
-                    } : originalRectangleData.find(r => r.id === storeId)?.style || rect.style
-                  };
-                }
-                return rect;
-              })
-            );
-            
-            // If the currently selected store was updated, update its details
-            if (selectedRectangle && storeId === selectedRectangle) {
-              setIsOpen(isStoreOpen);
-            }
+          // Update the store status map for just this store
+          setStoreStatusMap(prev => ({
+            ...prev,
+            [storeId]: isStoreOpen
+          }));
+          
+          // Update just this rectangle
+          setRectangleData(prevRectangles => 
+            prevRectangles.map(rect => {
+              if (rect.id === storeId) {
+                return {
+                  ...rect,
+                  iconColor: !isStoreOpen ? 'red' : originalRectangleData.find(r => r.id === storeId)?.iconColor || rect.iconColor,
+                  style: !isStoreOpen ? {
+                    ...rect.style,
+                    background: '#f07474'
+                  } : originalRectangleData.find(r => r.id === storeId)?.style || rect.style
+                };
+              }
+              return rect;
+            })
+          );
+          
+          // If the currently selected store was updated, update its details
+          if (selectedRectangle && storeId === selectedRectangle) {
+            setIsOpen(isStoreOpen);
           }
         }
-      )
-      .subscribe((status) => {
-        console.log('Realtime subscription status:', status);
-      });
-
+      }
+    )
+    .subscribe((status) => {
+      console.log('Realtime store subscription status:', status);
+    });
     setSubscription(storeStatusChannel);
 
     // Clean up subscription when component unmounts
@@ -232,28 +231,28 @@ const Rectangles = () => {
           top: '-0.5rem',
         }}
       >
-        {/* Store component - always render it but control visibility with props */}
-        <StoreComponent 
-          scaleValue={scale} 
-          storeId={selectedRectangle || ""} 
-          isSelected={!!selectedRectangle}
-          onStoreSelect={handleStoreSelect}
+      {/* Store component - always render it but control visibility with props */}
+      <StoreComponent 
+        storeId={selectedRectangle || ""} 
+        isSelected={!!selectedRectangle}
+        onStoreSelect={handleStoreSelect}
+        storeName={storeName}
+        isOpen={isOpen}
+      />
+      {/* Map rectangles */}
+      {rectangleData.map(rect => (
+        <MapRectangle
+          key={rect.id}
+          id={rect.id}
+          style={rect.style}
+          title={rect.title}
+          isClickable={rect.isClickable}
+          icon={rect.icon}
+          iconColor={rect.iconColor}
+          isSelected={selectedRectangle === rect.id}
+          getTooltipPosition={getTooltipPosition}
+          onClick={handleRectangleClick}
         />
-
-        {/* Map rectangles */}
-        {rectangleData.map(rect => (
-          <MapRectangle
-            key={rect.id}
-            id={rect.id}
-            style={rect.style}
-            title={rect.title}
-            isClickable={rect.isClickable}
-            icon={rect.icon}
-            iconColor={rect.iconColor}
-            isSelected={selectedRectangle === rect.id}
-            getTooltipPosition={getTooltipPosition}
-            onClick={handleRectangleClick}
-          />
         ))}
       </div>
     </div>

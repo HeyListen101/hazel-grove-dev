@@ -21,91 +21,41 @@ interface StoreComponentProps {
   storeId?: string;
   onStoreSelect?: (storeId: string | null) => void;
   isSelected?: boolean;
+  storeName?: string;
+  isOpen?: boolean;
+}
+
+interface Product {
+  productid: string;
+  store: string;
+  productstatus: any;
+  contributor: string;
+  brand: string;
+  name: string;
+  datecreated: string;
+  isarchived: boolean;
+  price: number | string;
+  description?: string;
 }
 
 const StoreComponent: React.FC<StoreComponentProps> = ({ 
-  scaleValue,
   storeId = "",
   onStoreSelect,
   isSelected = false,
+  storeName = "Store",
+  isOpen = true,
 }) => {
   const supabase = createClient();
   const [selectedStoreId, setSelectedStoreId] = useState(storeId);
   const [isStoreSelected, setIsStoreSelected] = useState(isSelected);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [storeName, setStoreName] = useState('Store');
-  const [isOpen, setIsOpen] = useState(true);
+  const [products, setProducts] = useState<Product[]>([]);
   
   // Add pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 5;
-
-  // Fetch stores from Supabase
-  const fetchStores = async (id: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('User authenticated:', !!session);
-
-      // Joined the tables and selected everything from both tables
-      const { data: store, error } = await supabase
-        .from('store')
-        .select(`
-          *,
-          storestatus:storestatus(*)
-        `) 
-        .eq('storeid', id);
-
-      const storeData = store ? store[0] : null;
-      
-      if (storeData) {
-        setStoreName(storeData.name);
-        setSelectedStoreId(storeData.storeid);
-        setIsOpen(storeData.storestatus.status === true);
-        console.log('Store Data:', storeData);
-        
-        // Get total count of products for pagination
-        const { count } = await supabase
-          .from('product')
-          .select('*', { count: 'exact', head: true })
-          .eq('store', id);
-          
-        if (count !== null) {
-          setTotalPages(Math.ceil(count / itemsPerPage));
-        }
-      } else {
-        setStoreName('No Data');
-        setIsOpen(false);
-        console.log('No store data found');
-      }
-
-    } catch (error) {
-      setError('Failed to load stores');
-      console.error('Error fetching stores:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Handle store click
-  const handleStoreClick = () => {
-    if (isStoreSelected) {
-      setIsStoreSelected(false);
-      if (onStoreSelect) onStoreSelect(null);
-    } else {
-      setIsStoreSelected(true);
-      setSelectedStoreId(storeId);
-      if (onStoreSelect) onStoreSelect(storeId);
-  
-      if (storeId) {
-        fetchStores(storeId);
-      }
-    }
-  };
   
   // Handle pagination
   const handlePrevPage = () => {
@@ -120,20 +70,170 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
     }
   };
   
-  // Update total pages when product data changes
-  const handleTotalPagesUpdate = (pages: number) => {
-    setTotalPages(pages);
+  // Fetch all products for the store
+  const fetchAllProducts = async () => {
+    if (!storeId) return;
+    
+    try {
+      setLoading(true);
+      
+      const { data, error, count } = await supabase
+        .from('product')
+        .select('*, productstatus(productstatusid)')
+        .eq('store', storeId)
+        .order('productstatus', { ascending: true });
+      
+      if (error) throw error;
+      
+      console.log('Raw product data:', data);
+      
+      // Process the products data
+      const processedProducts = data?.map(product => {
+        // Ensure price is properly formatted
+        let processedPrice = product.price;
+        
+        // Log the price to debug
+        console.log(`Product ${product.name} price:`, product.price, typeof product.price);
+        
+        return {
+          ...product,
+          price: processedPrice,
+          productstatus: typeof product.productstatus === 'object' ? 
+                        product.productstatus?.productstatusid || '' : 
+                        product.productstatus || ''
+        };
+      }) || [];
+      
+      setProducts(processedProducts);
+      
+      // Calculate total pages
+      const totalItems = processedProducts.length;
+      setTotalPages(Math.ceil(totalItems / itemsPerPage));
+      
+      console.log('Processed product data:', processedProducts);
+      
+    } catch (error) {
+      console.log('Error fetching products:', error);
+      setError('Failed to load products');
+    } finally {
+      setLoading(false);
+    }
   };
   
+  // Set up realtime subscription
   useEffect(() => {
-    // Only fetch stores if we have a valid storeId and the store is selected
+    if (!storeId || !isSelected) return;
+    
+    // Fetch initial products
+    fetchAllProducts();
+    
+    // Set up realtime subscription
+    const productChannel = supabase
+      .channel(`product-changes-${storeId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (insert, update, delete)
+          schema: 'public',
+          table: 'product',
+          filter: `store=eq.${storeId}`,
+        },
+        async (payload) => {
+          console.log('Product realtime update received:', payload);
+          
+          // Handle different types of changes
+          if (payload.eventType === 'INSERT') {
+            // Fetch the new product and add it to the list
+            const { data } = await supabase
+              .from('product')
+              .select('*, productstatus(productstatusid)')
+              .eq('productid', payload.new.productid)
+              .single();
+              
+            if (data) {
+              const newProduct = {
+                ...data,
+                price: typeof data.price === 'string' ? data.price : 
+                       typeof data.price === 'number' ? data.price : 'N/A',
+                productstatus: typeof data.productstatus === 'object' ? 
+                              data.productstatus?.productstatusid || '' : 
+                              data.productstatus || ''
+              };
+              
+              setProducts(prevProducts => {
+                const updatedProducts = [...prevProducts, newProduct];
+                // Sort by name to maintain order
+                updatedProducts.sort((a, b) => a.name.localeCompare(b.name));
+                return updatedProducts;
+              });
+              
+              // Update total pages
+              setTotalPages(prev => Math.ceil((products.length + 1) / itemsPerPage));
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            // Update the product in the list
+            setProducts(prevProducts => {
+              return prevProducts.map(product => {
+                if (product.productid === payload.new.productid) {
+                  return {
+                    ...product,
+                    ...payload.new,
+                    price: typeof payload.new.price === 'string' ? payload.new.price : 
+                           typeof payload.new.price === 'number' ? payload.new.price : 'N/A',
+                  };
+                }
+                return product;
+              });
+            });
+          } else if (payload.eventType === 'DELETE') {
+            // Remove the product from the list
+            setProducts(prevProducts => {
+              const filteredProducts = prevProducts.filter(
+                product => product.productid !== payload.old.productid
+              );
+              
+              // Update total pages
+              setTotalPages(Math.ceil(filteredProducts.length / itemsPerPage));
+              
+              return filteredProducts;
+            });
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log('Product subscription status:', status);
+      });
+    
+    // Clean up subscription when component unmounts or store changes
+    return () => {
+      supabase.removeChannel(productChannel);
+    };
+  }, [storeId, isSelected]);
+  
+  useEffect(() => {
+    // Only update state if we have a valid storeId and the store is selected
     if (storeId && isSelected) {
-      handleStoreClick();
-      fetchStores(storeId);
-      // Reset to first page when selecting a new store
+      setIsStoreSelected(true);
+      setSelectedStoreId(storeId);
       setCurrentPage(1);
+    } else {
+      setIsStoreSelected(false);
     }
   }, [storeId, isSelected]);
+
+  // Get current page products
+  const getCurrentPageProducts = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    
+    // Get the current page products
+    const currentProducts = products.slice(startIndex, endIndex);
+    
+    // Log the current products being sent to ProductCard
+    console.log('Current page products:', currentProducts);
+    
+    return currentProducts;
+  };
 
   return (
     <>
@@ -150,15 +250,29 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             </button>
           </div>
           
-          {/* Use the ProductCard component to display dynamic store data */}
-          <ProductCard 
-            storeid={selectedStoreId} 
-            currentPage={currentPage}
-            itemsPerPage={itemsPerPage}
-            onTotalPagesChange={handleTotalPagesUpdate}
-            showPagination={false} // Hide pagination in ProductCard
-          />
-          
+          {/* Product content area with fixed height to ensure consistent spacing */}
+          <div className="h-[650px] max-h-[700px] overflow-y-auto bg-white p-4">
+            {/* This div will maintain consistent height even when empty */}
+            {loading ? (
+              <div className="flex justify-center items-center h-full text-black">
+                <p>Loading products...</p>
+              </div>
+            ) : error ? (
+              <div className="flex justify-center items-center h-full">
+                <p className="text-red-500">{error}</p>
+              </div>
+            ) : (
+              <ProductCard 
+                products={getCurrentPageProducts()} 
+                totalProducts={products.length}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                showPagination={false}
+              />
+            )}
+          </div>
+
           {/* Pagination controls moved to StoreComponent */}
           <div className="bg-white p-4 border-t border-gray-200">
             <div className="flex justify-between text-gray-500">
