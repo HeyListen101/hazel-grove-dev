@@ -77,6 +77,15 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chats]);
 
+  // Add new effect to scroll to bottom when chat is opened
+  useEffect(() => {
+    if (showChat) {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100); // Small delay to ensure the chat container is fully rendered
+    }
+  }, [showChat]);
+
   const sendMessage = async () => {
     if (!message.trim() || !channel || !isConnected) return;
     

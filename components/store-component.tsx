@@ -5,17 +5,6 @@ import ProductCard from './ui/product-card';
 import { createClient } from "@/utils/supabase/client";
 import VisitaPlaceholder from './visita-placeholder';
 
-interface Store {
-  storeid: string;
-  owner: string;
-  storestatus: string;
-  name: string;
-  longitude: number;
-  latitude: number;
-  datecreated: string;
-  isarchived: boolean;
-} 
-
 interface StoreComponentProps {
   scaleValue?: number;
   storeId?: string;
@@ -55,7 +44,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   // Add pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 6;
   
   // Handle pagination
   const handlePrevPage = () => {
@@ -213,6 +202,10 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
       setIsStoreSelected(true);
       setSelectedStoreId(storeId);
       setCurrentPage(1);
+      // Reset error state when selecting a store
+      setError(null);
+      // Fetch products when store is selected
+      fetchAllProducts();
     } else {
       setIsStoreSelected(false);
     }
@@ -233,69 +226,88 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   };
 
   return (
-    <>
-      {isStoreSelected ? (
-        <div className="stores-container rounded-lg shadow-lg overflow-hidden">
-          {/* Header */}
-          <div className="p-4">
-            <h1 className="text-3xl font-bold">{storeName}</h1>
-            <span className="text-3xl">{isOpen ? 'Open' : 'Closed'}</span>
-          </div>
-          <div className="bg-emerald-700 p-4 pb-6">
-            <button className="bg-white text-emerald-700 px-4 py-2 rounded-full font-bold flex items-center">
-              <span className="mr-2">🍴</span> Eatery
-            </button>
-          </div>
-          
-          {/* Product content area with fixed height to ensure consistent spacing */}
-          <div className="h-[650px] max-h-[700px] overflow-y-auto bg-white p-4">
-            {/* This div will maintain consistent height even when empty */}
-            {loading ? (
-              <div className="flex justify-center items-center h-full text-black">
-                <p>Loading products...</p>
-              </div>
-            ) : error ? (
-              <div className="flex justify-center items-center h-full">
-                <p className="text-red-500">{error}</p>
-              </div>
-            ) : (
-              <ProductCard 
-                products={getCurrentPageProducts()} 
-                totalProducts={products.length}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-                showPagination={false}
-              />
-            )}
-          </div>
-
-          {/* Pagination controls moved to StoreComponent */}
-          <div className="bg-white p-4 border-t border-gray-200">
-            <div className="flex justify-between text-gray-500">
-              <button 
-                className={`flex items-center ${currentPage === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-emerald-700 hover:text-emerald-900'}`}
-                onClick={handlePrevPage}
-                disabled={currentPage === 1}
-              >
-                <span className="mr-2">◄</span> Prev
-              </button>
-              <span className="text-gray-600">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button 
-                className={`flex items-center ${currentPage === totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-emerald-700 hover:text-emerald-900'}`}
-                onClick={handleNextPage}
-                disabled={currentPage === totalPages}
-              >
-                Next <span className="ml-2">►</span>
-              </button>
-            </div>
-          </div>
+  <>
+    {isStoreSelected ? (
+      <div className="stores-container rounded-lg shadow-lg overflow-hidden">
+      {/* Header with background image */}
+      <div 
+        className="relative bg-cover bg-center transition-all duration-500 ease-in-out"
+        style={{
+          backgroundImage: "url('/Background.png')",
+          height: "180px",
+        }}
+      >
+        {/* Overlay for better text visibility */}
+        <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+        
+        {/* Store name with better visibility */}
+        <div className="relative p-4 z-10">
+          <h1 className="text-3xl font-bold text-white">{storeName}</h1>
         </div>
-      ) : (
-        <VisitaPlaceholder />
-      )}
+        
+        {/* Eatery button positioned at the bottom of the header */}
+        <div className="absolute bottom-0 left-0 p-4 pb-6 z-10">
+          <button className="bg-white text-emerald-700 px-4 py-2 rounded-full font-bold flex items-center shadow-md transition-all duration-300 hover:shadow-lg">
+            <span className="mr-2">🍴</span> Eatery
+          </button>
+        </div>
+      </div>    
+      {/* Product content area with fixed height to ensure consistent spacing */}
+      <div className="h-[650px] max-h-[650px] overflow-y-auto bg-white p-4">
+        {/* This div will maintain consistent height even when empty */}
+        {loading ? (
+          <div className="flex justify-center items-center h-full text-black">
+            <p>Loading products...</p>
+          </div>
+        ) : error ? (
+          <div className="flex justify-center items-center h-full">
+            <p className="text-red-500">{error}</p>
+          </div>
+        ) : (
+          <ProductCard 
+            products={getCurrentPageProducts()} 
+            totalProducts={products.length}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            showPagination={false}
+          />
+        )}
+      </div>
+      {/* Pagination controls moved to StoreComponent */}
+      <div className="bg-white border-t border-gray-200">
+      <div className="flex justify-between text-gray-500 py-2">
+        <button 
+          className={`flex items-center text-lg ${currentPage === 1 ? 'text-[#6A6148]cursor-not-allowed' : 'text-[#6A6148] hover:text-emerald-900'}`}
+          onClick={handlePrevPage}
+          disabled={currentPage === 1}
+        >
+          <span className="mr-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path fill="#6A6148" d="M16.62 2.99a1.25 1.25 0 0 0-1.77 0L6.54 11.3a.996.996 0 0 0 0 1.41l8.31 8.31c.49.49 1.28.49 1.77 0s.49-1.28 0-1.77L9.38 12l7.25-7.25c.48-.48.48-1.28-.01-1.76" />
+          </svg>
+          </span> Prev
+        </button>
+        <span className="text-gray-600 text-lg">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button 
+          className={`flex items-center text-lg ${currentPage === totalPages ? 'text-[#6A6148] cursor-not-allowed' : 'text-text-[#6A6148] hover:text-emerald-900'}`}
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages}
+        >
+          Next <span className="ml-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <path fill="#6A6148" d="M9.31 6.71a.996.996 0 0 0 0 1.41L13.19 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.72 6.7c-.38-.38-1.02-.38-1.41.01" />
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+  ) : (
+    <VisitaPlaceholder />
+    )}
     </>
   );
 };

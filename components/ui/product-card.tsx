@@ -13,7 +13,6 @@ interface Product {
   datecreated: string;
   isarchived: boolean;
   price: string | number;
-  description?: string;
 }
 
 interface ProductCardProps {
@@ -104,47 +103,39 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <h2 className="text-emerald-700 text-2xl font-bold mb-4 border-b border-gray-200 pb-2">Products</h2>
           
         {/* Product Table */}
-        <div className="mb-4">
-          <div className="flex justify-between mb-4">
-            <span className="text-emerald-700 text-xl font-bold">Name</span>
-            <span className="text-emerald-700 text-xl font-bold">Price</span>
+        <div className="pt-2 pb-2">
+          <div className="flex justify-between items-center h-12 px-4 mb-2 bg-white">
+            <span className="text-emerald-700 text-[25px] font-bold">Name</span>
+            <span className="text-emerald-700 text-[25px] font-bold">Price</span>
           </div>
             
-            {/* Product Items */}
-            <div className="space-y-3">
+          {/* Product Items */}
+          <div>
             {products.length > 0 ? (
-              products.map((product) => {
-                console.log(`Rendering product ${product.name}:`, product);
-                const formattedPrice = formatPrice(product.price);
-                console.log(`Formatted price for ${product.name}:`, formattedPrice);
-                
-                return (
-                  <div 
-                    key={product.productid} 
-                    className="flex justify-between p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex flex-col">
-                      <span className="text-gray-800 text-lg font-medium">{product.name}</span>
-                      {product.description && (
-                        <span className="text-gray-500 text-sm mt-1">{product.description}</span>
-                      )}
-                    </div>
-                    <span className="text-gray-800 text-lg font-semibold">{formattedPrice}</span>
+              products.map((product) => (
+                <div 
+                  key={product.productid} 
+                  className="flex justify-between items-center h-20 px-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  style={{ minHeight: '80px', maxHeight: '80px' }}
+                >
+                  <div className="flex flex-col justify-center">
+                    <span className="text-gray-800 text-[25px] font-medium truncate">{product.name}</span>
                   </div>
-                );
-              })
+                  <span className="text-gray-800 text-lg font-semibold">{formatPrice(product.price)}</span>
+                </div>
+              ))
             ) : (
               <div className="text-center text-gray-500 py-8">
                 <p>No products found</p>
                 <p className="text-sm mt-2">Products added to this store will appear here</p>
               </div>
             )}
-            </div>
+          </div>
         </div>
 
         {/* Only show pagination controls if showPagination is true */}
         {showPagination && (
-          <div className="flex justify-between text-gray-500 mt-4">
+          <div className="flex justify-between text-gray-500 mt-2">
             <button 
               className={`flex items-center ${currentPage === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-emerald-700 hover:text-emerald-900'}`}
               onClick={handlePrevPage}
@@ -170,143 +161,3 @@ const ProductCard: React.FC<ProductCardProps> = ({
 };
 
 export default ProductCard;
-
-// 'use client';
-
-// import React from 'react';
-
-// // Define the Product interface
-// interface Product {
-//   productid: string;
-//   store: string;
-//   productstatus: string;
-//   contributor: string;
-//   brand: string;
-//   name: string;
-//   datecreated: string;
-//   isarchived: boolean;
-//   price: string | number;
-//   description?: string;
-// }
-
-// interface ProductCardProps {
-//   products: Product[];
-//   totalProducts: number;
-//   currentPage?: number;
-//   totalPages?: number;
-//   onPageChange?: (page: number) => void;
-//   showPagination?: boolean;
-// }
-
-// const ProductCard: React.FC<ProductCardProps> = ({ 
-//   products,
-//   totalProducts,
-//   currentPage = 1, 
-//   totalPages = 1,
-//   onPageChange,
-//   showPagination = true
-// }) => {
-  
-//   // Debug function to inspect price data
-//   const debugPrice = (price: any, productName: string): string => {
-//     console.log(`DEBUG - ${productName} price details:`);
-//     console.log(`- Value: ${price}`);
-//     console.log(`- Type: ${typeof price}`);
-//     console.log(`- Is null: ${price === null}`);
-//     console.log(`- Is undefined: ${price === undefined}`);
-//     try {
-//       console.log(`- JSON stringify: ${JSON.stringify(price)}`);
-//     } catch (e) {
-//       console.log(`- Cannot stringify: ${(e as Error).message}`);
-//     }
-    
-//     // Simple formatting for display
-//     if (price === null || price === undefined) {
-//       return 'DEBUG: null/undefined';
-//     }
-    
-//     if (typeof price === 'number') {
-//       return `DEBUG: number $${price}`;
-//     }
-    
-//     if (typeof price === 'string') {
-//       return `DEBUG: string "${price}"`;
-//     }
-    
-//     return `DEBUG: ${typeof price}`;
-//   };
-
-//   // Handle pagination (simplified)
-//   const handlePrevPage = () => {
-//     if (currentPage > 1 && onPageChange) {
-//       onPageChange(currentPage - 1);
-//     }
-//   };
-
-//   const handleNextPage = () => {
-//     if (currentPage < totalPages && onPageChange) {
-//       onPageChange(currentPage + 1);
-//     }
-//   };
-
-//   return (
-//     <div className="w-full">
-//       <h2 className="text-emerald-700 text-2xl font-bold mb-4">Products (Debug Mode)</h2>
-      
-//       {/* Debug Information */}
-//       <div className="bg-gray-100 p-4 mb-4 rounded">
-//         <h3 className="font-bold">Debug Info:</h3>
-//         <p>Total Products: {totalProducts}</p>
-//         <p>Current Page: {currentPage} of {totalPages}</p>
-//         <p>Products in current view: {products.length}</p>
-//       </div>
-      
-//       {/* Product Debug Table */}
-//       <div className="mb-4">
-//         <table className="w-full border-collapse">
-//           <thead>
-//             <tr className="bg-gray-200">
-//               <th className="border p-2 text-left">Name</th>
-//               <th className="border p-2 text-left">Price (Raw)</th>
-//               <th className="border p-2 text-left">Price (Type)</th>
-//               <th className="border p-2 text-left">Debug Output</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {products.length > 0 ? (
-//               products.map((product) => (
-//                 <tr key={product.productid} className="border-b">
-//                   <td className="border p-2">{product.name}</td>
-//                   <td className="border p-2">{String(product.price)}</td>
-//                   <td className="border p-2">{typeof product.price}</td>
-//                   <td className="border p-2">{debugPrice(product.price, product.name)}</td>
-//                 </tr>
-//               ))
-//             ) : (
-//               <tr>
-//                 <td colSpan={4} className="border p-4 text-center text-gray-500">
-//                   No products found
-//                 </td>
-//               </tr>
-//             )}
-//           </tbody>
-//         </table>
-//       </div>
-
-//       {/* Simplified pagination controls */}
-//       {showPagination && (
-//         <div className="flex justify-between mt-4">
-//           <button onClick={handlePrevPage} disabled={currentPage === 1}>
-//             Prev
-//           </button>
-//           <span>Page {currentPage} of {totalPages}</span>
-//           <button onClick={handleNextPage} disabled={currentPage === totalPages}>
-//             Next
-//           </button>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default ProductCard;

@@ -2,7 +2,7 @@ import BackgroundImage from '@/components/assets/background-images/Background.pn
 
 export default function VisitaPlaceholder() {
   return (
-    <div className="stores-container relative">
+    <div className="stores-container relative rounded-[9px]">
       <img 
         src={BackgroundImage.src} 
         alt="Background" 
