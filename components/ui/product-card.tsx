@@ -100,7 +100,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     >
       {/* Products Section */}
       <div className="bg-white">
-        <h2 className="text-emerald-700 text-2xl font-bold mb-4 border-b border-gray-200 pb-2">Products</h2>
+        <h2 className="text-emerald-700 text-[30px] font-bold mb-4 border-b border-gray-200 pb-2">Products</h2>
           
         {/* Product Table */}
         <div className="pt-2 pb-2">
