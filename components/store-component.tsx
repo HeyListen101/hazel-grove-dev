@@ -42,23 +42,49 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
-  
-  // Add pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 6;
+  const [isAnimationComplete, setIsAnimationComplete] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   
-  // Handle pagination
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
+   // Pagination
+   const handlePrevPage = () => {
+    if (currentPage > 1 && isAnimationComplete && !isAnimating) {
+      setIsAnimating(true);
+      setIsAnimationComplete(false);
+      
       setCurrentPage(currentPage - 1);
+
+      setTimeout(() => {
+        setIsAnimationComplete(true);
+        setIsAnimating(false);
+      }, 1100);
     }
   };
 
   const handleNextPage = () => {
-    if (currentPage < totalPages) {
+    if (currentPage < totalPages && isAnimationComplete && !isAnimating) {
+      setIsAnimating(true);
+      setIsAnimationComplete(false);
+      
       setCurrentPage(currentPage + 1);
+      
+      setTimeout(() => {
+        setIsAnimationComplete(true);
+        setIsAnimating(false);
+      }, 1100);
     }
+  };
+  
+  // Handle animation completion
+  const handleAnimationComplete = () => {
+    // This function is still needed for initial load
+    // but we won't use it for pagination timing
+    if (!isAnimating) {
+      setIsAnimationComplete(true);
+    }
+    // We don't set a timer here anymore
   };
   
   // Fetch all products for the store
@@ -67,6 +93,8 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
     
     try {
       setLoading(true);
+      // Reset animation state when fetching new products
+      setIsAnimationComplete(false);
       
       const { data, error, count } = await supabase
         .from('product')
@@ -128,6 +156,9 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
         },
         async (payload) => {
           console.log('Product realtime update received:', payload);
+          
+          // Reset animation state when products change
+          setIsAnimationComplete(false);
           
           // Handle different types of changes
           if (payload.eventType === 'INSERT') {
@@ -206,6 +237,8 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
       setCurrentPage(1);
       // Reset error state when selecting a store
       setError(null);
+      // Reset animation state when selecting a store
+      setIsAnimationComplete(false);
       // Fetch products when store is selected
       fetchAllProducts();
     } else {
@@ -309,11 +342,8 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
           ) : (
             <ProductCard 
               products={getCurrentPageProducts()} 
-              totalProducts={products.length}
               currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-              showPagination={false}
+              onAnimationComplete={handleAnimationComplete}
             />
           )}
           </div>
@@ -322,9 +352,9 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
         <div className="bg-white">
           <div className="flex justify-between text-gray-500 py-4 px-4">
             <button 
-              className={`flex items-center text-lg ${currentPage === 1 ? 'text-[#6A6148] cursor-not-allowed' : 'text-[#6A6148] hover:text-emerald-900'}`}
+              className={`flex items-center text-lg ${isAnimating || !isAnimationComplete || currentPage === 1 ? 'text-[#6A6148] opacity-50 cursor-not-allowed' : 'text-[#6A6148] hover:text-emerald-900'}`}
               onClick={handlePrevPage}
-              disabled={currentPage === 1}
+              disabled={isAnimating || !isAnimationComplete || currentPage === 1}
             >
               <span className="mr-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left-icon lucide-chevron-left">
@@ -336,9 +366,9 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
               Page {currentPage} of {totalPages}
             </span>
             <button 
-              className={`flex items-center text-lg ${currentPage === totalPages ? 'text-[#6A6148] cursor-not-allowed' : 'text-[#6A6148] hover:text-emerald-900'}`}
+              className={`flex items-center text-lg ${isAnimating || !isAnimationComplete || currentPage === totalPages ? 'text-[#6A6148] opacity-50 cursor-not-allowed' : 'text-[#6A6148] hover:text-emerald-900'}`}
               onClick={handleNextPage}
-              disabled={currentPage === totalPages}
+              disabled={isAnimating || !isAnimationComplete || currentPage === totalPages}
             >
               Next <span className="ml-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-right-icon lucide-chevron-right">
