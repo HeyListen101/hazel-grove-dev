@@ -174,7 +174,7 @@
 
 @layer components {
   .header-auth {
-    @apply w-full py-[13.5] flex items-center px-6 bg-gray-100 shadow-md;
+    @apply w-full py-[13.5] flex items-center px-6 bg-[#f5f5f5] shadow-md;
   }
 
   .header-auth-logo {

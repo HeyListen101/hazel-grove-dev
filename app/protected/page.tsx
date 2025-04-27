@@ -5,6 +5,7 @@ import AuthButton from "@/components/header-auth";
 import VisitaLogo from "@/components/visita-logo";
 import ChatBox from "@/components/chat-component";
 import MapComponent from "@/components/map-component";
+import SearchBar from "@/components/search-bar";
 
 export default async function ProtectedPage() {
   const supabase = await createClient();
@@ -21,8 +22,11 @@ export default async function ProtectedPage() {
   return (
     <div className="flex flex-col w-screen h-screen overflow-hidden">
       {/* Header */}
-      <div className="header-auth flex justify-between items-center shadow-md p-[32] h-16 bg-white backdrop-blur-sm z-20">
+      <div className="header-auth flex justify-between items-center shadow-md p-[32] h-16 backdrop-blur-sm z-20">
         <VisitaLogo />
+        <div className="flex-1 max-w-md mx-4">
+          <SearchBar />
+        </div>
         <AuthButton />
       </div>
 

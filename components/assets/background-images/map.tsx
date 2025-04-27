@@ -35,9 +35,6 @@ const supabase = createClient();
 // Function to fetch all stores from the database
 export const fetchStores = async (): Promise<{storeData: Store[], storeStatusMap: Record<string, boolean>}> => {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    console.log('User authenticated:', session);
-
     // Joined the tables and selected everything from both tables
     const { data: stores, error } = await supabase
       .from('store')
@@ -47,7 +44,6 @@ export const fetchStores = async (): Promise<{storeData: Store[], storeStatusMap
       `);
 
     if (error) {
-      console.error('Error fetching stores:', error);
       return { storeData: [], storeStatusMap: {} };
     }
 
@@ -59,10 +55,8 @@ export const fetchStores = async (): Promise<{storeData: Store[], storeStatusMap
       storeStatusMap[store.storeid] = isOpen;
     });
 
-    console.log('Stores fetched:', stores?.length);
     return { storeData: stores || [], storeStatusMap };
   } catch (error) {
-    console.error('Error in fetchStores:', error);
     return { storeData: [], storeStatusMap: {} };
   }
 };
