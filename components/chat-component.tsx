@@ -9,7 +9,7 @@ import { Send, X } from "lucide-react";
 import EmojiPicker from 'emoji-picker-react';
 
 // chatmessage table structure since supabase needs docker to automatically create the table for us
-interface ChatMessage {
+type  ChatMessage = {
   chatmessageid: string;  
   sentby: string;         
   content: string; 

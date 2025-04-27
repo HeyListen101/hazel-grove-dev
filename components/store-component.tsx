@@ -4,10 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "motion/react"
 import ProductCard from './ui/product-card';
 import { createClient } from "@/utils/supabase/client";
-import VisitaPlaceholder from './visita-placeholder';
 import BackgroundImage from '@/components/assets/background-images/Background.png';
 
-interface StoreComponentProps {
+type StoreComponentProps = {
   scaleValue?: number;
   storeId?: string;
   isSelected?: boolean;
@@ -15,7 +14,7 @@ interface StoreComponentProps {
   isOpen?: boolean;
 }
 
-interface Product {
+type Product = {
   productid: string;
   store: string;
   productstatus: any;
@@ -132,7 +131,21 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
       setLoading(false);
     }
   };
-  
+
+  // Get current page products
+  const getCurrentPageProducts = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    
+    // Get the current page products
+    const currentProducts = products.slice(startIndex, endIndex);
+    
+    // Log the current products being sent to ProductCard
+    console.log('Current page products:', currentProducts);
+    
+    return currentProducts;
+  };
+
   // Set up realtime subscription
   useEffect(() => {
     if (!storeId || !isSelected) return;
@@ -243,23 +256,8 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
     }
   }, [storeId, isSelected]);
 
-  // Get current page products
-  const getCurrentPageProducts = () => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    
-    // Get the current page products
-    const currentProducts = products.slice(startIndex, endIndex);
-    
-    // Log the current products being sent to ProductCard
-    console.log('Current page products:', currentProducts);
-    
-    return currentProducts;
-  };
-
   return (
     <AnimatePresence mode="wait">
-    {isStoreSelected ? (
       <motion.div
         className="stores-container rounded-lg shadow-lg overflow-hidden"
         key="store"
@@ -376,9 +374,6 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
           </div>
         </div>
     </motion.div>
-  ) : (
-    <VisitaPlaceholder key="placeholder" />
-    )}
     </AnimatePresence>
   );
 };

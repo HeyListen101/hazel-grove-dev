@@ -282,7 +282,7 @@ const mapComponent = () => {
       {/* AnimatePresence to handle both components */}
       <AnimatePresence>
         {selectedStoreId ? (
-          /* Store Component - show when a store is selected */
+          /* Store Component */
           <motion.div
             key="store-component"
             initial={{ opacity: 0 }}
@@ -297,14 +297,16 @@ const mapComponent = () => {
             />
           </motion.div>
         ) : (
-          /* Placeholder - show when no store is selected */
+          /* Placeholder  */
           <motion.div
             key="placeholder"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="store-placeholder-container"
+            initial={{ opacity: 0, transformOrigin: "top" }}
+            animate={{ opacity: 1}}
+            exit={{ opacity: 0, scaleY: 1 }}
+            transition={{
+              opacity: { duration: 0.3, ease: "easeIn" },
+              scaleY: { duration: 0.5, ease: "easeIn" }
+            }}
           >
             <VisitaPlaceholder />
           </motion.div>

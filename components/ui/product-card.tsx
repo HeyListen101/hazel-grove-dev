@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "motion/react";
 
 
-interface ProductCardProps {
+type ProductCardProps = {
   products: any[];
   totalProducts?: number;
   currentPage?: number;
@@ -24,33 +24,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [direction, setDirection] = useState(0);
   // Add state to track previous page for animation
   const [previousPage, setPreviousPage] = useState(currentPage);
-  
-  // Update direction when page changes
-  useEffect(() => {
-    if (currentPage > previousPage) {
-      setDirection(1); // Next page (slide from right)
-    } else if (currentPage < previousPage) {
-      setDirection(-1); // Previous page (slide from left)
-    }
-    setPreviousPage(currentPage);
-  }, [currentPage, previousPage]);
-
-  useEffect(() => {
-    // Clear any existing timers when products or page changes
-    let animationTimer: NodeJS.Timeout;
-    
-    // Always use a fixed timer instead of relying on animation completion events
-    if (onAnimationComplete) {
-      animationTimer = setTimeout(() => {
-        onAnimationComplete();
-      }, 2000); // Match this with the store component's timer
-    }
-    
-    return () => {
-      // Clean up timer on unmount or when dependencies change
-      if (animationTimer) clearTimeout(animationTimer);
-    };
-  }, [products, currentPage, onAnimationComplete]);
   
   // Format price for display
   const formatPrice = (price: string | number | any): string => {
@@ -76,6 +49,33 @@ const ProductCard: React.FC<ProductCardProps> = ({
       opacity: 0
     })
   };
+
+    // Update direction when page changes
+    useEffect(() => {
+      if (currentPage > previousPage) {
+        setDirection(1); // Next page (slide from right)
+      } else if (currentPage < previousPage) {
+        setDirection(-1); // Previous page (slide from left)
+      }
+      setPreviousPage(currentPage);
+    }, [currentPage, previousPage]);
+  
+    useEffect(() => {
+      // Clear any existing timers when products or page changes
+      let animationTimer: NodeJS.Timeout;
+      
+      // Always use a fixed timer instead of relying on animation completion events
+      if (onAnimationComplete) {
+        animationTimer = setTimeout(() => {
+          onAnimationComplete();
+        }, 2000); // Match this with the store component's timer
+      }
+      
+      return () => {
+        // Clean up timer on unmount or when dependencies change
+        if (animationTimer) clearTimeout(animationTimer);
+      };
+    }, [products, currentPage, onAnimationComplete]);
 
   return (
     <div 

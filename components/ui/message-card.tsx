@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { getSupabaseAuth } from "@/utils/supabase/auth-singleton";
 
-interface MessageProps {
+type MessageProps = {
   sentBy: string;
   context: string;
   dateCreated: string;

@@ -166,38 +166,38 @@ const SearchBar = () => {
   };
 
   // Handle result click - open the store component
-  const handleResultClick = async (result: SearchResult) => {
-    console.log('Selected result:', result); // Debug the selected result
-    
-    // Make sure we're using the correct ID for the store
-    const storeId = result.storeId;
-    
-    if (!storeId) {
-      console.log('Store ID is missing from the search result');
-      return;
-    }
-    
-    try {
-      const store = await fetchStoreData(storeId);
+    const handleResultClick = async (result: SearchResult) => {
+      console.log('Selected result:', result); // Debug the selected result
       
-      if (store) {
-        console.log('Fetched store data:', store); // Debug the fetched store
-        
-        // Update the context with the store information
-        setStoreName(store.name || result.storeName);
-        setIsOpen(store.storestatus?.isopen || false);
-        setSelectedStoreId(store.storeid);
-      } else {
-        console.log('Store not found for ID:', storeId);
+      // Make sure we're using the correct ID for the store
+      const storeId = result.storeId;
+      
+      if (!storeId) {
+        console.log('Store ID is missing from the search result');
+        return;
       }
-    } catch (error) {
-      console.log('Error processing search result:', error);
-    }
-  
-    // Clear search UI
-    setSearchTerm('');
-    setSearchResults([]);
-  };
+      
+      try {
+        const store = await fetchStoreData(storeId);
+        
+        if (store) {
+          console.log('Fetched store data:', store); // Debug the fetched store
+          
+          // Update the context with the store information
+          setStoreName(store.name || result.storeName);
+          setIsOpen(store.storestatus?.isopen || false);
+          setSelectedStoreId(store.storeid);
+        } else {
+          console.log('Store not found for ID:', storeId);
+        }
+      } catch (error) {
+        console.log('Error processing search result:', error);
+      }
+    
+      // Clear search UI
+      setSearchTerm('');
+      setSearchResults([]);
+    };
 
   const fetchStoreData = async (id: string) => {
     try {

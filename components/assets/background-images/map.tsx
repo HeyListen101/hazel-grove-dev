@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/client";
 
-interface Store {
+type Store = {
   storeid: string;
   owner: string;
   storestatus: string;
@@ -14,7 +14,7 @@ interface Store {
 } 
 
 
-interface RectangleData {
+type RectangleData = {
   id: string;
   style: React.CSSProperties;
   title: string;
