@@ -10,7 +10,6 @@ import BackgroundImage from '@/components/assets/background-images/Background.pn
 interface StoreComponentProps {
   scaleValue?: number;
   storeId?: string;
-  onStoreSelect?: (storeId: string | null) => void;
   isSelected?: boolean;
   storeName?: string;
   isOpen?: boolean;
@@ -31,10 +30,8 @@ interface Product {
 
 const StoreComponent: React.FC<StoreComponentProps> = ({ 
   storeId = "",
-  onStoreSelect,
   isSelected = false,
   storeName = "Store",
-  isOpen = true,
 }) => {
   const supabase = createClient();
   const [selectedStoreId, setSelectedStoreId] = useState(storeId);
