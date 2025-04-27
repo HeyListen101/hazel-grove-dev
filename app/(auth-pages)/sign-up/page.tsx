@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
+import backgroundImage from "@/components/assets/background-images/LandingPage.png";
 
 export default async function Signup(props: {
   searchParams: Promise<Message>;
@@ -26,8 +27,7 @@ export default async function Signup(props: {
     <div
       className="fixed inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden"
       style={{
-        backgroundImage:
-          "url('https://www.eduopinions.com/wp-content/uploads/2017/09/Visayas-State-University-VSU-campus.jpg')",
+        backgroundImage: `url(${backgroundImage.src})`,
         backgroundSize: "100% 100%",
         width: "100vw",
         height: "100vh",

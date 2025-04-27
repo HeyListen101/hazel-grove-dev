@@ -1,26 +1,44 @@
 "use client";
 
-type MessageProps = {
+import { useEffect, useState } from "react";
+import { getSupabaseAuth } from "@/utils/supabase/auth-singleton";
+
+interface MessageProps {
   sentBy: string;
   context: string;
   dateCreated: string;
 };
 
-export default function MessageComponent({ sentBy, context, dateCreated }: MessageProps) {
-  // Determine if current user based on sentBy value
-  // This is a simplistic approach - you might want to compare with the actual user ID
-  const isCurrentUser = sentBy === "User";
+export default function MessageComponent({ sentBy, context }: MessageProps) {
+  const [isCurrentUser, setIsCurrentUser] = useState(false);
+  const [displayName, setDisplayName] = useState(sentBy.substring(0, 2).toUpperCase());
   
-  // Format the name for display and avatar
-  const displayName = isCurrentUser ? "You" : sentBy.substring(0, 2).toUpperCase();
+  useEffect(() => {
+    // Check if the message was sent by the current user
+    const checkCurrentUser = async () => {
+      const supabaseAuth = getSupabaseAuth();
+      const user = await supabaseAuth.getUser();
+      
+      if (user && user.id === sentBy) {
+        setIsCurrentUser(true);
+        setDisplayName("You");
+      } else {
+        setIsCurrentUser(false);
+        // Use the first two characters of the sender's ID as avatar text
+        setDisplayName(sentBy.substring(0, 2).toUpperCase());
+      }
+    };
+    
+    checkCurrentUser();
+  }, [sentBy]);
   
   return (
-    <div className="flex items-start gap-2">
+    <div className={`flex items-start gap-2 mb-4 ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
       {/* Avatar - only show for others, not current user */}
       {!isCurrentUser && (
         <div 
-          className="w-8 h-8 rounded-full overflow-hidden bg-green-500 flex items-center justify-center flex-shrink-0"
-          style={{ minWidth: '2rem', minHeight: '2rem' }} // Ensure minimum dimensions
+          className="w-8 h-8 rounded-full overflow-hidden bg-[#13783e] flex items-center justify-center flex-shrink-0"
+          style={{ minWidth: '2rem', minHeight: '2rem' }}
         >
           <span className="text-white text-xs font-bold">
             {displayName}
@@ -29,13 +47,14 @@ export default function MessageComponent({ sentBy, context, dateCreated }: Messa
       )}
       
       {/* Message content */}
-      <div className={`flex flex-col ${isCurrentUser ? 'items-end ml-auto' : 'items-start'}`}>
+      <div className={`flex flex-col max-w-[80%] ${isCurrentUser ? 'items-end' : 'items-start'}`}>
         <div 
-          className={`px-3 py-2 rounded-2xl max-w-xs ${
-            isCurrentUser ? 'bg-blue-100 text-blue-800' : 'bg-gray-200 text-gray-800'
+          className={`px-4 py-2 rounded-3xl ${
+            isCurrentUser ? 'bg-blue-500 text-white' : 'bg-white text-black'
           }`}
+          style={{ wordBreak: 'break-word', overflowWrap: 'break-word', maxWidth: '100%' }}
         >
-          <p className="text-sm">{context}</p>
+          <p className="text-sm" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>{context}</p>
         </div>
       </div>
     </div>

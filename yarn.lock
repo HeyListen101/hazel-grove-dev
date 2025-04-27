@@ -903,6 +903,13 @@ electron-to-chromium@^1.5.73:
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.113.tgz#1175b8ba4170541e44e9afa8b992e5bbfff0d150"
   integrity sha512-wjT2O4hX+wdWPJ76gWSkMhcHAV2PTMX+QetUCPYEdCIe+cxmgzzSSiGRCKW8nuh4mwKZlpv0xvoW7OF2X+wmHg==
 
+emoji-picker-react@^4.12.2:
+  version "4.12.2"
+  resolved "https://registry.yarnpkg.com/emoji-picker-react/-/emoji-picker-react-4.12.2.tgz#323fbbf763daf1ffc1a9ff819966408e1ec30bab"
+  integrity sha512-6PDYZGlhidt+Kc0ay890IU4HLNfIR7/OxPvcNxw+nJ4HQhMKd8pnGnPn4n2vqC/arRFCNWQhgJP8rpsYKsz0GQ==
+  dependencies:
+    flairup "1.0.0"
+
 emoji-regex@^8.0.0:
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-8.0.0.tgz#e818fd69ce5ccfcb404594f842963bf53164cc37"
@@ -943,6 +950,11 @@ fill-range@^7.1.1:
   dependencies:
     to-regex-range "^5.0.1"
 
+flairup@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/flairup/-/flairup-1.0.0.tgz#d3af0052ad02734c12d2446608a869498adb351b"
+  integrity sha512-IKlE+pNvL2R+kVL1kEhUYqRxVqeFnjiIvHWDMLFXNaqyUdFXQM2wte44EfMYJNHkW16X991t2Zg8apKkhv7OBA==
+
 foreground-child@^3.1.0:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/foreground-child/-/foreground-child-3.3.1.tgz#32e8e9ed1b68a3497befb9ac2b6adf92a638576f"
@@ -955,6 +967,15 @@ fraction.js@^4.3.7:
   version "4.3.7"
   resolved "https://registry.yarnpkg.com/fraction.js/-/fraction.js-4.3.7.tgz#06ca0085157e42fda7f9e726e79fefc4068840f7"
   integrity sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==
+
+framer-motion@^12.7.4:
+  version "12.7.4"
+  resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-12.7.4.tgz#50aeb8b5b5a672dea931bdb74956d7b526bf0b4b"
+  integrity sha512-jX0bPsTmU0oPZTYz/dVyD0dmOyEOEJvdn0TaZBE5I8g2GvVnnQnW9f65cJnoVfUkY3WZWNXGXnPbVA9YnaIfVA==
+  dependencies:
+    motion-dom "^12.7.4"
+    motion-utils "^12.7.2"
+    tslib "^2.4.0"
 
 fsevents@~2.3.2:
   version "2.3.3"
@@ -1108,6 +1129,26 @@ minimatch@^9.0.4:
   version "7.1.2"
   resolved "https://registry.yarnpkg.com/minipass/-/minipass-7.1.2.tgz#93a9626ce5e5e66bd4db86849e7515e92340a707"
   integrity sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==
+
+motion-dom@^12.7.4:
+  version "12.7.4"
+  resolved "https://registry.yarnpkg.com/motion-dom/-/motion-dom-12.7.4.tgz#80f5f8d706e94bc29f6f4f4afa300ff9e1f976a2"
+  integrity sha512-1ZUHAoSUMMxP6jPqyxlk9XUfb6NxMsnWPnH2YGhrOhTURLcXWbETi6eemoKb60Pe32NVJYduL4B62VQSO5Jq8Q==
+  dependencies:
+    motion-utils "^12.7.2"
+
+motion-utils@^12.7.2:
+  version "12.7.2"
+  resolved "https://registry.yarnpkg.com/motion-utils/-/motion-utils-12.7.2.tgz#99b673d8851583b325bd0c8b0f04c5bf42b9b818"
+  integrity sha512-XhZwqctxyJs89oX00zn3OGCuIIpVevbTa+u82usWBC6pSHUd2AoNWiYa7Du8tJxJy9TFbZ82pcn5t7NOm1PHAw==
+
+motion@^12.7.4:
+  version "12.7.4"
+  resolved "https://registry.yarnpkg.com/motion/-/motion-12.7.4.tgz#d0a6032ccc6323e996caf0bc2ba6d0262fcc6214"
+  integrity sha512-MBGrMbYageHw4iZJn+pGTr7abq5n53jCxYkhFC1It3vYukQPRWg5zij46MnwYGpLR8KG465MLHSASXot9edYOw==
+  dependencies:
+    framer-motion "^12.7.4"
+    tslib "^2.4.0"
 
 mz@^2.7.0:
   version "2.7.0"
