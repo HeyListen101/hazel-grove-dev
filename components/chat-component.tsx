@@ -12,9 +12,7 @@ import EmojiPicker from 'emoji-picker-react';
 type  ChatMessage = {
   chatmessageid: string;  
   sentby: string;         
-  content: string; 
-  longitude: number;      
-  latitude: number;       
+  content: string;   
   datecreated: string;    
   isarchived: boolean;    
 };
@@ -97,8 +95,6 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
       chatmessageid: crypto.randomUUID(),
       sentby: currentUser,
       content: messageContent,
-      longitude: 0,
-      latitude: 0,
       datecreated: new Date().toISOString(),
       isarchived: false
     };
@@ -126,8 +122,6 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
     const dbPayload = { 
       sentby: currentUser,
       content: messageContent,
-      longitude: 0,
-      latitude: 0
     };
     console.log('Sending to database:', dbPayload);
     

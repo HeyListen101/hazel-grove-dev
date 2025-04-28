@@ -23,12 +23,6 @@ type RectangleData = {
   iconColor?: string;
 }
 
-// Create a mapping between store IDs and rectangle IDs
-const storeToRectangleMap: Record<string, string> = {
-  "02c63a3c-31b6-4421-8e92-b8ee97a0285b": "rectangle65",
-  // Add more mappings as needed
-};
-
 // Initialize Supabase client
 const supabase = createClient();
 
