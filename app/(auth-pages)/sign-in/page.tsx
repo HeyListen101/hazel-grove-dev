@@ -1,18 +1,14 @@
 import { SuccessDialog } from "@/components/success-dialog";
 import { ErrorDisplay } from "@/components/error-display";
-import backgroundImage from "@/components/assets/background-images/LandingPage.png";
 import { Input } from "@/components/ui/input";
 import { SubmitButton } from "@/components/submit-button";
 import { customSignInAction, googleSignInAction } from '@/app/server/auth-actions';
 import Link from "next/link";
-import { Message } from "@/components/form-message";
 
-export default function Home(props: {searchParams: Message}) {
-  const searchParams = props.searchParams;
-  const errorMessage = "error" in searchParams && !("clear_error" in searchParams)
-  ? searchParams.error 
-  : null;
 
+export default async function Home(props: { searchParams: Promise<Record<string, string>> }) {
+  const params = await props.searchParams;
+  const errorMessage = params?.error && !params?.clear_error ? params.error : null;
   // We can return this entire thing as a client side component so that we can clear the input fields with useState or useEffect whenever an error occurs.
   // So that we have an automatic cleaner for the form data. 
   // But this isn't as important as it is.
@@ -22,28 +18,23 @@ export default function Home(props: {searchParams: Message}) {
   
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden"
-      style={{
-        backgroundImage:`url(${backgroundImage.src})`,
-        backgroundSize: "100% 100%",
-        width: "100vw",
-        height: "100vh",
-      }}
+      className={`inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden w-full h-full bg-white sm:bg-[url(@/components/assets/background-images/LandingPage.png)]`}
     >
-      <div className="bg-white p-8 rounded-xl shadow-lg w-96 flex flex-col items-center">
-        <h2 className="text-xl font-bold mb-4 text-black">Log In</h2>
-        {errorMessage && <ErrorDisplay message={errorMessage} />}
+      <div className="bg-white p-8 rounded-[20px] sm:shadow-lg w-96 flex flex-col items-center">
+        <h2 className="text-lg font-bold mb-7 text-black">Log In</h2>
+          {errorMessage && <ErrorDisplay message={errorMessage} />}
         <form 
         action={customSignInAction} 
         className="w-full flex flex-col" 
         noValidate
+        autoComplete="off"
       >
         {/* Email Field */}
         <Input 
           type="email" 
           name="email" 
           placeholder="Email Address" 
-          className="input-field mb-3" 
+          className="input-field mb-3 text-sm text-[#111111]" 
           required
         />
        
@@ -52,16 +43,16 @@ export default function Home(props: {searchParams: Message}) {
           type="password" 
           name="password" 
           placeholder="Password" 
-          className="input-field mb-3" 
+          className="input-field mb-3 text-sm text-[#111111]" 
           required
         />
         
         {/* Sign-up and Forgot Password Links */}
         <div className="flex justify-between w-full text-sm mb-4">
-          <Link href="/sign-up" className="text-[#696047] hover:text-[#57503A]">
-            Sign-up or Register
+          <Link href="/sign-up" className="text-xs text-[#696047] hover:underline">
+            Sign Up or Register
           </Link>
-          <Link href="/forgot-password" className="text-[#696047] hover:text-[#57503A]">
+          <Link href="/forgot-password" className="text-xs text-[#696047] hover:underline">
             Forgot Password?
           </Link>
         </div>
@@ -70,7 +61,7 @@ export default function Home(props: {searchParams: Message}) {
         <SubmitButton
           type="submit"
           pendingText="Signing In..."
-          className="bg-[#696047] text-white py-2 rounded-md hover:bg-[#57503A] transition-colors"
+          className="bg-[#6B5C3D] text-white rounded-md font-semibold hover:bg-[#57503A] transition-colors"
         >
           Continue
         </SubmitButton>
@@ -79,7 +70,7 @@ export default function Home(props: {searchParams: Message}) {
       {/* OR Divider */}
       <div className="flex items-center w-full my-3">
         <hr className="flex-grow border-t border-[#d2d2d2] mx-2" />
-        <span className="text-[#696047] font-medium text-m relative bottom-[3px]">
+        <span className="text-[#696047] font-medium text-base relative bottom-[3px]">
           or
         </span>
         <hr className="flex-grow border-t border-[#d2d2d2] mx-2" />
@@ -90,7 +81,7 @@ export default function Home(props: {searchParams: Message}) {
         <SubmitButton className="gsi-material-button" style={{width: 320}}>
           <div className="gsi-material-button-state"></div>
           <div className="gsi-material-button-content-wrapper">
-            <div className="gsi-material-button-icon">
+            <div className="gsi-material-button-icon flex items-center">
               <svg
                 version="1.1"
                 xmlns="http://www.w3.org/2000/svg"
@@ -106,8 +97,7 @@ export default function Home(props: {searchParams: Message}) {
                 <path fill="none" d="M0 0h48v48H0z"></path>
               </svg>
             </div>
-            <span className="gsi-material-button-contents">Continue with Google</span>
-            <span style={{display: "none"}}>Continue with Google</span>
+            <span className="gsi-material-button-contents font-medium text-sm">Continue with Google</span>
           </div>
         </SubmitButton>
       </form>

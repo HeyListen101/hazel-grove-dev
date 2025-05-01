@@ -322,7 +322,7 @@ export const resetPasswordAction = async (formData: FormData) => {
     encodedRedirect(
       "error",
       "/reset-password",
-      "Password update failed",
+      error.message,
     );
   }
 
@@ -330,8 +330,7 @@ export const resetPasswordAction = async (formData: FormData) => {
 };
 
 export const signOutAction = async () => {
-  const redirectResponse = redirect("/sign-in");
   const supabase = await createClient();
   supabase.auth.signOut();
-  return redirectResponse;
+  redirect("/sign-in")
 };
