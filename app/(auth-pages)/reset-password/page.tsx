@@ -1,7 +1,6 @@
 import { resetPasswordAction } from "@/app/server/auth-actions";
 import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
-import backgroundImage from "@/components/assets/background-images/LandingPage.png";
 import { Message } from "@/components/form-message";
 import { ErrorDisplay } from "@/components/error-display";
 

@@ -21,7 +21,7 @@ export function ErrorDisplay({ message }: { message: string }) {
         >
           <X className="h-4 w-4 text-red-500 -mt-[1px]" />
         </button>
-        <div className="flex-grow text-justify">
+        <div className="flex-grow">
           <span dangerouslySetInnerHTML={{ __html: message }} />
         </div>
       </div>
