@@ -25,7 +25,7 @@ export default async function Signup(props: {
   
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden w-full h-full bg-white sm:bg-[url(@/components/assets/background-images/LandingPage.png)]`}
+      className={`inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden w-full h-full bg-white sm:bg-[url(@/components/assets/background-images/LandingPage.png)]`}
     >
       <div className="bg-white p-8 rounded-[20px] sm:shadow-lg w-96 flex flex-col items-center">
         <h2 className="text-lg font-bold mb-3 text-black">Sign Up</h2>
@@ -34,16 +34,16 @@ export default async function Signup(props: {
         {errorMessage && <ErrorDisplay message={errorMessage} />}
         
         {/* Sign Up Form */}
-        <form action={signUpAction} className="w-full flex flex-col space-y-4">
+        <form action={signUpAction} className="w-full flex flex-col space-y-4" autoComplete="off">
          
           {/* Email Field */}
-          <Input type="email" name="email" placeholder="Email Address" required className="input-field text-sm text-[#111111]"/>
+          <Input type="email" name="email" placeholder="Email Address" className="input-field text-sm text-[#111111]"/>
          
           {/* Password Field */}
-          <Input type="password" name="password" placeholder="Password" required className="input-field text-sm text-[#111111]"/>
+          <Input type="password" name="password" placeholder="Password" className="input-field text-sm text-[#111111]"/>
 
           {/* Username Field */}
-          <Input type="username" name="username" placeholder="Username" required className="input-field text-sm text-[#111111]"/>
+          <Input type="username" name="username" placeholder="Username" className="input-field text-sm text-[#111111]"/>
          
           <Select name="affiliation">
               <SelectTrigger className="w-full bg-[#F5F5F5] text-[#111111] placeholder:text-white/70 focus:ring-0 focus:outline-none border-none">
@@ -67,7 +67,7 @@ export default async function Signup(props: {
         {/* Login Link */}
         <div className="mt-4 text-sm text-gray-600">
           Already have an account?{" "}
-          <Link href="/sign-in" className="text-blue-600 hover:underline">
+          <Link href="/sign-in" className="text-[#6B5C3D] font-semibold underline">
             Log In
           </Link>
         </div>

@@ -6,23 +6,24 @@ import { customSignInAction, googleSignInAction } from '@/app/server/auth-action
 import Link from "next/link";
 import { Message } from "@/components/form-message";
 
-export default function Home(props: {searchParams: Message}) {
-  const searchParams = props.searchParams;
+export default async function Home(props: {searchParams: Promise<Message>;}) {
+  const searchParams = await props.searchParams;
   const errorMessage = "error" in searchParams && !("clear_error" in searchParams)
-  ? searchParams.error 
+  ? searchParams.error
   : null;
 
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden w-full h-full bg-white sm:bg-[url(@/components/assets/background-images/LandingPage.png)]`}
+      className={`inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden w-full h-full bg-white sm:bg-[url(@/components/assets/background-images/LandingPage.png)]`}
     >
       <div className="bg-white p-8 rounded-[20px] sm:shadow-lg w-96 flex flex-col items-center">
         <h2 className="text-lg font-bold mb-7 text-black">Log In</h2>
-        {errorMessage && <ErrorDisplay message={errorMessage} />}
+          {errorMessage && <ErrorDisplay message={errorMessage} />}
         <form 
         action={customSignInAction} 
         className="w-full flex flex-col" 
         noValidate
+        autoComplete="off"
       >
         {/* Email Field */}
         <Input 
@@ -56,7 +57,7 @@ export default function Home(props: {searchParams: Message}) {
         <SubmitButton
           type="submit"
           pendingText="Signing In..."
-          className="bg-[#696047] text-white rounded-md font-semibold hover:bg-[#57503A] transition-colors"
+          className="bg-[#6B5C3D] text-white rounded-md font-semibold hover:bg-[#57503A] transition-colors"
         >
           Continue
         </SubmitButton>
