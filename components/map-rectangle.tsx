@@ -1,7 +1,7 @@
 import React from 'react';
 import MapTooltip from './map-tooltip';
 
-interface RectangleProps {
+type RectangleProps = {
   id: string;
   style: React.CSSProperties;
   title: string;

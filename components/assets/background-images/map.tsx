@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/client";
 
-interface Store {
+type Store = {
   storeid: string;
   owner: string;
   storestatus: string;
@@ -14,7 +14,7 @@ interface Store {
 } 
 
 
-interface RectangleData {
+type RectangleData = {
   id: string;
   style: React.CSSProperties;
   title: string;
@@ -22,12 +22,6 @@ interface RectangleData {
   icon?: React.ReactNode;
   iconColor?: string;
 }
-
-// Create a mapping between store IDs and rectangle IDs
-const storeToRectangleMap: Record<string, string> = {
-  "02c63a3c-31b6-4421-8e92-b8ee97a0285b": "rectangle65",
-  // Add more mappings as needed
-};
 
 // Initialize Supabase client
 const supabase = createClient();

@@ -1,5 +1,5 @@
 import { signUpAction } from "@/app/server/auth-actions";
-import { FormMessage, Message } from "@/components/form-message";
+import { Message } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,18 +11,18 @@ import {
 } from "@/components/ui/select";
 import Link from "next/link";
 import backgroundImage from "@/components/assets/background-images/LandingPage.png";
+import { ErrorDisplay } from "@/components/error-display";
 
 export default async function Signup(props: {
   searchParams: Promise<Message>;
 }) {
   const searchParams = await props.searchParams;
-  if ("message" in searchParams) {
-    return (
-      <div className="w-full flex-1 flex items-center h-screen sm:max-w-md justify-center gap-2 p-4">
-        <FormMessage message={searchParams} />
-      </div>
-    );
-  }
+  
+  // Check if there's an error message in the URL params
+  const errorMessage = "error" in searchParams && !("clear_error" in searchParams)
+  ? searchParams.error 
+  : null;
+  
   return (
     <div
       className="fixed inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden"
@@ -35,21 +35,25 @@ export default async function Signup(props: {
     >
       <div className="bg-white p-8 rounded-xl shadow-lg w-96 flex flex-col items-center">
         <h2 className="text-xl font-bold mb-4 text-black">Sign Up</h2>
-        {/* Sign In Form */}
+        
+        {/* Display error message if present */}
+        {errorMessage && <ErrorDisplay message={errorMessage} />}
+        
+        {/* Sign Up Form */}
         <form action={signUpAction} className="w-full flex flex-col space-y-4">
          
           {/* Email Field */}
-          <Input type="email" name="email" placeholder="Email Address" required/>
+          <Input type="email" name="email" placeholder="Email Address" required className="input-field"/>
          
           {/* Password Field */}
-          <Input type="password" name="password" placeholder="Password" required/>
+          <Input type="password" name="password" placeholder="Password" required className="input-field"/>
 
           {/* Username Field */}
-          <Input type="username" name="username" placeholder="Username" required/>
+          <Input type="username" name="username" placeholder="Username" required className="input-field"/>
          
           <Select name="affiliation">
-            <SelectTrigger className="w-full bg-[#696047] text-white hover:bg-[#57503A] focus:ring-0 focus:outline-none border-none">
-              <SelectValue placeholder="Select Affiliation" />
+              <SelectTrigger className="w-full bg-[#696047] text-white placeholder:text-white/70 hover:bg-[#57503A] focus:ring-0 focus:outline-none border-none">
+              <SelectValue placeholder="Select Affiliation" className="placeholder:text-white/70" />
             </SelectTrigger>
             <SelectContent className="bg-[#696047] text-white border-none shadow-lg">
               <SelectItem className="hover:bg-[#57503A] focus:bg-[#57503A]" value="visitor">Visitor</SelectItem>
@@ -60,7 +64,7 @@ export default async function Signup(props: {
             </SelectContent>
           </Select>
          
-          {/* Continue Button */}
+          {/* Sign Button */}
           <SubmitButton pendingText="Signing Up..." formAction={signUpAction}>
             Sign Up
           </SubmitButton>

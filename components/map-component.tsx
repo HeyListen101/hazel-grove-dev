@@ -3,10 +3,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { rectangleData as originalRectangleData, getTooltipPosition, fetchStores } from '@/components/assets/background-images/map';
 import MapRectangle from './map-rectangle';
-import StoreComponent from './store-component';
 import { createClient } from "@/utils/supabase/client";
-import { motion } from "motion/react"
-import StoreStatusCard from './ui/store-status-card'; 
+import { motion, AnimatePresence } from 'framer-motion';
+import StoreComponent from './store-component';
+import StoreStatusCard from './ui/store-status-card';
+import VisitaPlaceholder from './visita-placeholder';
+import { useMapSearch } from '@/components/map-search-context';
 
 const mapComponent = () => {
   const [scale, setScale] = useState(1);
@@ -15,16 +17,21 @@ const mapComponent = () => {
   const originalWidth = 2560;
   const originalHeight = 1440;
   const headerHeight = 60;
-  
-  // Added store-related state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [storeName, setStoreName] = useState('Store');
-  const [isOpen, setIsOpen] = useState(true);
   const [storeData, setStoreData] = useState<any>(null);
   const [storeStatusMap, setStoreStatusMap] = useState<Record<string, boolean>>({});
   const [rectangleData, setRectangleData] = useState(originalRectangleData);
   const supabase = createClient();
+  const { 
+    selectedStoreId, 
+    setSelectedStoreId, 
+    storeName, 
+    setStoreName, 
+    isOpen, 
+    setIsOpen,
+    selectedProductName
+  } = useMapSearch();
 
   // Add state for realtime subscription
   const [subscription, setSubscription] = useState<ReturnType<typeof supabase.channel> | null>(null);
@@ -153,8 +160,6 @@ const mapComponent = () => {
       setLoading(true);
       setError(null);
 
-      const { data: { session } } = await supabase.auth.getSession();
-
       // Joined the tables and selected everything from both tables
       const { data: store, error } = await supabase
         .from('store')
@@ -195,6 +200,15 @@ const mapComponent = () => {
     const newSelectedRectangle = selectedRectangle === rectangleId ? null : rectangleId;
     setSelectedRectangle(newSelectedRectangle);
     
+    // Update the context
+    if (newSelectedRectangle) {
+      setSelectedStoreId(newSelectedRectangle);
+      fetchStoreData(newSelectedRectangle);
+    } else {
+      // Clear selection in context
+      setSelectedStoreId(null);
+    }
+
     // If selecting a rectangle, fetch its store data
     if (newSelectedRectangle) {
       fetchStoreData(newSelectedRectangle);
@@ -212,8 +226,37 @@ const mapComponent = () => {
     console.log(`Store selection changed to: ${storeId}`);
   };
   
+  useEffect(() => {
+    // Listen for the custom event from search-bar
+    const handleStoreSelectedEvent = (event: CustomEvent) => {
+      const { storeId } = event.detail;
+      // Set the selected rectangle and fetch store data
+      setSelectedRectangle(storeId);
+      fetchStoreData(storeId);
+    };
+
+    // Add event listener
+    window.addEventListener('storeSelected', handleStoreSelectedEvent as EventListener);
+
+    // Clean up
+    return () => {
+      window.removeEventListener('storeSelected', handleStoreSelectedEvent as EventListener);
+    };
+  }, []);
+
+  // Add a useEffect to handle selectedStoreId changes from context
+  useEffect(() => {
+    if (selectedStoreId && selectedStoreId !== selectedRectangle) {
+      setSelectedRectangle(selectedStoreId);
+      fetchStoreData(selectedStoreId);
+    } else if (!selectedStoreId && selectedRectangle) {
+      // If selectedStoreId is cleared, also clear the selectedRectangle
+      setSelectedRectangle(null);
+    }
+  }, [selectedStoreId]);
+
   return (
-    <div
+      <div
       ref={containerRef}
       style={{
         width: '100%',
@@ -233,32 +276,57 @@ const mapComponent = () => {
           top: '-0.5rem',
         }}
       >
-      {/* Store component - always render it but control visibility with props */}
-      <StoreComponent 
-        storeId={selectedRectangle || ""} 
-        isSelected={!!selectedRectangle}
-        onStoreSelect={handleStoreSelect}
-        storeName={storeName}
-        isOpen={isOpen}
-      />
+
+      {/* AnimatePresence to handle both components */}
+      <AnimatePresence>
+        {selectedStoreId ? (
+          /* Store Component */
+          <motion.div
+            key="store-component"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <StoreComponent 
+              storeId={selectedStoreId}
+              isSelected={true}
+              storeName={storeName || ""}
+            />
+          </motion.div>
+        ) : (
+          /* Placeholder  */
+          <motion.div
+            key="placeholder"
+            initial={{ opacity: 0, transformOrigin: "top" }}
+            animate={{ opacity: 1}}
+            exit={{ opacity: 0, scaleY: 1 }}
+            transition={{
+              opacity: { duration: 0.3, ease: "easeIn" },
+              scaleY: { duration: 0.5, ease: "easeIn" }
+            }}
+          >
+            <VisitaPlaceholder />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Store Status Card - with delayed appearance */}
-      {selectedRectangle && (
+      {selectedStoreId && (
         <motion.div 
           className="store-status-card"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ 
-            delay: 1.9, // Delay appearance until after store component loads
+            delay: 0.5,
             duration: 0.3 
           }}
         >
-          <StoreStatusCard isOpen={isOpen} />
+          <StoreStatusCard isOpen={isOpen || false} />
         </motion.div>
       )}
 
-      {/* #TODO: Tranfer these labels into the map.tsx as rectangles and just set them as the rectangle SVGs */}
       {/* Exit for Vehicles */}
       <div className="absolute inset-0 z-10 right-[345] top-[1400] flex items-center justify-center pointer-events-none">
         <svg width="150" height="150" viewBox="0 0 210 125" fill="none" xmlns="http://www.w3.org/2000/svg">

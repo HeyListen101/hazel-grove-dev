@@ -4,6 +4,20 @@ import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+function isValidEmail(email: string) {
+  // Regular expression for email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex;
+}
+
+function detectInjection(input: string) {
+  // Regular expression for SQL injection detection
+  const sqlInjectionRegex = /(\b(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE)\b)|(--)/i;
+  // Regular expression for HTML injection detection
+  const htmlInjectionRegex = /<script>|<\/script>|<img|<\/img>/i;
+  return sqlInjectionRegex.test(input) || htmlInjectionRegex.test(input);
+}
+
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
@@ -12,6 +26,15 @@ export const signUpAction = async (formData: FormData) => {
 
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
+
+  // Validate that nothing is an injection
+  if (detectInjection(email!) || detectInjection(password!) || detectInjection(username!) || detectInjection(affiliation!)) {
+    return encodedRedirect(
+      "error",
+      "/sign-up",
+      "Tsk tsk tsk! No injections here!",
+    );
+  }
 
   // Validate all required fields
   if (!email || !password || !username || !affiliation) {
@@ -22,6 +45,34 @@ export const signUpAction = async (formData: FormData) => {
     );
   }
 
+  // Validate email and password length
+  if (!isValidEmail(email)) {
+    return encodedRedirect("error", "/sign-up", "Invalid email address");
+  }
+
+  if (password.length < 8) {
+    return encodedRedirect(
+      "error",
+      "/sign-up",
+      "Password must be at least 8 characters long",
+    )
+  }
+
+  // Check if email is already registered
+  const { data: user } = await supabase
+    .from("contributor")
+    .select("*")
+    .eq("emailaddress", email)
+    .single();
+  if (user) {
+    return encodedRedirect(
+      "error",
+      "/sign-up",
+      "Email is already registered",    
+    )
+  }
+
+  // If there are no errors proceed to sign up
   const { error } = await supabase.auth.signUp({
     email,
     password,
@@ -34,13 +85,14 @@ export const signUpAction = async (formData: FormData) => {
     },
   });
 
+  // Handle unexpected errors
   if (error) {
     console.error(error.code + " " + error.message);
     return encodedRedirect("error", "/sign-up", error.message);
   } else {
     return encodedRedirect(
       "success",
-      "/sign-up",
+      "/sign-in",
       "Thanks for signing up! Please check your email for a verification link.",
     );
   }
@@ -51,13 +103,22 @@ export const customSignInAction = async (formData: FormData) => {
   const password = formData.get("password") as string;
   const supabase = await createClient();
 
+  if (!email || !password) {
+    return encodedRedirect("error", "/sign-in", "Email and password are required");
+  }
+
+  if (!isValidEmail(email)) {
+    return encodedRedirect("error", "/sign-in", "Invalid email address");
+  }
+
   const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) {
-    return encodedRedirect("error", "/sign-in", error.message);
+    console.error("Sign-in error:", error.message);
+    return encodedRedirect("error", "/sign-in", "Wrong password");
   }
 
   return redirect("/protected");
@@ -96,8 +157,34 @@ export const forgotPasswordAction = async (formData: FormData) => {
     return encodedRedirect("error", "/forgot-password", "Email is required");
   }
 
+  if (!isValidEmail(email)) {
+    return encodedRedirect("error", "/forgot-password", "Invalid email address");
+  }
+
+  if (detectInjection(email)) {
+    return encodedRedirect(
+      "error",
+      "/forgot-password",
+      "Tsk tsk tsk! No injections here!",
+    );
+  }
+
+  // Check if email isn't already registered
+  const { data: user } = await supabase
+   .from("contributor")
+   .select("*")
+   .eq("emailaddress", email)
+   .single();
+  if (!user) {
+    return encodedRedirect(
+      "error",
+      "/forgot-password",
+      "Unfortunately, we don't have that email registered in our system. Please check your spelling or contact us if you think this is an error.",
+    )
+  }
+
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/auth/callback?redirect_to=/protected/reset-password`,
+    redirectTo: `${origin}/auth/callback?redirect_to=/reset-password`,
   });
 
   if (error) {
@@ -105,7 +192,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/forgot-password",
-      "Could not reset password",
+      "Email doesn't exist",
     );
   }
 
@@ -113,10 +200,12 @@ export const forgotPasswordAction = async (formData: FormData) => {
     return redirect(callbackUrl);
   }
 
+  await supabase.auth.signOut();
+
   return encodedRedirect(
     "success",
-    "/forgot-password",
-    "Check your email for a link to reset your password.",
+    "/sign-in",
+    "Check your email for a link to reset your password",
   );
 };
 
@@ -129,15 +218,15 @@ export const resetPasswordAction = async (formData: FormData) => {
   if (!password || !confirmPassword) {
     encodedRedirect(
       "error",
-      "/protected/reset-password",
-      "Password and confirm password are required",
+      "/reset-password",
+      "Password and password confirmation are required",
     );
   }
 
   if (password !== confirmPassword) {
     encodedRedirect(
       "error",
-      "/protected/reset-password",
+      "/reset-password",
       "Passwords do not match",
     );
   }
@@ -149,16 +238,17 @@ export const resetPasswordAction = async (formData: FormData) => {
   if (error) {
     encodedRedirect(
       "error",
-      "/protected/reset-password",
+      "/reset-password",
       "Password update failed",
     );
   }
 
-  encodedRedirect("success", "/protected/reset-password", "Password updated");
+  encodedRedirect("success", "/sign-in", "Your password has been updated!");
 };
 
 export const signOutAction = async () => {
+  const redirectResponse = redirect("/sign-in");
   const supabase = await createClient();
-  await supabase.auth.signOut();
-  return redirect("/");
+  supabase.auth.signOut();
+  return redirectResponse;
 };

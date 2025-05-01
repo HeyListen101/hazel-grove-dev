@@ -2,7 +2,7 @@ import React from 'react';
 
 type TooltipPosition = 'top' | 'right' | 'bottom' | 'left';
 
-interface MapTooltipProps {
+type  MapTooltipProps = {
   title: string;
   position: TooltipPosition;
 }

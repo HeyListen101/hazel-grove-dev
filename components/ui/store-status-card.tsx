@@ -1,4 +1,4 @@
-interface StoreStatusCardProps {
+type StoreStatusCardProps = {
     isOpen: boolean;
   }
   
