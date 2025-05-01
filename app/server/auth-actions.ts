@@ -4,19 +4,79 @@ import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-function isValidEmail(email: string) {
-  // Regular expression for email validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex;
+function isValidEmail(email: string): boolean {
+  if (!email) return false;
+
+  // Normalize input
+  const trimmed = email.trim().toLowerCase();
+
+  // General email structure check
+  const basicRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!basicRegex.test(trimmed)) return false;
+
+  // Whitelisted common domains and patterns
+  const allowedDomains = [
+    "gmail.com",
+    "yahoo.com",
+    "hotmail.com",
+    "protonmail.com",
+    "outlook.com",
+    "icloud.com",
+    "google.com",
+    "github.com",
+    "apple.com",
+    "microsoft.com",
+    "yahoo.co.jp",
+    "yahoo.co.uk",
+    "hotmail.co.uk",
+    "outlook.co.jp",
+    "outlook.co.uk",
+    "icloud.com",
+    "protonmail.ch",
+    "protonmail.com",
+    "protonmail.me",
+    "protonmail.net",
+    "protonmail.org",
+    "protonmail.se",
+    "proton.me",
+    "protonmail.com.br",
+    "protonmail.ru",
+    "protonmail.de",
+    "protonmail.fr",
+    "protonmail.es",
+    "protonmail.it",
+    "protonmail.net",
+    "protonmail.co.uk", 
+  ];
+
+  const domain = trimmed.split("@")[1];
+
+  // Allow common providers, .edu domains, and valid company-like domains
+  const isAllowed =
+    allowedDomains.includes(domain) ||
+    domain.endsWith(".edu") ||
+    /^[a-z0-9-]+\.(com|org|net|io|dev|ai)$/.test(domain);
+
+  return isAllowed;
 }
 
-function detectInjection(input: string) {
-  // Regular expression for SQL injection detection
-  const sqlInjectionRegex = /(\b(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE)\b)|(--)/i;
-  // Regular expression for HTML injection detection
-  const htmlInjectionRegex = /<script>|<\/script>|<img|<\/img>/i;
-  return sqlInjectionRegex.test(input) || htmlInjectionRegex.test(input);
+
+
+function detectInjection(input: string): boolean {
+  if (!input) return false;
+
+  // Normalize input
+  const normalizedInput = input.trim().toLowerCase();
+
+  // SQL Injection patterns
+  const sqlPattern = /('|--|;|\b(OR|AND|UNION|SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|EXEC|FROM|WHERE)\b)/i;
+
+  // HTML/JS Injection patterns
+  const htmlPattern = /<[^>]*>|javascript:|onerror=|onload=|alert\(|eval\(|document\.|window\./i;
+
+  return sqlPattern.test(normalizedInput) || htmlPattern.test(normalizedInput);
 }
+
 
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
@@ -111,6 +171,28 @@ export const customSignInAction = async (formData: FormData) => {
     return encodedRedirect("error", "/sign-in", "Invalid email address");
   }
 
+  if (detectInjection(email) || detectInjection(password)) {
+    return encodedRedirect(
+      "error",
+      "/sign-in",
+      "Tsk tsk tsk! No injections here!",
+    );
+  }
+
+  // Check if email isn't already registered
+  const { data: user } = await supabase
+  .from("contributor")
+  .select("*")
+  .eq("emailaddress", email)
+  .single();
+  if (!user) {
+    return encodedRedirect(
+      "error",
+      "/sign-in",
+      "Unfortunately, we don't have that email registered in our system. Please check your spelling or contact us if you think this is an error.",
+    )
+  }
+
   const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -118,7 +200,7 @@ export const customSignInAction = async (formData: FormData) => {
 
   if (error) {
     console.error("Sign-in error:", error.message);
-    return encodedRedirect("error", "/sign-in", "Wrong password");
+    return encodedRedirect("error", "/sign-in", "Wrong credentials");
   }
 
   return redirect("/protected");
@@ -157,10 +239,6 @@ export const forgotPasswordAction = async (formData: FormData) => {
     return encodedRedirect("error", "/forgot-password", "Email is required");
   }
 
-  if (!isValidEmail(email)) {
-    return encodedRedirect("error", "/forgot-password", "Invalid email address");
-  }
-
   if (detectInjection(email)) {
     return encodedRedirect(
       "error",
@@ -169,18 +247,23 @@ export const forgotPasswordAction = async (formData: FormData) => {
     );
   }
 
-  // Check if email isn't already registered
-  const { data: user } = await supabase
-   .from("contributor")
-   .select("*")
-   .eq("emailaddress", email)
-   .single();
+  const { data: user, error : dbError } = await supabase
+  .from("contributor")
+  .select("*")
+  .eq("emailaddress", email.toLowerCase().trim())
+  .maybeSingle();
+
+  if (dbError) {
+    console.error("Database error:", dbError.message);
+    return encodedRedirect("error", "/forgot-password", "Something went wrong. Please try again.");
+  }
+
   if (!user) {
     return encodedRedirect(
       "error",
       "/forgot-password",
-      "Unfortunately, we don't have that email registered in our system. Please check your spelling or contact us if you think this is an error.",
-    )
+      "Unfortunately, we don't have that email registered in our system. Please check your spelling or contact us if you think this is an error."
+    );
   }
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
