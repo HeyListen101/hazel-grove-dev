@@ -10,7 +10,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
-import backgroundImage from "@/components/assets/background-images/LandingPage.png";
 import { ErrorDisplay } from "@/components/error-display";
 
 export default async function Signup(props: {
@@ -59,7 +58,7 @@ export default async function Signup(props: {
           </Select>
          
           {/* Sign Button */}
-          <SubmitButton pendingText="Signing Up..." formAction={signUpAction}>
+          <SubmitButton pendingText="Signing Up..." formAction={signUpAction} className="hover:bg-[#57503A]">
             Sign Up
           </SubmitButton>
         </form>

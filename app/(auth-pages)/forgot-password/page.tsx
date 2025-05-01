@@ -32,7 +32,7 @@ export default async function ForgotPassword(props: {searchParams: Promise<Messa
           <SubmitButton
             pendingText="Sending Reset Link..."
             formAction={forgotPasswordAction}
-            className="font-semibold"
+            className="font-semibold hover:bg-[#57503A]"
           >
             Send Reset Link
           </SubmitButton>

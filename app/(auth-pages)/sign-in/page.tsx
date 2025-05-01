@@ -46,7 +46,7 @@ export default async function Home(props: {searchParams: Promise<Message>;}) {
         {/* Sign-up and Forgot Password Links */}
         <div className="flex justify-between w-full text-sm mb-4">
           <Link href="/sign-up" className="text-xs text-[#696047] hover:underline">
-            Sign-up or Register
+            Sign Up or Register
           </Link>
           <Link href="/forgot-password" className="text-xs text-[#696047] hover:underline">
             Forgot Password?
