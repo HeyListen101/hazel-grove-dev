@@ -11,11 +11,12 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-[#6B5C3D] text-white",
+        default: 
+          "bg-[#6B5C3D] text-white",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "bg-white text-[#6B5C3D] ",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
@@ -23,7 +24,7 @@ const buttonVariants = cva(
         chat: "flex items-center bg-white text-black shadow-lg hover:bg-gray-100",
       },
       size: {
-        default: "h-12 w-full px-6 py-2 rounded-md", 
+        default: "h-12 w-full px-6 py-2 rounded-md text-md font-semibold", 
         sm: "h-9 px-4 rounded-md",
         lg: "h-14 px-8 rounded-md",
         icon: "h-10 w-10",
