@@ -1,10 +1,10 @@
 import { ThemeProvider } from "next-themes";
-import { Geist } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  display: "swap",
-  subsets: ["latin"],
+const poppins = Poppins({
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'], 
+  subsets: ["latin"], 
 });
 
 export const metadata = {
@@ -19,7 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={geistSans.className}>
+      <body className={poppins.className}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}
           </ThemeProvider>
