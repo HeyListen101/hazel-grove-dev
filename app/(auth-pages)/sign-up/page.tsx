@@ -1,5 +1,4 @@
 import { signUpAction } from "@/app/server/auth-actions";
-import { Message } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,17 +11,12 @@ import {
 import Link from "next/link";
 import backgroundImage from "@/components/assets/background-images/LandingPage.png";
 import { ErrorDisplay } from "@/components/error-display";
+  
+export default async function SignUp(props: { searchParams: Promise<Record<string, string>> }) {
+  const params = await props.searchParams;
+  const errorMessage = params?.error && !params?.clear_error ? params.error : null;
 
-export default async function Signup(props: {
-  searchParams: Promise<Message>;
-}) {
-  const searchParams = await props.searchParams;
-  
-  // Check if there's an error message in the URL params
-  const errorMessage = "error" in searchParams && !("clear_error" in searchParams)
-  ? searchParams.error 
-  : null;
-  
+
   return (
     <div
       className="fixed inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden"

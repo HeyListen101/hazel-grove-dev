@@ -5,14 +5,11 @@ import { Input } from "@/components/ui/input";
 import { SubmitButton } from "@/components/submit-button";
 import { customSignInAction, googleSignInAction } from '@/app/server/auth-actions';
 import Link from "next/link";
-import { Message } from "@/components/form-message";
 
-export default function Home(props: {searchParams: Message}) {
-  const searchParams = props.searchParams;
-  const errorMessage = "error" in searchParams && !("clear_error" in searchParams)
-  ? searchParams.error 
-  : null;
 
+export default async function Home(props: { searchParams: Promise<Record<string, string>> }) {
+  const params = await props.searchParams;
+  const errorMessage = params?.error && !params?.clear_error ? params.error : null;
   // We can return this entire thing as a client side component so that we can clear the input fields with useState or useEffect whenever an error occurs.
   // So that we have an automatic cleaner for the form data. 
   // But this isn't as important as it is.

@@ -4,13 +4,10 @@ import { Input } from "@/components/ui/input";
 import backgroundImage from "@/components/assets/background-images/LandingPage.png";
 import Link from "next/link";
 import { ErrorDisplay } from "@/components/error-display";
-import { Message } from "@/components/form-message";
 
-export default function ForgotPassword(props: {searchParams: Message}) {
-  const searchParams = props.searchParams;
-  const errorMessage = "error" in searchParams && !("clear_error" in searchParams)
-  ? searchParams.error 
-  : null;
+export default async function ForgotPassword(props: { searchParams: Promise<Record<string, string>> }) {
+  const params = await props.searchParams;
+  const errorMessage = params?.error && !params?.clear_error ? params.error : null;
 
   return (
     <div
