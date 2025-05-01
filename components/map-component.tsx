@@ -160,8 +160,6 @@ const mapComponent = () => {
       setLoading(true);
       setError(null);
 
-      const { data: { session } } = await supabase.auth.getSession();
-
       // Joined the tables and selected everything from both tables
       const { data: store, error } = await supabase
         .from('store')

@@ -19,12 +19,12 @@ export default async function Home() {
         <h2 className="text-xl font-bold mb-4 text-black">Log In</h2>
 
         {/* Sign In Form */}
-        <form action={customSignInAction} className="w-full flex flex-col">
+        <form className="w-full flex flex-col">
           {/* Email Field */}
-          <Input type="email" name="email" placeholder="Email Address" className="mb-3" required/>
+          <Input type="email" name="email" placeholder="Email Address" className="input-field mb-3" required/>
 
           {/* Password Field */}
-          <Input type="password" name="password" placeholder="Password" className="mb-3" required/>
+          <Input type="password" name="password" placeholder="Password" className="input-field mb-3" required/>
 
           {/* Sign-up and Forgot Password Links */}
           <div className="flex justify-between w-full text-sm mb-4">

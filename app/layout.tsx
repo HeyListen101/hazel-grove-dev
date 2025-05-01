@@ -1,4 +1,5 @@
 import { ThemeProvider } from "next-themes";
+import { ErrorProvider } from "@/app/server/error-context";
 import { Geist } from "next/font/google";
 import "./globals.css";
 
@@ -20,9 +21,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={geistSans.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-        </ThemeProvider>
+        <ErrorProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+          </ThemeProvider>
+        </ErrorProvider>
       </body>
     </html>
   );
