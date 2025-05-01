@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
-import { MapSearchProvider } from "../server/map-search-context";
+import { MapSearchProvider } from "../../components/map-search-context";
 import AuthButton from "@/components/header-auth";
 import VisitaLogo from "@/components/visita-logo";
 import ChatBox from "@/components/chat-component";

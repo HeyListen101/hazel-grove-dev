@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import StoreComponent from './store-component';
 import StoreStatusCard from './ui/store-status-card';
 import VisitaPlaceholder from './visita-placeholder';
-import { useMapSearch } from '@/app/server/map-search-context';
+import { useMapSearch } from '@/components/map-search-context';
 
 const mapComponent = () => {
   const [scale, setScale] = useState(1);

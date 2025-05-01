@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
-import { useMapSearch } from '@/app/server/map-search-context';
+import { useMapSearch } from '@/components/map-search-context';
 
 type SearchResult = {
   productName: string;

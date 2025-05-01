@@ -1,5 +1,5 @@
 import { signUpAction } from "@/app/server/auth-actions";
-import { FormMessage, Message } from "@/components/form-message";
+import { Message } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,28 +11,7 @@ import {
 } from "@/components/ui/select";
 import Link from "next/link";
 import backgroundImage from "@/components/assets/background-images/LandingPage.png";
-
-// Custom error display component
-function ErrorDisplay({ message }: { message: string }) {
-  return (
-    <div className="w-full mb-4 p-4 rounded-md bg-red-50 border border-red-200">
-      <div className="flex items-start">
-        <div className="flex-shrink-0">
-          {/* Error icon */}
-          <svg className="h-5 w-5 text-red-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-          </svg>
-        </div>
-        <div className="ml-3">
-          <h3 className="text-sm font-medium text-red-800">Sign Up Error</h3>
-          <div className="mt-1 text-sm text-red-700">
-            {message}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+import { ErrorDisplay } from "@/components/error-display";
 
 export default async function Signup(props: {
   searchParams: Promise<Message>;
@@ -40,7 +19,9 @@ export default async function Signup(props: {
   const searchParams = await props.searchParams;
   
   // Check if there's an error message in the URL params
-  const errorMessage = "error" in searchParams ? searchParams.error : null;
+  const errorMessage = "error" in searchParams && !("clear_error" in searchParams)
+  ? searchParams.error 
+  : null;
   
   return (
     <div
@@ -71,7 +52,7 @@ export default async function Signup(props: {
           <Input type="username" name="username" placeholder="Username" required className="input-field"/>
          
           <Select name="affiliation">
-              <SelectTrigger className="w-full bg-[#696047] text-white placeholder:text-white/70 hover:bg-[#57503A]">
+              <SelectTrigger className="w-full bg-[#696047] text-white placeholder:text-white/70 hover:bg-[#57503A] focus:ring-0 focus:outline-none border-none">
               <SelectValue placeholder="Select Affiliation" className="placeholder:text-white/70" />
             </SelectTrigger>
             <SelectContent className="bg-[#696047] text-white border-none shadow-lg">
