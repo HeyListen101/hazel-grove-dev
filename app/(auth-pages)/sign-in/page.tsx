@@ -15,10 +15,9 @@ export default function Home(props: {searchParams: Message}) {
   return (
     <div
       className={`fixed inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden w-full h-full bg-white sm:bg-[url(@/components/assets/background-images/LandingPage.png)]`}
-      
     >
       <div className="bg-white p-8 rounded-[20px] sm:shadow-lg w-96 flex flex-col items-center">
-        <h2 className="text-xl font-bold mb-7 text-black">Log In</h2>
+        <h2 className="text-lg font-bold mb-7 text-black">Log In</h2>
         {errorMessage && <ErrorDisplay message={errorMessage} />}
         <form 
         action={customSignInAction} 
@@ -30,7 +29,7 @@ export default function Home(props: {searchParams: Message}) {
           type="email" 
           name="email" 
           placeholder="Email Address" 
-          className="input-field mb-3 text-sm" 
+          className="input-field mb-3 text-sm text-[#111111]" 
           required
         />
        
@@ -39,16 +38,16 @@ export default function Home(props: {searchParams: Message}) {
           type="password" 
           name="password" 
           placeholder="Password" 
-          className="input-field mb-3 text-sm" 
+          className="input-field mb-3 text-sm text-[#111111]" 
           required
         />
         
         {/* Sign-up and Forgot Password Links */}
         <div className="flex justify-between w-full text-sm mb-4">
-          <Link href="/sign-up" className="text-xs text-[#696047] hover:text-[#57503A]">
+          <Link href="/sign-up" className="text-xs text-[#696047] hover:underline">
             Sign-up or Register
           </Link>
-          <Link href="/forgot-password" className="text-xs text-[#696047] hover:text-[#57503A]">
+          <Link href="/forgot-password" className="text-xs text-[#696047] hover:underline">
             Forgot Password?
           </Link>
         </div>
@@ -57,7 +56,7 @@ export default function Home(props: {searchParams: Message}) {
         <SubmitButton
           type="submit"
           pendingText="Signing In..."
-          className="bg-[#696047] text-white rounded-md font-semibold text-base hover:bg-[#57503A] transition-colors"
+          className="bg-[#696047] text-white rounded-md font-semibold hover:bg-[#57503A] transition-colors"
         >
           Continue
         </SubmitButton>
@@ -93,7 +92,7 @@ export default function Home(props: {searchParams: Message}) {
                 <path fill="none" d="M0 0h48v48H0z"></path>
               </svg>
             </div>
-            <span className="gsi-material-button-contents font-normal text-base">Continue with Google</span>
+            <span className="gsi-material-button-contents font-medium text-sm">Continue with Google</span>
           </div>
         </SubmitButton>
       </form>

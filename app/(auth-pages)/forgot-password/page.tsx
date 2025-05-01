@@ -1,7 +1,6 @@
 import { forgotPasswordAction } from "@/app/server/auth-actions";
 import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
-import backgroundImage from "@/components/assets/background-images/LandingPage.png";
 import Link from "next/link";
 import { ErrorDisplay } from "@/components/error-display";
 import { Message } from "@/components/form-message";
@@ -14,15 +13,10 @@ export default function ForgotPassword(props: {searchParams: Message}) {
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden"
-      style={{
-        backgroundImage: `url(${backgroundImage.src})`,
-        width: "100vw",
-        height: "100vh",
-      }}
+      className={`fixed inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden w-full h-full bg-white sm:bg-[url(@/components/assets/background-images/LandingPage.png)]`}
     >
-      <div className="bg-white p-8 rounded-xl shadow-lg w-96 flex flex-col items-center">
-        <h2 className="text-xl font-bold mb-4 text-black">Forgot Password</h2>
+      <div className="bg-white p-8 rounded-[20px] sm:shadow-lg w-96 flex flex-col items-center">
+        <h2 className="text-lg font-bold mb-7 text-black">Forgot Password</h2>
         
         {errorMessage && <ErrorDisplay message={errorMessage} />}
         
@@ -31,19 +25,20 @@ export default function ForgotPassword(props: {searchParams: Message}) {
             type="email"
             name="email"
             placeholder="Email Address"
-            className="input-field mb-4"
+            className="input-field mb-4 text-sm text-[#111111]"
             required
           />
 
           <SubmitButton
             pendingText="Sending Reset Link..."
             formAction={forgotPasswordAction}
+            className="font-semibold"
           >
             Send Reset Link
           </SubmitButton>
            {/* Login Link */}
            <div className="mt-4 text-sm text-gray-600 text-center w-full">
-            Suddenly remembered your password?{" "}
+            Suddenly remembered your password?<br />
             <Link href="/sign-in" className="text-blue-600 hover:underline">
               Log In
             </Link>
