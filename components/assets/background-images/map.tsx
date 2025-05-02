@@ -30,12 +30,7 @@ const supabase = createClient();
 export const fetchStores = async (): Promise<{storeData: Store[], storeStatusMap: Record<string, boolean>}> => {
   try {
     // Joined the tables and selected everything from both tables
-    const { data: stores, error } = await supabase
-      .from('store')
-      .select(`
-        *,
-        storestatus:storestatus(*)
-      `);
+    const { data: stores, error } = await supabase.from('store').select(`*, storestatus:storestatus(*)`);
 
     if (error) {
       return { storeData: [], storeStatusMap: {} };
@@ -48,7 +43,6 @@ export const fetchStores = async (): Promise<{storeData: Store[], storeStatusMap
       const isOpen = store.storestatus?.status === true;
       storeStatusMap[store.storeid] = isOpen;
     });
-
     return { storeData: stores || [], storeStatusMap };
   } catch (error) {
     return { storeData: [], storeStatusMap: {} };

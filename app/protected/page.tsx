@@ -9,9 +9,7 @@ import SearchBar from "@/components/search-bar";
 
 export default async function ProtectedPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     return redirect("/sign-in");
@@ -21,6 +19,7 @@ export default async function ProtectedPage() {
 
   return (
     <MapSearchProvider>
+      
       <div className="flex flex-col w-screen h-screen overflow-hidden">
         {/* Header */}
         <div className="header-auth flex justify-between items-center shadow-md p-[32] h-16 backdrop-blur-sm z-20">
@@ -41,6 +40,7 @@ export default async function ProtectedPage() {
           <ChatBox messages={data ?? []} />
         </div>
       </div>
+
     </MapSearchProvider>
   );
 }
