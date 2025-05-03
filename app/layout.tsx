@@ -19,7 +19,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={poppins.className} suppressHydrationWarning>
-      <body className="antialiased relative w-screen h-screen">
+      <body 
+        className="
+          antialiased relative w-screen h-screen overflow-auto
+          [&::-webkit-scrollbar]:w-0
+          [&::-webkit-scrollbar]:h-0
+        "
+      >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}
           </ThemeProvider>

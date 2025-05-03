@@ -224,3 +224,7 @@
     box-shadow: none;
   }
 }
+
+.auto-width {
+  width: max(1480px, 100vw + 200px);
+}

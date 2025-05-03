@@ -408,7 +408,7 @@ export const mapCSS: { [key: string]: React.CSSProperties } = {
       height: '1192px',
       left: '1079px',
       top: '179px',
-      background: 'linear-gradient(180deg, #FFFFFF 0%, #D6D8D9 5%, #D6D8D9 95%, #FFFFFF 100%)',
+      background: 'white',
     },
     rectangle36: {
       position: 'absolute',
@@ -416,7 +416,7 @@ export const mapCSS: { [key: string]: React.CSSProperties } = {
       height: '471px',
       left: '2027px',
       top: '787px',
-      background: 'rgba(153, 157, 160, 0.4)',
+      background: 'white',
       borderRadius: '25px 25px 0px 0px',
     },
     rectangle35: {
@@ -425,7 +425,7 @@ export const mapCSS: { [key: string]: React.CSSProperties } = {
       height: '819px',
       left: '1395px',
       top: '439px',
-      background: 'rgba(153, 157, 160, 0.4)',
+      background: 'white',
       borderRadius: '25px 25px 0px 0px',
     },
     rectangle34: {
@@ -434,7 +434,7 @@ export const mapCSS: { [key: string]: React.CSSProperties } = {
       height: '278px',
       left: '2246px',
       top: '787px',
-      background: 'rgba(153, 157, 160, 0.4)',
+      background: 'white',
       borderRadius: '25px 25px 0px 0px',
       
     },
@@ -444,7 +444,7 @@ export const mapCSS: { [key: string]: React.CSSProperties } = {
       height: '54px',
       left: '1134px',
       top: '333px',
-      background: 'rgba(153, 157, 160, 0.4)',
+      background: 'white',
       borderRadius: '0px 18px 0px 0px',
       
     },
@@ -454,7 +454,7 @@ export const mapCSS: { [key: string]: React.CSSProperties } = {
       height: '21px',
       left: '1419px',
       top: '1044px',
-      background: 'rgba(153, 157, 160, 0.4)',
+      background: 'white',
       borderRadius: '0px',
       
     },
@@ -464,7 +464,7 @@ export const mapCSS: { [key: string]: React.CSSProperties } = {
       height: '21px',
       left: '2050px',
       top: '1044px',
-      background: 'rgba(153, 157, 160, 0.4)',
+      background: 'white',
       borderRadius: '0px',
       
     },
@@ -474,7 +474,7 @@ export const mapCSS: { [key: string]: React.CSSProperties } = {
       height: '22px',
       left: '1419px',
       top: '1236px',
-      background: 'rgba(153, 157, 160, 0.4)',
+      background: 'white',
       borderRadius: '0px',
       
     },
@@ -484,7 +484,7 @@ export const mapCSS: { [key: string]: React.CSSProperties } = {
       height: '986px',
       left: '2287px',
       top: '385px',
-      background: 'linear-gradient(180deg, #D6D8D9 94.51%, #FFFFFF 100%)',
+      background: 'white',
       borderRadius: '0px',
       
     },
@@ -779,7 +779,7 @@ export const mapCSS: { [key: string]: React.CSSProperties } = {
       height: '16px',
       left: '141px',
       top: '299px',
-      background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.4) 0%, rgba(153, 157, 160, 0.4) 10%)',
+      background: 'white',
       borderRadius: '0px',
       
     },
