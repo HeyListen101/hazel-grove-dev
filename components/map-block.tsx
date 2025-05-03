@@ -8,12 +8,14 @@ interface MapBlockProps {
     color: string,
     width?: number,
     height?: number,
+    icon?: string,
+    viewBox?: string,
 }
 
-const MapBlock: React.FC<MapBlockProps> = ({ rowStart, rowEnd, colStart, colEnd, color, width, height }) => {
+const MapBlock: React.FC<MapBlockProps> = ({ rowStart, rowEnd, colStart, colEnd, color, width, height, icon, viewBox }) => {
     return (
         <div 
-            className="text-black bg-green-400 rounded-[8px]"
+            className="text-black bg-green-400 rounded-[8px] flex items-center justify-center"
             style={{
                 gridRowStart: `${rowStart}`,
                 gridRowEnd: `${rowEnd}`,
@@ -24,6 +26,11 @@ const MapBlock: React.FC<MapBlockProps> = ({ rowStart, rowEnd, colStart, colEnd,
                 height: `${height ? height : 100}%`,
             }}
         >
+            { icon &&
+            <svg xmlns="http://www.w3.org/2000/svg" width="40%" height="auto" viewBox={viewBox} className="">
+                <path fill="#ffffff" d={icon} />
+            </svg>
+            }
         </div>
     )
 }

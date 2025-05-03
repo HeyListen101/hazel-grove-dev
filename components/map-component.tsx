@@ -249,7 +249,7 @@ const mapComponent = () => {
   return (
     <div
       ref={containerRef}
-      className='overflow-hidden flex justify-center'
+      className='flex justify-center size-full'
     >
       <div
         style={{
