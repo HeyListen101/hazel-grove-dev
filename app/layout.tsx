@@ -18,7 +18,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={poppins.className} suppressHydrationWarning>
+    <html lang="en" className={poppins.className} suppressHydrationWarning
+      style={{
+        overflow: 'auto',
+      }}
+    >
       <body 
         className="
           antialiased relative w-screen h-screen overflow-auto

@@ -225,6 +225,7 @@
   }
 }
 
-.auto-width {
+.auto-size {
   width: max(1480px, 100vw + 200px);
+  height: max(920px, 100vh + 200px);
 }
