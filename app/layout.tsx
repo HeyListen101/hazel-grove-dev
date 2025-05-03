@@ -18,8 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={poppins.className}>
-      <body className="antialiased relative w-screen h-screen overflow-hidden">
+    <html lang="en" className={poppins.className} suppressHydrationWarning>
+      <body className="antialiased relative w-screen h-screen">
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}
           </ThemeProvider>

@@ -166,7 +166,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-white;
   }
 }
 
@@ -182,18 +182,6 @@
     font-size: 36px;
     line-height: 45px;
     color: #1F1C15;
-  }
-
-  .map-container {
-    @apply w-full;
-    height: calc(100vh - 7.5rem + 8rem);
-    overflow: hidden;
-    position: relative;
-    margin-top: -4.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #ffffff;
   }
 
   .stores-container {

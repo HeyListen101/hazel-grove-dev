@@ -260,7 +260,7 @@ const mapComponent = () => {
           transformOrigin: 'center top',
           left: '50%',
           marginLeft: `-${originalWidth / 2}px`,
-          top: '-0.5rem',
+          top: '-2.5rem',
         }}
       >
         {/* AnimatePresence to handle both components */}
