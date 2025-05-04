@@ -58,8 +58,6 @@
 .gsi-material-button .gsi-material-button-contents {
   -webkit-flex-grow: 0;
   flex-grow: 0;
-  font-family: 'Roboto', arial, sans-serif;
-  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: top;
@@ -174,7 +172,7 @@
 
 @layer components {
   .header-auth {
-    @apply w-full py-[13.5] flex items-center px-6 bg-gray-100 shadow-md;
+    @apply w-full py-[13.5] flex items-center px-6 bg-[#f5f5f5] shadow-md;
   }
 
   .header-auth-logo {
@@ -188,7 +186,7 @@
 
   .map-container {
     @apply w-full;
-    height: calc(100vh - 4.5rem + 6rem);
+    height: calc(100vh - 7.5rem + 8rem);
     overflow: hidden;
     position: relative;
     margin-top: -4.5rem;
@@ -196,5 +194,45 @@
     justify-content: center;
     align-items: center;
     background-color: #ffffff;
+  }
+
+  .stores-container {
+    position: absolute;
+    width: 709px;
+    height: 891px;
+    left: 217px;
+    top: 406px;
+    z-index: 15;
+    overflow: hidden; /* This ensures content doesn't overflow the rounded corners */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .store-status-card{
+    position: absolute;
+    top: 390px;
+    left: 859px;
+    z-index: 500;
+    transform: translate(0, 0);
+    pointer-events: none;
+  }
+
+  .input-field {
+    background-color: #F5F5F5;
+    color: white;
+    border: none;
+    outline: none;
+  }
+    
+  .input-field::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+    
+  .input-field:hover {
+    background-color: #F5F5F5;
+  }
+  .input-field:focus,
+  .input-field:focus-visible {
+    outline: none;
+    box-shadow: none;
   }
 }

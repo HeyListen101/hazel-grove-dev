@@ -1,10 +1,10 @@
 import { ThemeProvider } from "next-themes";
-import { Geist } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  display: "swap",
-  subsets: ["latin"],
+const poppins = Poppins({
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'], 
+  subsets: ["latin"], 
 });
 
 export const metadata = {
@@ -18,11 +18,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={geistSans.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-        </ThemeProvider>
+    <html lang="en" className={poppins.className}>
+      <body className="antialiased relative w-screen h-screen overflow-hidden">
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+          </ThemeProvider>
       </body>
     </html>
   );
