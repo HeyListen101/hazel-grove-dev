@@ -6,7 +6,17 @@ A web-based VSU Market Directory designed to help students, faculty, staff, and 
 | HG.010.000 | 2025-02-24 |
 | HG.010.001 | 2025-03-11 |
 | HG.010.002 | 2025-03-30 |
+| HG.010.003 | 2025-04-07 |
 | ... | ... |
+
+## HG.010.003 Release Notes
+- Updated styling
+- Merged main to dev branch with baseline commit
+- Added base map component to main branch
+- [Map] Added map component
+- Merged second functionality (real-time chat) to main branch
+- [NF] Added real-time chat
+- Added community chat button
 
 ## HG.010.002 Release Notes
 - Fixed sign-up routing
