@@ -12,7 +12,7 @@ A web-based VSU Market Directory designed to help students, faculty, staff, and 
 
 ## HG.010.004 Release Notes
 - Improve user interpretability on the the reset password errors
-- Updated User Authentication
+- Updated user authentication
 - Add error displays in reset password page
 - Add mobile responsiveness to reset password page and minor UI changes for consistency across all auth pages
 - Fix issues with the css styling of auth pages
@@ -22,12 +22,12 @@ A web-based VSU Market Directory designed to help students, faculty, staff, and 
 - Improved user log In
 - Updated chat component
 - Cleaned files
-- Updated Search bar
+- Updated search bar
 - [NF] Search bar
 - Updated animation
 - UI/UX optimization
 - [NF] UI/UX optimization
-- Updated Store information manager
+- Updated store information manager
 - Updated product information manager
 - [NF] Created product information display
 - Updated interactive map
