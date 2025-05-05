@@ -1,6 +1,7 @@
 import React from "react";
 
 interface MapBlockProps {
+    id?: number,
     rowStart: number, 
     rowEnd: number,
     colStart: number,
@@ -10,12 +11,13 @@ interface MapBlockProps {
     height?: number,
     icon?: string,
     viewBox?: string,
+    clickBlock?: (id: number) => void,
 }
 
 const MapBlock: React.FC<MapBlockProps> = ({ rowStart, rowEnd, colStart, colEnd, color, width, height, icon, viewBox }) => {
     return (
         <div 
-            className="text-black bg-green-400 rounded-[8px] flex items-center justify-center"
+            className="text-black bg-green-400 rounded-[8px] flex items-center justify-center cursor-pointer"
             style={{
                 gridRowStart: `${rowStart}`,
                 gridRowEnd: `${rowEnd}`,
