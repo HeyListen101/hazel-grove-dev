@@ -11,8 +11,7 @@ type Store = {
   latitude: number;
   datecreated: string;
   isarchived: boolean;
-} 
-
+}
 
 type RectangleData = {
   id: string;

@@ -52,15 +52,18 @@ export default async function ProtectedPage() {
 
   return (
     <MapSearchProvider>
-      <header className="fixed flex justify-between items-center mt-[20px] px-[20px] w-full">
-        <SearchBar />
-        <AuthButton />
+      <header className="fixed top-0 left-0 right-0 header-auth flex justify-between items-center shadow-md p-[32px] h-16 backdrop-blur-sm z-[20]">
+          <VisitaLogo />
+          <div className="flex-1 max-w-md mx-4">
+            <SearchBar />
+          </div>
+          <AuthButton />
       </header>
-      <main className="touch-auto bg-gradient-to-b from-[#89F5F4] to-[#E4F7BA] auto-size flex items-center justify-center">
+      <main className="touch-auto bg-white flex items-center justify-center overflow-hidden fixed top-16 inset-x-0 bottom-0">
         <div 
-          className="w-[1280px] h-[720px] grid place-items-center gap-[2px]"
+          className="w-[96%] h-[91%] grid place-items-center gap-[2px]"
           style={{
-            gridTemplateRows: "repeat(21, 1fr)",
+            gridTemplateRows: "repeat(20, 1fr)",
             gridTemplateColumns: "repeat(40, 1fr)",
           }}
         >
@@ -76,15 +79,15 @@ export default async function ProtectedPage() {
           <MapBlock rowStart={3} rowEnd={5} colStart={1} colEnd={2} color={color.d} viewBox="0 0 24 24" icon={svgPathVal.clothing}/>
 
           {/* Roads and Walkways */}
-          <MapBlock rowStart={3} rowEnd={4} colStart={4} colEnd={19} height={30} color="white"/>
-          <MapBlock rowStart={3} rowEnd={5} colStart={18} colEnd={38} height={50} color="white"/>
-          <MapBlock rowStart={1} rowEnd={22} colStart={18} colEnd={19} color="white"/>
-          <MapBlock rowStart={4} rowEnd={22} colStart={37} colEnd={38} color="white"/>
-          <MapBlock rowStart={5} rowEnd={21} colStart={24} colEnd={25} width={30} color="white"/>
-          <MapBlock rowStart={13} rowEnd={21} colStart={33} colEnd={34} width={30} color="white"/>
-          <MapBlock rowStart={13} rowEnd={18} colStart={36} colEnd={37} width={30} color="white"/>
-          <MapBlock rowStart={17} rowEnd={18} colStart={24} colEnd={37} height={30} color="white"/>
-          <MapBlock rowStart={20} rowEnd={21} colStart={24} colEnd={34} height={30} color="white"/>
+          <MapBlock rowStart={3} rowEnd={4} colStart={4} colEnd={19} height={30} color="#d6d8d9"/>
+          <MapBlock rowStart={3} rowEnd={5} colStart={18} colEnd={38} height={50} color="#d6d8d9"/>
+          <MapBlock rowStart={1} rowEnd={22} colStart={18} colEnd={19} color="#d6d8d9"/>
+          <MapBlock rowStart={4} rowEnd={22} colStart={37} colEnd={38} color="#d6d8d9"/>
+          <MapBlock rowStart={5} rowEnd={21} colStart={24} colEnd={25} width={30} color="#d6d8d9"/>
+          <MapBlock rowStart={13} rowEnd={21} colStart={33} colEnd={34} width={30} color="#d6d8d9"/>
+          <MapBlock rowStart={13} rowEnd={18} colStart={36} colEnd={37} width={30} color="#d6d8d9"/>
+          <MapBlock rowStart={17} rowEnd={18} colStart={24} colEnd={37} height={30} color="#d6d8d9"/>
+          <MapBlock rowStart={20} rowEnd={21} colStart={24} colEnd={34} height={30} color="#d6d8d9"/>
  
           {/* Top-Right Stores */}
           <MapBlock rowStart={1} rowEnd={2} colStart={20} colEnd={21} color={color.a} viewBox="0 0 256 256" icon={svgPathVal.cookie}/>
