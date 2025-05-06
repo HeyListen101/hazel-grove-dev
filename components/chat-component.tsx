@@ -9,12 +9,27 @@ import { Send, X } from "lucide-react";
 import EmojiPicker from 'emoji-picker-react';
 
 // chatmessage table structure since supabase needs docker to automatically create the table for us
-type  ChatMessage = {
+type ChatMessage = {
   chatmessageid: string;  
   sentby: string;         
   content: string;   
   datecreated: string;    
   isarchived: boolean;    
+};
+
+const MAX_CHAR_LIMIT = 250;
+
+// Function to sanitize text and prevent XSS attacks
+const sanitizeText = (text: string): string => {
+  // Replace HTML tags and potentially dangerous characters
+  return text
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;')
+    .replace(/`/g, '&#96;');
 };
 
 export default function ChatComponent({ messages }: { messages: ChatMessage[] }) {
@@ -28,10 +43,14 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
   const [currentUser, setCurrentUser] = useState<string>("User");
   const [channel, setChannel] = useState<ReturnType<typeof supabase.channel> | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [charCount, setCharCount] = useState(0);
   
   // Add this function to handle emoji selection
   const onEmojiClick = (emojiObject: any) => {
-    setMessage(prevMessage => prevMessage + emojiObject.emoji);
+    if (message.length + 2 <= MAX_CHAR_LIMIT) { // Emoji typically counts as 2 chars
+      setMessage(prevMessage => prevMessage + emojiObject.emoji);
+      setCharCount(prevCount => prevCount + 2);
+    }
     setShowEmojis(false);
   };
 
@@ -87,8 +106,8 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
   const sendMessage = async () => {
     if (!message.trim() || !channel || !isConnected) return;
     
-    // Get the current message content from textarea
-    const messageContent = message.trim();
+    // Get the current message content from textarea and sanitize it
+    const messageContent = sanitizeText(message.trim());
     
     // Create a new message object
     const newMessage: ChatMessage = {
@@ -104,6 +123,7 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
     
     // Clear the input field
     setMessage("");
+    setCharCount(0);
     
     // Reset textarea height to default
     const textarea = document.querySelector('textarea');
@@ -125,7 +145,7 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
     };
     console.log('Sending to database:', dbPayload);
     
-    // Also save to database for persistence (optional)
+    // Save to database for persistence
     try {
       await supabase.from("chatmessage").insert([dbPayload]);
     } catch (error) {
@@ -191,7 +211,8 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
           {/* Input Box */}
           <div className="flex items-center p-3 bg-white relative">
           <div className="flex-grow relative flex items-center justify-between bg-[#F0F0F0] rounded-full">
-            <textarea
+            <textarea 
+              maxLength={MAX_CHAR_LIMIT}
               className="flex-grow p-2 text-sm bg-transparent text-black outline-none pl-4 resize-none overflow-hidden max-h-10"
               placeholder="Say hi to everyone!"
               value={message}
