@@ -28,18 +28,18 @@ export default async function AuthButton() {
     const { data: contributor, error } = await supabase
       .from("contributor")
       .select("name")
-      .eq("contributorid", user.id)
+      .eq("contributorid", user?.id)
       .single();
 
     if (error) {
       console.log("Error fetching contributor:", error);
     } else {
-      console.log(user.user_metadata?.avatar_url);
+      console.log(user?.user_metadata?.avatar_url);
       contributorName = contributor?.name;
     }
 
     // Get avatar URL from user metadata
-    avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+    avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
   }
 
   const getInitials = (name: string) => {

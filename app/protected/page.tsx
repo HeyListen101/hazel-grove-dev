@@ -4,10 +4,7 @@ import { MapSearchProvider } from "@/components/map-search-context";
 import AuthButton from "@/components/header-auth";
 import ChatBox from "@/components/chat-component";
 import SearchBar from "@/components/search-bar";
-import MapBlock from "@/components/map-block";
-import { mapIconData } from "@/components/assets/background-images/icons";
 import MapComponent from "@/components/map-component";
-import BackgroundImage from '@/components/assets/background-images/Background.png';
 
 // For the different store or map icons
 const svgPathVal = {
