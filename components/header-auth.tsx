@@ -68,7 +68,7 @@ export default async function AuthButton() {
                 alt={contributorName || "User"} 
                 className="object-cover"
               />
-              <AvatarFallback className="bg-blue-100 text-blue-600">
+              <AvatarFallback className="bg-[#13783e] text-blue-600">
                 {getInitials(contributorName || "")}
               </AvatarFallback>
             </Avatar>
