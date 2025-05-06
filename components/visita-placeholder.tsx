@@ -14,17 +14,17 @@ export default function VisitaPlaceholder() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <h1 className="text-5xl font-bold">
+      <h1 className="text-2xl font-bold">
         Welcome<br/>
         to<br/>
         Visita
       </h1>
-      <h1>
+      <h1 className="text-xs">
         Try <span className="font-bold">clicking </span>
         one of the store boxes!<br/>
         <span className="font-bold text-[#F07474]">Red </span>
         boxes means
-        <span className="font-bold text-[#F07474]">closed</span>.
+        <span className="font-bold text-[#F07474]"> closed</span>.
       </h1>
     </motion.div>
   );

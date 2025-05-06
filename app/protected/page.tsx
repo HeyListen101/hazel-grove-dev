@@ -51,7 +51,7 @@ export default async function ProtectedPage() {
 
   return (
     <MapSearchProvider>
-      <header className="fixed top-0 left-0 right-0 header-auth flex justify-between items-center shadow-md p-[32px] h-16 backdrop-blur-sm z-[20]">
+      <header className="fixed top-0 left-0 right-0 header-auth flex justify-between items-center p-[32px] h-16 z-[20]">
           <div className="flex-1 max-w-md mx-4">
             <SearchBar />
           </div>

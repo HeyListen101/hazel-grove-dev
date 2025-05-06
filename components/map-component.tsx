@@ -336,7 +336,7 @@ const mapComponent = () => {
     // </div>  #F07474
     <main className="touch-auto bg-white flex items-center justify-center overflow-hidden fixed top-16 inset-x-0 bottom-0">
         <div 
-          className="w-[96%] h-[91%] grid place-items-center gap-[2px]"
+          className="w-[800px] h-[450px] grid place-items-center gap-[2px]"
           style={{
             gridTemplateRows: "repeat(20, 1fr)",
             gridTemplateColumns: "repeat(40, 1fr)",
@@ -354,15 +354,16 @@ const mapComponent = () => {
       <MapBlock rowStart={3} rowEnd={5} colStart={1} colEnd={2} color="#8AD70E" viewBox={mapIconData[8].viewBox} icon={mapIconData[8].icon} storeId='ea40e428-c8dd-4cba-a155-3a7d5daa8ba1' clickBlock={handleMapBlockClick}/>
 
       {/* Roads and Walkways */}
-      <MapBlock rowStart={3} rowEnd={4} colStart={4} colEnd={19} height={30} color="#d6d8d9"/>
-      <MapBlock rowStart={3} rowEnd={5} colStart={18} colEnd={38} height={50} color="#d6d8d9"/>
-      <MapBlock rowStart={1} rowEnd={22} colStart={18} colEnd={19} color="#d6d8d9"/>
-      <MapBlock rowStart={4} rowEnd={22} colStart={37} colEnd={38} color="#d6d8d9"/>
-      <MapBlock rowStart={5} rowEnd={21} colStart={24} colEnd={25} width={30} color="#d6d8d9"/>
-      <MapBlock rowStart={13} rowEnd={21} colStart={33} colEnd={34} width={30} color="#d6d8d9"/>
-      <MapBlock rowStart={13} rowEnd={18} colStart={36} colEnd={37} width={30} color="#d6d8d9"/>
-      <MapBlock rowStart={17} rowEnd={18} colStart={24} colEnd={37} height={30} color="#d6d8d9"/>
-      <MapBlock rowStart={20} rowEnd={21} colStart={24} colEnd={34} height={30} color="#d6d8d9"/>
+      <MapBlock rowStart={3} rowEnd={4} colStart={4} colEnd={18} color="#d6d8d9" radius={"5"}/>
+      <MapBlock rowStart={3} rowEnd={4} colStart={19} colEnd={38} color="#d6d8d9" radius={"5"}/>
+      <MapBlock rowStart={1} rowEnd={22} colStart={18} colEnd={19} color="#d6d8d9" radius={"5"}/>
+      <MapBlock rowStart={4} rowEnd={22} colStart={37} colEnd={38} color="#d6d8d9" radius={"5"}/>
+      <MapBlock rowStart={5} rowEnd={21} colStart={24} colEnd={25} color="#d6d8d9" radius={"5"}/>
+      <MapBlock rowStart={13} rowEnd={21} colStart={33} colEnd={34} color="#d6d8d9" radius={"5"}/>
+      <MapBlock rowStart={13} rowEnd={18} colStart={36} colEnd={37} color="#d6d8d9" radius={"5"}/>
+      <MapBlock rowStart={17} rowEnd={18} colStart={25} colEnd={33} color="#d6d8d9" radius={"5"}/>
+      <MapBlock rowStart={20} rowEnd={21} colStart={25} colEnd={33} color="#d6d8d9" radius={"5"}/>
+      <MapBlock rowStart={17} rowEnd={18} colStart={34} colEnd={36} color="#d6d8d9" radius={"5"}/>
 
       {/* Top-Right Stores */}
       <MapBlock rowStart={1} rowEnd={2} colStart={20} colEnd={21} color="#006600" viewBox={mapIconData[9].viewBox} icon={mapIconData[9].icon} storeId='bf89e6c9-85f6-40f6-a8b4-ae68cf41b01f' clickBlock={handleMapBlockClick}/>
@@ -393,7 +394,7 @@ const mapComponent = () => {
       <MapBlock rowStart={9} rowEnd={10} colStart={39} colEnd={41} color="#8AD70E" viewBox={mapIconData[32].viewBox} icon={mapIconData[32].icon} storeId='23636531-3c91-4204-8172-74111cc10046' clickBlock={handleMapBlockClick}/>
       <MapBlock rowStart={10} rowEnd={11} colStart={39} colEnd={41} color="#90EE90" viewBox={mapIconData[33].viewBox} icon={mapIconData[33].icon} storeId='05b9ebf4-0216-4099-9939-4861f6f11069' clickBlock={handleMapBlockClick}/>
       <MapBlock rowStart={11} rowEnd={12} colStart={39} colEnd={41} color="#006600" viewBox={mapIconData[34].viewBox} icon={mapIconData[34].icon} storeId='e3556f67-2766-4356-ba54-d5c74434a056' clickBlock={handleMapBlockClick}/>
-      <MapBlock rowStart={13} rowEnd={14} colStart={39} colEnd={41} color="#000000" viewBox={mapIconData[35].viewBox} icon={mapIconData[35].icon} storeId='02c63a3c-31b6-4421-8e92-b8ee97a0285b' clickBlock={handleMapBlockClick}/>
+      <MapBlock rowStart={13} rowEnd={14} colStart={39} colEnd={41} color="#F07474" viewBox={mapIconData[35].viewBox} icon={mapIconData[35].icon} storeId='02c63a3c-31b6-4421-8e92-b8ee97a0285b' clickBlock={handleMapBlockClick}/>
       <MapBlock rowStart={14} rowEnd={15} colStart={39} colEnd={41} color="#66CC00" viewBox={mapIconData[36].viewBox} icon={mapIconData[36].icon} storeId='63541b29-1b79-4986-883f-052771349ebb' clickBlock={handleMapBlockClick}/>
       <MapBlock rowStart={15} rowEnd={16} colStart={39} colEnd={41} color="#8AD70E" viewBox={mapIconData[37].viewBox} icon={mapIconData[37].icon} storeId='e7918daa-4a7f-439c-9ece-48e843be2c95' clickBlock={handleMapBlockClick}/>
       <MapBlock rowStart={16} rowEnd={17} colStart={39} colEnd={41} color="#90EE90" viewBox={mapIconData[38].viewBox} icon={mapIconData[38].icon} storeId='84230fec-fda9-4a45-9b6e-f8dc4e4a508a' clickBlock={handleMapBlockClick}/>

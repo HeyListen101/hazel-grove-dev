@@ -253,7 +253,17 @@ const SearchBar = () => {
             {isSearching ? (
               <div className="p-4 text-center text-gray-500">Searching...</div>
             ) : searchResults.length > 0 ? (
-              <ul className="divide-y divide-gray-200 max-h-[363px] overflow-y-auto">
+              <ul 
+                className="divide-y divide-gray-200 max-h-[363px] overflow-y-auto
+                  [&::-webkit-scrollbar]:w-1
+                  [&::-webkit-scrollbar-track]:rounded-full
+                  [&::-webkit-scrollbar-track]:bg-gray-100
+                  [&::-webkit-scrollbar-thumb]:rounded-full
+                  [&::-webkit-scrollbar-thumb]:bg-gray-300
+                  dark:[&::-webkit-scrollbar-track]:bg-[#F0F0F0]
+                  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-400
+                "
+              >
                 {searchResults.map((result, index) => (
                   <li
                     key={index}

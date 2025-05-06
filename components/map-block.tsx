@@ -11,14 +11,15 @@ interface MapBlockProps {
     height?: number,
     icon?: string,
     viewBox?: string,
+    radius?: string,
     clickBlock?: (id: string) => void,
 }
 
-const MapBlock: React.FC<MapBlockProps> = ({ storeId, rowStart, rowEnd, colStart, colEnd, color, width, height, icon, viewBox, clickBlock }) => {
+const MapBlock: React.FC<MapBlockProps> = ({ storeId, rowStart, rowEnd, colStart, colEnd, color, width, height, icon, viewBox, clickBlock, radius }) => {
     return (
         <div 
             id={storeId}
-            className="text-black bg-green-400 rounded-[8px] flex items-center justify-center cursor-pointer"
+            className="text-black bg-green-400 flex items-center justify-center cursor-pointer"
             style={{
                 gridRowStart: `${rowStart}`,
                 gridRowEnd: `${rowEnd}`,
@@ -27,6 +28,7 @@ const MapBlock: React.FC<MapBlockProps> = ({ storeId, rowStart, rowEnd, colStart
                 backgroundColor: `${color}`,
                 width: `${width ? width : 100}%`,
                 height: `${height ? height : 100}%`,
+                borderRadius: `${radius ? radius : 8}px`,
             }}
             onClick={() => clickBlock && storeId && clickBlock(storeId)}
         >
