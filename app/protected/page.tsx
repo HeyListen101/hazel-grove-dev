@@ -5,6 +5,8 @@ import AuthButton from "@/components/header-auth";
 import ChatBox from "@/components/chat-component";
 import SearchBar from "@/components/search-bar";
 import MapBlock from "@/components/map-block";
+import { mapIconData } from "@/components/assets/background-images/icons";
+import MapComponent from "@/components/map-component";
 import BackgroundImage from '@/components/assets/background-images/Background.png';
 
 // For the different store or map icons
@@ -53,132 +55,15 @@ export default async function ProtectedPage() {
   return (
     <MapSearchProvider>
       <header className="fixed top-0 left-0 right-0 header-auth flex justify-between items-center shadow-md p-[32px] h-16 backdrop-blur-sm z-[20]">
-          <VisitaLogo />
           <div className="flex-1 max-w-md mx-4">
             <SearchBar />
           </div>
           <AuthButton />
       </header>
-      <main className="touch-auto bg-white flex items-center justify-center overflow-hidden fixed top-16 inset-x-0 bottom-0">
-        <div 
-          className="w-[96%] h-[91%] grid place-items-center gap-[2px]"
-          style={{
-            gridTemplateRows: "repeat(20, 1fr)",
-            gridTemplateColumns: "repeat(40, 1fr)",
-          }}
-        >
-          {/* Top-Left Stores */}
-          <MapBlock rowStart={1} rowEnd={2} colStart={2} colEnd={4} color={color.a} viewBox="0 0 640 512" icon={svgPathVal.restroom}/>
-          <MapBlock rowStart={1} rowEnd={3} colStart={4} colEnd={6} color={color.b} viewBox="0 0 640 512" icon={svgPathVal.pie}/>
-          <MapBlock rowStart={1} rowEnd={3} colStart={6} colEnd={8} color={color.c} viewBox="0 0 24 24" icon={svgPathVal.eatery}/>
-          <MapBlock rowStart={1} rowEnd={3} colStart={8} colEnd={10} color={color.d} viewBox="0 0 640 512" icon={svgPathVal.coffee}/>
-          <MapBlock rowStart={1} rowEnd={3} colStart={10} colEnd={11} color={color.e} viewBox="0 0 512 512" icon={svgPathVal.pizza}/>
-          <MapBlock rowStart={1} rowEnd={3} colStart={11} colEnd={12} color={color.a} viewBox="0 0 512 512" icon={svgPathVal.pizza}/>
-          <MapBlock rowStart={1} rowEnd={3} colStart={12} colEnd={15} color={color.b} viewBox="0 0 24 24" icon={svgPathVal.eatery}/>
-          <MapBlock rowStart={1} rowEnd={3} colStart={15} colEnd={17} color={color.c} viewBox="0 0 24 24" icon={svgPathVal.eatery}/>
-          <MapBlock rowStart={3} rowEnd={5} colStart={1} colEnd={2} color={color.d} viewBox="0 0 24 24" icon={svgPathVal.clothing}/>
-
-          {/* Roads and Walkways */}
-          <MapBlock rowStart={3} rowEnd={4} colStart={4} colEnd={19} height={30} color="#d6d8d9"/>
-          <MapBlock rowStart={3} rowEnd={5} colStart={18} colEnd={38} height={50} color="#d6d8d9"/>
-          <MapBlock rowStart={1} rowEnd={22} colStart={18} colEnd={19} color="#d6d8d9"/>
-          <MapBlock rowStart={4} rowEnd={22} colStart={37} colEnd={38} color="#d6d8d9"/>
-          <MapBlock rowStart={5} rowEnd={21} colStart={24} colEnd={25} width={30} color="#d6d8d9"/>
-          <MapBlock rowStart={13} rowEnd={21} colStart={33} colEnd={34} width={30} color="#d6d8d9"/>
-          <MapBlock rowStart={13} rowEnd={18} colStart={36} colEnd={37} width={30} color="#d6d8d9"/>
-          <MapBlock rowStart={17} rowEnd={18} colStart={24} colEnd={37} height={30} color="#d6d8d9"/>
-          <MapBlock rowStart={20} rowEnd={21} colStart={24} colEnd={34} height={30} color="#d6d8d9"/>
- 
-          {/* Top-Right Stores */}
-          <MapBlock rowStart={1} rowEnd={2} colStart={20} colEnd={21} color={color.a} viewBox="0 0 256 256" icon={svgPathVal.cookie}/>
-          <MapBlock rowStart={1} rowEnd={2} colStart={21} colEnd={22} color={color.b} viewBox="0 0 256 256" icon={svgPathVal.cookie}/>
-          <MapBlock rowStart={1} rowEnd={2} colStart={22} colEnd={23} color={color.c} viewBox="0 0 256 256" icon={svgPathVal.cookie}/>
-          <MapBlock rowStart={1} rowEnd={2} colStart={23} colEnd={24} color={color.d} viewBox="0 0 256 256" icon={svgPathVal.cookie}/>
-          <MapBlock rowStart={1} rowEnd={2} colStart={24} colEnd={25} color={color.e} viewBox="0 0 256 256" icon={svgPathVal.cookie}/>
-          <MapBlock rowStart={1} rowEnd={2} colStart={25} colEnd={26} color={color.a} viewBox="0 0 256 256" icon={svgPathVal.cookie}/>
-          <MapBlock rowStart={1} rowEnd={3} colStart={26} colEnd={27} color={color.b} viewBox="0 0 24 24" icon={svgPathVal.paper}/>
-          <MapBlock rowStart={1} rowEnd={3} colStart={27} colEnd={28} color={color.c} viewBox="0 0 576 512" icon={svgPathVal.basket}/>
-          <MapBlock rowStart={1} rowEnd={3} colStart={28} colEnd={29} color={color.d} viewBox="0 0 576 512" icon={svgPathVal.basket}/>
-          <MapBlock rowStart={1} rowEnd={3} colStart={29} colEnd={30} color={color.e} viewBox="0 0 576 512" icon={svgPathVal.basket}/>
-          <MapBlock rowStart={1} rowEnd={3} colStart={30} colEnd={31} color={color.a} viewBox="0 0 576 512" icon={svgPathVal.basket}/>
-          <MapBlock rowStart={1} rowEnd={3} colStart={31} colEnd={32} color={color.b} viewBox="0 0 576 512" icon={svgPathVal.basket}/>
-          <MapBlock rowStart={1} rowEnd={2} colStart={32} colEnd={33} color={color.c} viewBox="0 0 512 512" icon={svgPathVal.veggie}/>
-          <MapBlock rowStart={1} rowEnd={2} colStart={33} colEnd={34} color={color.d} viewBox="0 0 512 512" icon={svgPathVal.veggie}/>
-          <MapBlock rowStart={1} rowEnd={2} colStart={34} colEnd={35} color={color.e} viewBox="0 0 512 512" icon={svgPathVal.veggie}/>
-          <MapBlock rowStart={1} rowEnd={2} colStart={35} colEnd={36} color={color.a} viewBox="0 0 512 512" icon={svgPathVal.veggie}/>
-          <MapBlock rowStart={1} rowEnd={2} colStart={36} colEnd={37} color={color.b} viewBox="0 0 512 512" icon={svgPathVal.veggie}/>
-          <MapBlock rowStart={1} rowEnd={3} colStart={37} colEnd={41} color={color.c} viewBox="0 0 24 24" icon={svgPathVal.meat}/>
-
-          {/* Rightmost Stores */}
-          <MapBlock rowStart={4} rowEnd={5} colStart={39} colEnd={41} color={color.d} viewBox="0 0 24 24" icon={svgPathVal.eatery}/>
-          <MapBlock rowStart={5} rowEnd={6} colStart={39} colEnd={41} color={color.e} viewBox="0 0 24 24" icon={svgPathVal.eatery}/>
-          <MapBlock rowStart={6} rowEnd={7} colStart={39} colEnd={41} color={color.a} viewBox="0 0 24 24" icon={svgPathVal.eatery}/>
-          <MapBlock rowStart={7} rowEnd={8} colStart={39} colEnd={41} color={color.b} viewBox="0 0 24 24" icon={svgPathVal.eatery}/>
-          <MapBlock rowStart={8} rowEnd={9} colStart={39} colEnd={41} color={color.c} viewBox="0 0 24 24" icon={svgPathVal.eatery}/>
-          <MapBlock rowStart={9} rowEnd={10} colStart={39} colEnd={41} color={color.d} viewBox="0 0 24 24" icon={svgPathVal.eatery}/>
-          <MapBlock rowStart={10} rowEnd={11} colStart={39} colEnd={41} color={color.e} viewBox="0 0 24 24" icon={svgPathVal.eatery}/>
-          <MapBlock rowStart={11} rowEnd={12} colStart={39} colEnd={41} color={color.a} viewBox="0 0 24 24" icon={svgPathVal.eatery}/>
-          <MapBlock rowStart={13} rowEnd={14} colStart={39} colEnd={41} color={color.b} viewBox="0 0 24 24" icon={svgPathVal.eatery}/>
-          <MapBlock rowStart={14} rowEnd={15} colStart={39} colEnd={41} color={color.c} viewBox="0 0 24 24" icon={svgPathVal.eatery}/>
-          <MapBlock rowStart={15} rowEnd={16} colStart={39} colEnd={41} color={color.d} viewBox="0 0 24 24" icon={svgPathVal.eatery}/>
-          <MapBlock rowStart={16} rowEnd={17} colStart={39} colEnd={41} color={color.e} viewBox="0 0 24 24" icon={svgPathVal.eatery}/>
-          <MapBlock rowStart={17} rowEnd={18} colStart={39} colEnd={41} color={color.a} viewBox="0 0 576 512" icon={svgPathVal.money}/>
-
-          {/* Bottom Stores */}
-          <MapBlock rowStart={18} rowEnd={19} colStart={25} colEnd={27} color={color.b} viewBox="0 0 576 512" icon={svgPathVal.money}/>
-          <MapBlock rowStart={18} rowEnd={19} colStart={27} colEnd={28} color={color.c} viewBox="0 0 24 24" icon={svgPathVal.clothing}/>
-          <MapBlock rowStart={18} rowEnd={19} colStart={28} colEnd={29} color={color.d} viewBox="0 0 640 512" icon={svgPathVal.pie}/>
-          <MapBlock rowStart={18} rowEnd={19} colStart={29} colEnd={30} color={color.e} viewBox="0 0 512 512" icon={svgPathVal.haircut}/>
-          <MapBlock rowStart={18} rowEnd={19} colStart={30} colEnd={31} color={color.a} viewBox="0 0 24 24" icon={svgPathVal.clothing}/>
-          <MapBlock rowStart={18} rowEnd={19} colStart={31} colEnd={33} color={color.b} viewBox="0 0 24 24" icon={svgPathVal.clothing}/>
-          <MapBlock rowStart={19} rowEnd={20} colStart={25} colEnd={27} color={color.c} viewBox="0 0 24 24" icon={svgPathVal.clothing}/>
-          <MapBlock rowStart={19} rowEnd={20} colStart={27} colEnd={28} color={color.d} viewBox="0 0 20 20" icon={svgPathVal.mail}/>
-          <MapBlock rowStart={19} rowEnd={20} colStart={28} colEnd={29} color={color.e} viewBox="0 0 24 24" icon={svgPathVal.eatery}/>
-          <MapBlock rowStart={19} rowEnd={20} colStart={29} colEnd={30} color={color.a} viewBox="0 0 576 512" icon={svgPathVal.basket}/>
-          <MapBlock rowStart={19} rowEnd={20} colStart={30} colEnd={31} color={color.b} viewBox="0 0 576 512" icon={svgPathVal.basket}/>
-          <MapBlock rowStart={19} rowEnd={20} colStart={31} colEnd={32} color={color.c} viewBox="0 0 14 14" icon={svgPathVal.printer}/>
-          <MapBlock rowStart={19} rowEnd={20} colStart={32} colEnd={33} color={color.d} viewBox="0 0 14 14" icon={svgPathVal.printer}/>
-
-          {/* Central Places */}
-          <MapBlock rowStart={5} rowEnd={18} colStart={20} colEnd={24} color={color.a} viewBox="0 0 24 24" icon={svgPathVal.personnel}/>
-          <MapBlock rowStart={7} rowEnd={17} colStart={25} colEnd={33} color={color.e} viewBox="0 0 100 100" icon={svgPathVal.park}/>
-          <MapBlock rowStart={13} rowEnd={15} colStart={34} colEnd={36} color={color.d} viewBox="0 0 24 24" icon={svgPathVal.water}/>
-          <MapBlock rowStart={15} rowEnd={17} colStart={34} colEnd={35} color={color.c} viewBox="0 0 512 512" icon={svgPathVal.haircut}/>
-          <MapBlock rowStart={15} rowEnd={17} colStart={35} colEnd={36} color={color.b} viewBox="0 0 24 24" icon={svgPathVal.personnel}/>
-
-          {(selectedId == 1) ? (
-            <div 
-              className="row-start-[5] row-end-[19] col-start-[5] col-end-[16] w-full h-full bg-cover bg-center rounded-[15px] flex flex-col justify-between items-center py-[50px] px-[25px] text-center"
-              style={{
-                background: `url(${BackgroundImage.src})`,
-                backgroundSize: "100% 100%",
-              }}
-            >
-              <h1 className="text-5xl font-bold">
-                Welcome<br />to<br />Visita
-              </h1>
-              <h1>
-                Try <span className="font-bold">clicking</span> one of the store boxes!<br />
-                <span className="font-bold text-[#F07474]">Red</span> boxes means <span className="font-bold text-[#F07474]">closed</span>.
-              </h1>
-            </div>
-          ) : (
-            <div 
-              className="row-start-[5] row-end-[19] col-start-[5] col-end-[16] bg-white w-full h-full rounded-[15px]"
-            >
-              <h1>
-                Try <span>clicking</span> one of the store boxes!
-                <span>Red</span> boxes means <span>closed</span>.
-              </h1>
-            </div>
-          )}
-        </div>
-      </main>
-
+      <MapComponent/>
       <div className="fixed bottom-5 left-5 flex items-center space-x-2 z-5">
         <ChatBox messages={data ?? []} />
       </div>
-
     </MapSearchProvider>
   );
 }
