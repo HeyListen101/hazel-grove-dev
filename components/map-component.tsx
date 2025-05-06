@@ -422,11 +422,17 @@ const mapComponent = () => {
       <MapBlock rowStart={15} rowEnd={17} colStart={35} colEnd={36} color="#006600" viewBox={mapIconData[57].viewBox} icon={mapIconData[57].icon} storeId='5ad7a95c-5765-4f4a-bd19-d65c09fa6a0f' clickBlock={handleMapBlockClick}/>
       
       {selectedStoreId ? (
+      <div className="stores-container row-start-[5] row-end-[19] col-start-[5] col-end-[16] rounded-[15px]">
       <StoreComponent 
-                storeId={selectedStoreId}
-                isSelected={true}
-                storeName={storeName || ""}
-              />
+        storeId={selectedStoreId}
+        isSelected={!!selectedStoreId}
+        storeName={storeName || ''}
+        rowStart={5}
+        rowEnd={19}
+        colStart={5}
+        colEnd={16}
+      />
+    </div>
       ) : (
         <VisitaPlaceholder/>
       )}

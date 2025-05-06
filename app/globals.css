@@ -185,13 +185,16 @@
   }
 
   .stores-container {
-    position: absolute;
-    width: 709px;
-    height: 891px;
-    left: 217px;
-    top: 406px;
-    z-index: 15;
-    overflow: hidden; /* This ensures content doesn't overflow the rounded corners */
+    /* w-full h-full rounded-[15px] flex flex-col*/
+    position: relative; 
+    display: flex;
+    width: full;
+    height: full;
+    flex: 1;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    overflow: hidden; 
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   }
 

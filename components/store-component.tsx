@@ -6,11 +6,15 @@ import { createClient } from "@/utils/supabase/client";
 import BackgroundImage from '@/components/assets/background-images/Background.png';
 
 type StoreComponentProps = {
-  scaleValue?: number;
   storeId?: string;
   isSelected?: boolean;
   storeName?: string;
-  isOpen?: boolean;
+  rowStart: number, 
+  rowEnd: number,
+  colStart: number,
+  colEnd: number,
+  width?: number,
+  height?: number,
 }
 
 type Product = {
@@ -29,7 +33,13 @@ type Product = {
 const StoreComponent: React.FC<StoreComponentProps> = ({ 
   storeId = "",
   isSelected = false,
-  storeName = "Store",
+  storeName = "",
+  rowStart,
+  rowEnd,
+  colStart,
+  colEnd,
+  width,
+  height,
 }) => {
   const supabase = createClient();
   const [selectedStoreId, setSelectedStoreId] = useState(storeId);
@@ -74,12 +84,9 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   
   // Handle animation completion
   const handleAnimationComplete = () => {
-    // This function is still needed for initial load
-    // but we won't use it for pagination timing
     if (!isAnimating) {
       setIsAnimationComplete(true);
     }
-    // We don't set a timer here anymore
   };
   
   // Fetch all products for the store
@@ -88,7 +95,6 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
     
     try {
       setLoading(true);
-      // Reset animation state when fetching new products
       setIsAnimationComplete(false);
       
       const { data, error, count } = await supabase
@@ -258,8 +264,14 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        className="row-start-[5] row-end-[19] col-start-[5] col-end-[16] w-full h-full bg-[#000000] bg-center rounded-[15px] flex flex-col justify-between items-center py-[50px] px-[25px] text-center"
+        className="w-full h-full bg-black rounded-[15px] flex flex-col justify-between overflow-hidden"
         key="store"
+        style={{
+            gridRowStart: `${rowStart}`,
+            gridRowEnd: `${rowEnd}`,
+            gridColumnStart: `${colStart}`,
+            gridColumnEnd: `${colEnd}`,
+        }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -267,8 +279,8 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
       >
         {/* Header with background image */}
         <motion.div 
-          className="relative transition-all duration-500 ease-in-out"
-          style={{ height: "180px" }}
+          className="relative transition-all duration-500 ease-in-out overflow-hidden"
+          style={{ height: "250px" }}
           layoutId="background-container"
         >
           {/* Background Image */}
@@ -276,12 +288,12 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             layoutId="background-image"
             src={BackgroundImage.src}
             alt="Background"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute z-1 w-full h-full object-cover"
           />
           
           {/* Overlay for better text visibility */}
           <motion.div 
-            className="absolute inset-0 bg-black bg-opacity-30"
+            className="absolute inset-0 z-2 bg-black bg-opacity-30"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
@@ -289,12 +301,24 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
           
           {/* Store name with better visibility */}
           <motion.div 
-            className="relative p-4 z-10"
+            className="relative p-11 z-3"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.3 }}
           >
-            <h1 className="text-6xl font-bold text-white">{storeName}</h1>
+            <h1 className="text-5xl font-bold text-white">{storeName}</h1>
+          </motion.div>
+          
+          {/* Open button - positioned at the top right */}
+          <motion.div
+            className="absolute top-4 right-4 z-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.3 }}
+          >
+            <button className="bg-green-600 text-white px-4 py-2 rounded-md font-bold shadow-md transition-all duration-300 hover:shadow-lg">
+              Open
+            </button>
           </motion.div>
           
           {/* Eatery button positioned at the bottom of the header */}
@@ -310,16 +334,11 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
           </motion.div>
         </motion.div>
 
-        {/* Products section - simplified to match the image */}
-        <motion.div 
-          className="bg-white rounded-md w-full flex-grow mt-4 overflow-hidden flex flex-col"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.3 }}
-        >
+        {/* Products section */}
+        <div className="bg-white w-full flex-grow overflow-hidden flex flex-col">
           {/* Products header */}
           <div className="p-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-left">Products</h2>
+            <h2 className="text-xl font-semibold text-gray-800 text-left">Products</h2>
           </div>
 
           {/* Products table */}
@@ -343,17 +362,13 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
                 {/* Product list */}
                 <div className="space-y-2">
                   {getCurrentPageProducts().map((product) => (
-                    <motion.div 
+                    <div 
                       key={product.productid}
-                      className="flex justify-between items-center py-2"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      onAnimationComplete={handleAnimationComplete}
+                      className="flex justify-between items-center py-2 border-b border-gray-100"
                     >
                       <div className="text-left text-gray-800">{product.name}</div>
-                      <div className="text-right font-medium">₱{product.price}</div>
-                    </motion.div>
+                      <div className="text-right text-gray-800 font-medium">₱{product.price}</div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -364,9 +379,9 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
           <div className="border-t border-gray-200">
             <div className="flex justify-between text-gray-500 py-4 px-4">
               <button 
-                className={`flex items-center ${isAnimating || !isAnimationComplete || currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:text-gray-900'}`}
+                className={`flex items-center ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:text-gray-900'}`}
                 onClick={handlePrevPage}
-                disabled={isAnimating || !isAnimationComplete || currentPage === 1}
+                disabled={currentPage === 1}
               >
                 <span className="mr-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -385,9 +400,9 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
               </button>
               
               <button 
-                className={`flex items-center ${isAnimating || !isAnimationComplete || currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:text-gray-900'}`}
+                className={`flex items-center ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:text-gray-900'}`}
                 onClick={handleNextPage}
-                disabled={isAnimating || !isAnimationComplete || currentPage === totalPages}
+                disabled={currentPage === totalPages}
               >
                 Next
                 <span className="ml-2">
@@ -398,7 +413,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
               </button>
             </div>
           </div>
-        </motion.div>
+        </div>
       </motion.div>
     </AnimatePresence>
   );
