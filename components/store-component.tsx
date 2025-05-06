@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "motion/react"
-import ProductCard from './ui/product-card';
 import { createClient } from "@/utils/supabase/client";
 import BackgroundImage from '@/components/assets/background-images/Background.png';
 
@@ -259,7 +258,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        className="row-start-[5] row-end-[19] col-start-[5] col-end-[16] py-[25px] px-[25px] rounded-lg shadow-lg overflow-hidden"
+        className="row-start-[5] row-end-[19] col-start-[5] col-end-[16] w-full h-full bg-[#000000] bg-center rounded-[15px] flex flex-col justify-between items-center py-[50px] px-[25px] text-center"
         key="store"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -272,16 +271,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
           style={{ height: "180px" }}
           layoutId="background-container"
         >
-
-          {/* Background Placeholder */}
-          <motion.img
-            layoutId="background-image"
-            src={BackgroundImage.src}
-            alt="Background"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-
-          {/* Background Placeholder */}
+          {/* Background Image */}
           <motion.img
             layoutId="background-image"
             src={BackgroundImage.src}
@@ -319,61 +309,97 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             </button>
           </motion.div>
         </motion.div>
-        {/* Product content area - with fixed height and flex layout to maintain consistent spacing */}
-        <div 
-          className="bg-white p-4 flex flex-col" 
-          style={{ height: '640px' }}
+
+        {/* Products section - simplified to match the image */}
+        <motion.div 
+          className="bg-white rounded-md w-full flex-grow mt-4 overflow-hidden flex flex-col"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.3 }}
         >
-        {/* Content wrapper that will grow to fill available space */}
-        <div className="flex-grow">
-          {loading ? (
-            <div className="flex justify-center items-center text-black py-8 h-full">
-              <p>Loading products...</p>
-            </div>
-          ) : error ? (
-            <div className="flex justify-center items-center py-8 h-full">
-              <p className="text-red-500">{error}</p>
-            </div>
-          ) : (
-            <ProductCard 
-              products={getCurrentPageProducts()} 
-              currentPage={currentPage}
-              onAnimationComplete={handleAnimationComplete}
-            />
-          )}
+          {/* Products header */}
+          <div className="p-4 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-left">Products</h2>
           </div>
-        </div>
-        {/* Pagination controls with proper padding to align with content area */}
-        <div className="bg-white">
-          <div className="flex justify-between text-gray-500 py-4 px-4">
-            <button 
-              className={`flex items-center text-lg ${isAnimating || !isAnimationComplete || currentPage === 1 ? 'text-[#6A6148] opacity-50 cursor-not-allowed' : 'text-[#6A6148] hover:text-emerald-900'}`}
-              onClick={handlePrevPage}
-              disabled={isAnimating || !isAnimationComplete || currentPage === 1}
-            >
-              <span className="mr-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left-icon lucide-chevron-left">
-                <path d="m15 18-6-6 6-6"/>
-              </svg>
-              </span> Prev
-            </button>
-            <span className="text-gray-600 text-lg">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button 
-              className={`flex items-center text-lg ${isAnimating || !isAnimationComplete || currentPage === totalPages ? 'text-[#6A6148] opacity-50 cursor-not-allowed' : 'text-[#6A6148] hover:text-emerald-900'}`}
-              onClick={handleNextPage}
-              disabled={isAnimating || !isAnimationComplete || currentPage === totalPages}
-            >
-              Next <span className="ml-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-right-icon lucide-chevron-right">
-                <path d="m9 18 6-6-6-6"/>
-              </svg>
-              </span>
-            </button>
+
+          {/* Products table */}
+          <div className="flex-grow">
+            {loading ? (
+              <div className="flex justify-center items-center h-full">
+                <p>Loading products...</p>
+              </div>
+            ) : error ? (
+              <div className="flex justify-center items-center h-full">
+                <p className="text-red-500">{error}</p>
+              </div>
+            ) : (
+              <div className="p-4">
+                {/* Table header */}
+                <div className="flex justify-between mb-2 text-left">
+                  <div className="font-medium text-gray-700 w-1/2">Name</div>
+                  <div className="font-medium text-gray-700 w-1/2 text-right">Price</div>
+                </div>
+                
+                {/* Product list */}
+                <div className="space-y-2">
+                  {getCurrentPageProducts().map((product) => (
+                    <motion.div 
+                      key={product.productid}
+                      className="flex justify-between items-center py-2"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onAnimationComplete={handleAnimationComplete}
+                    >
+                      <div className="text-left text-gray-800">{product.name}</div>
+                      <div className="text-right font-medium">₱{product.price}</div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-    </motion.div>
+
+          {/* Pagination controls */}
+          <div className="border-t border-gray-200">
+            <div className="flex justify-between text-gray-500 py-4 px-4">
+              <button 
+                className={`flex items-center ${isAnimating || !isAnimationComplete || currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:text-gray-900'}`}
+                onClick={handlePrevPage}
+                disabled={isAnimating || !isAnimationComplete || currentPage === 1}
+              >
+                <span className="mr-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m15 18-6-6 6-6"/>
+                  </svg>
+                </span> 
+                Prev
+              </button>
+              
+              {/* Edit Products button */}
+              <button className="text-gray-700 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                </svg>
+                Edit Products
+              </button>
+              
+              <button 
+                className={`flex items-center ${isAnimating || !isAnimationComplete || currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:text-gray-900'}`}
+                onClick={handleNextPage}
+                disabled={isAnimating || !isAnimationComplete || currentPage === totalPages}
+              >
+                Next
+                <span className="ml-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m9 18 6-6-6-6"/>
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
     </AnimatePresence>
   );
 };
