@@ -70,6 +70,11 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
     };
   }, []);
 
+  // Add new effect to scroll to bottom when new messages are added
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chats]);
+
   // Add new effect to scroll to bottom when chat is opened
   useEffect(() => {
     if (showChat) {
@@ -131,7 +136,7 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
   return (
     <div className="fixed bottom-6 left-7 flex items-center z-10">
       <Button 
-        variant="chat" 
+        variant="chat"
         onClick={() => setShowChat(!showChat)}
         className="w-[160px] flex justify-center items-center h-[40px]"
       >
@@ -204,7 +209,7 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
                 maxHeight: '120px',
                 width: '160px', // Fixed width in pixels
                 maxWidth: '200px', // Maximum width
-                overflow: 'auto'
+                overflow: 'hidden',
               }}
             />
             <button 
