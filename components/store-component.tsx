@@ -4,15 +4,13 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "motion/react"
 import { createClient } from "@/utils/supabase/client";
 import BackgroundImage from '@/components/assets/background-images/Background.png';
+import StoreStatusCard from './ui/store-status-card';
+import { useMapSearch } from '@/components/map-search-context';
 
 type StoreComponentProps = {
-  storeId?: string;
-  isSelected?: boolean;
-  storeName?: string;
-  rowStart: number, 
-  rowEnd: number,
-  colStart: number,
-  colEnd: number,
+  storeId?: string,
+  isSelected?: boolean,
+  storeName?: string,
   width?: number,
   height?: number,
 }
@@ -34,12 +32,6 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   storeId = "",
   isSelected = false,
   storeName = "",
-  rowStart,
-  rowEnd,
-  colStart,
-  colEnd,
-  width,
-  height,
 }) => {
   const supabase = createClient();
   const [selectedStoreId, setSelectedStoreId] = useState(storeId);
@@ -52,6 +44,12 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   const itemsPerPage = 6;
   const [isAnimationComplete, setIsAnimationComplete] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const {
+      setStoreName, 
+      isOpen, 
+      setIsOpen,
+      selectedProductName
+    } = useMapSearch();
   
    // Pagination
    const handlePrevPage = () => {
@@ -263,86 +261,97 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
 
   return (
     <AnimatePresence mode="wait">
-      <motion.div
-        className="w-full h-full bg-black rounded-[15px] flex flex-col justify-between overflow-hidden"
-        key="store"
-        style={{
-            gridRowStart: `${rowStart}`,
-            gridRowEnd: `${rowEnd}`,
-            gridColumnStart: `${colStart}`,
-            gridColumnEnd: `${colEnd}`,
-        }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
-      >
+      <div className="bg-white grid grid-rows-[1fr_230px] h-full rounded-[15px] shadow-md">
         {/* Header with background image */}
         <motion.div 
-          className="relative transition-all duration-500 ease-in-out overflow-hidden"
-          style={{ height: "250px" }}
+          className="w-full relative transition-all duration-500 ease-in-out"
           layoutId="background-container"
         >
+          
           {/* Background Image */}
           <motion.img
             layoutId="background-image"
             src={BackgroundImage.src}
             alt="Background"
-            className="absolute z-1 w-full h-full object-cover"
+            className="absolute z-1 w-full h-full object-cover rounded-[15px]"
           />
           
           {/* Overlay for better text visibility */}
           <motion.div 
-            className="absolute inset-0 z-2 bg-black bg-opacity-30"
+            className="absolute z-2 bg-black bg-opacity-30 w-full h-full rounded-[15px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
           />
+
+          {/* Status Card */}
+          <motion.div 
+            className="pointer-events-auto absolute -top-[45px] -right-[55px] z-3"
+            initial={{ opacity: 0, scale: 0.2 }}
+            animate={{ opacity: 1, scale: 0.4 }}
+            exit={{ opacity: 0, scale: 0.2 }}
+            transition={{ 
+              delay: 0.5,
+              duration: 0.3
+            }}
+          >
+            <StoreStatusCard isOpen={isOpen || false} />
+          </motion.div>
           
           {/* Store name with better visibility */}
           <motion.div 
-            className="relative p-11 z-3"
+            className="relative pt-2 pl-3 z-3"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.3 }}
           >
-            <h1 className="text-5xl font-bold text-white">{storeName}</h1>
+            <h1 className="text-sm font-bold text-white">{storeName}</h1>
           </motion.div>
           
           {/* Open button - positioned at the top right */}
           <motion.div
-            className="absolute top-4 right-4 z-10"
+            className="absolute bottom-0 right-0 p-3 z-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.3 }}
           >
-            <button className="bg-green-600 text-white px-4 py-2 rounded-md font-bold shadow-md transition-all duration-300 hover:shadow-lg">
+            <button className="bg-green-600 text-white px-3 py-1 text-xs rounded-md font-bold shadow-md transition-all duration-300 hover:shadow-lg">
               Open
             </button>
           </motion.div>
           
           {/* Eatery button positioned at the bottom of the header */}
           <motion.div 
-            className="absolute bottom-0 left-0 p-4 pb-6 z-10"
+            className="absolute bottom-0 left-0 p-3 z-5"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.3 }}
           >
-            <button className="bg-white text-emerald-700 px-4 py-2 rounded-full font-bold flex items-center shadow-md transition-all duration-300 hover:shadow-lg">
-              <span className="mr-2">🍴</span> Eatery
+            <button className="bg-white text-emerald-700 px-3 py-1 text-xs rounded-full font-bold flex items-center shadow-md transition-all duration-300 hover:shadow-lg">
+              <span className="mr-1">🍴</span> Eatery
             </button>
-          </motion.div>
+          </motion.div>  
         </motion.div>
 
         {/* Products section */}
-        <div className="bg-white w-full flex-grow overflow-hidden flex flex-col">
+        <div className="w-full overflow-hidden flex flex-col">
           {/* Products header */}
-          <div className="p-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-800 text-left">Products</h2>
+          <div className="py-2 border-b border-gray-200 w-[85%] self-center">
+            <h2 className="text-md font-semibold text-gray-800 text-left">Products</h2>
           </div>
 
           {/* Products table */}
-          <div className="flex-grow">
+          <div 
+            className="overflow-y-auto 
+              [&::-webkit-scrollbar]:w-1
+              [&::-webkit-scrollbar-track]:rounded-full
+              [&::-webkit-scrollbar-track]:bg-gray-100
+              [&::-webkit-scrollbar-thumb]:rounded-full
+              [&::-webkit-scrollbar-thumb]:bg-gray-300
+              dark:[&::-webkit-scrollbar-track]:bg-[#F0F0F0]
+              dark:[&::-webkit-scrollbar-thumb]:bg-neutral-400
+              "
+          >
             {loading ? (
               <div className="flex justify-center items-center h-full">
                 <p>Loading products...</p>
@@ -352,22 +361,22 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
                 <p className="text-red-500">{error}</p>
               </div>
             ) : (
-              <div className="p-4">
+              <div className="px-4 py-2">
                 {/* Table header */}
                 <div className="flex justify-between mb-2 text-left">
-                  <div className="font-medium text-gray-700 w-1/2">Name</div>
-                  <div className="font-medium text-gray-700 w-1/2 text-right">Price</div>
+                  <div className="font-medium text-gray-700 w-1/2 text-sm">Name</div>
+                  <div className="font-medium text-gray-700 w-1/2 text-right text-sm">Price</div>
                 </div>
                 
-                {/* Product list */}
+                {/* Product list * */}
                 <div className="space-y-2">
                   {getCurrentPageProducts().map((product) => (
                     <div 
                       key={product.productid}
-                      className="flex justify-between items-center py-2 border-b border-gray-100"
+                      className="flex justify-between items-center pb-1 border-b border-gray-100"
                     >
-                      <div className="text-left text-gray-800">{product.name}</div>
-                      <div className="text-right text-gray-800 font-medium">₱{product.price}</div>
+                      <div className="text-left text-gray-800 text-sm">{product.name}</div>
+                      <div className="text-right text-gray-800 font-medium text-sm">₱{product.price}</div>
                     </div>
                   ))}
                 </div>
@@ -375,15 +384,15 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             )}
           </div>
 
-          {/* Pagination controls */}
+          {/* Pagination controls * */}
           <div className="border-t border-gray-200">
-            <div className="flex justify-between text-gray-500 py-4 px-4">
+            <div className="flex justify-between text-gray-500 py-3 px-2">
               <button 
-                className={`flex items-center ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:text-gray-900'}`}
+                className={`text-sm flex items-center ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:text-gray-900'}`}
                 onClick={handlePrevPage}
                 disabled={currentPage === 1}
               >
-                <span className="mr-2">
+                <span>
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m15 18-6-6 6-6"/>
                   </svg>
@@ -391,8 +400,8 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
                 Prev
               </button>
               
-              {/* Edit Products button */}
-              <button className="text-gray-700 flex items-center">
+              {/* Edit Products button * */}
+              <button className="text-gray-700 flex items-center text-xs">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
                   <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
                 </svg>
@@ -400,12 +409,12 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
               </button>
               
               <button 
-                className={`flex items-center ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:text-gray-900'}`}
+                className={`text-sm flex items-center ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:text-gray-900'}`}
                 onClick={handleNextPage}
                 disabled={currentPage === totalPages}
               >
                 Next
-                <span className="ml-2">
+                <span>
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m9 18 6-6-6-6"/>
                   </svg>
@@ -414,7 +423,19 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             </div>
           </div>
         </div>
+      </div>
+      {/*
+      <motion.div
+        className="w-full h-full bg-black rounded-[15px] flex flex-col justify-between overflow-hidden"
+        key="store"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        
       </motion.div>
+      */}
     </AnimatePresence>
   );
 };

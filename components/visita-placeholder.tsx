@@ -4,10 +4,14 @@ import { motion } from "motion/react"
 export default function VisitaPlaceholder() {
   return (
     <motion.div 
-      className="row-start-[5] row-end-[19] col-start-[5] col-end-[16] w-full h-full bg-cover bg-center rounded-[15px] flex flex-col justify-between items-center py-[50px] px-[25px] text-center"
+      className="w-full h-full bg-cover bg-center rounded-[15px] flex flex-col justify-between items-center py-[50px] px-[25px] text-center"
       style={{
         background: `url(${BackgroundImage.src})`,
         backgroundSize: "100% 100%",
+        gridRowStart: 5,
+        gridRowEnd: 20,
+        gridColumnStart: 5,
+        gridColumnEnd: 16,
       }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
