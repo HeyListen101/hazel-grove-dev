@@ -14,7 +14,7 @@ interface MapBlockProps {
     clickBlock?: (id: string) => void,
 }
 
-const MapBlock: React.FC<MapBlockProps> = ({ storeId, rowStart, rowEnd, colStart, colEnd, color, width, height, icon, viewBox }) => {
+const MapBlock: React.FC<MapBlockProps> = ({ storeId, rowStart, rowEnd, colStart, colEnd, color, width, height, icon, viewBox, clickBlock }) => {
     return (
         <div 
             id={storeId}
@@ -28,6 +28,7 @@ const MapBlock: React.FC<MapBlockProps> = ({ storeId, rowStart, rowEnd, colStart
                 width: `${width ? width : 100}%`,
                 height: `${height ? height : 100}%`,
             }}
+            onClick={() => clickBlock && storeId && clickBlock(storeId)}
         >
             { icon &&
             <svg xmlns="http://www.w3.org/2000/svg" width="40%" height="auto" viewBox={viewBox} className="">

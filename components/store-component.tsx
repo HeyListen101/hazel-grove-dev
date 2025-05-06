@@ -259,7 +259,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        className="stores-container rounded-lg shadow-lg overflow-hidden"
+        className="row-start-[5] row-end-[19] col-start-[5] col-end-[16] py-[25px] px-[25px] rounded-lg shadow-lg overflow-hidden"
         key="store"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
