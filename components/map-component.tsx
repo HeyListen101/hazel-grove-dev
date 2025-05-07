@@ -139,6 +139,7 @@ export default function MapComponent() {
   
       let fetchedStoreData = store ? store[0] : null;
 
+      // Create store statuts if null then update the clicked store with that newly created status
       if (fetchedStoreData && !fetchedStoreData.storestatus && currentUser) {
         const { data: statusData, error: insertErr } = await supabase
         .from('storestatus')

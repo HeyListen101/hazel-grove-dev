@@ -2,9 +2,7 @@ type StoreStatusCardProps = {
     isOpen: boolean;
   }
   
-export default function StoreStatusCard(
-    { isOpen }: StoreStatusCardProps) 
-    {
+export default function StoreStatusCard({ isOpen }: StoreStatusCardProps) {
     return isOpen ? (
         <svg width="128" height="128" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
             <line x1="14.8572" y1="24.3758" x2="37.8385" y2="5.09217" stroke="#D5D5D5" strokeWidth="2"/>

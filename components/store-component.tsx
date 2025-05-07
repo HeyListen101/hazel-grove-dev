@@ -6,6 +6,7 @@ import { createClient } from "@/utils/supabase/client";
 import BackgroundImage from '@/components/assets/background-images/Background.png';
 import StoreStatusCard from './ui/store-status-card';
 import { useMapSearch } from '@/components/map-search-context';
+import { getSupabaseAuth } from '@/utils/supabase/auth-singleton';
 
 type StoreComponentProps = {
   storeId?: string,
@@ -34,6 +35,8 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   storeName = "",
 }) => {
   const supabase = createClient();
+  const supabaseAuth = getSupabaseAuth();
+  const [currentUser, setCurrentUser] = useState<string>("User");
   const [selectedStoreId, setSelectedStoreId] = useState(storeId);
   const [isStoreSelected, setIsStoreSelected] = useState(isSelected);
   const [loading, setLoading] = useState(false);
@@ -51,6 +54,18 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
       selectedProductName
     } = useMapSearch();
   
+  useEffect(() => {
+    // Get the current user when component mounts
+    const fetchUser = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (data?.user) {
+        // Use email or id as the user identifier
+        setCurrentUser(data.user.id);
+      }
+    };
+    fetchUser();
+  }, []);
+
    // Pagination
    const handlePrevPage = () => {
     if (currentPage > 1 && isAnimationComplete && !isAnimating) {
@@ -259,6 +274,31 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
     }
   }, [storeId, isSelected]);
 
+  // Toggle store status upon button click
+  const toggleStoreStatus = async () => {
+    // Create new status by the current logged in user as the contributer
+    const { data: statusData, error: insertErr } = await supabase
+    .from('storestatus')
+    .insert({ contributor: currentUser, status: !isOpen })
+    .select();
+    
+    // Check if insertion was successfull
+    const statusId = statusData? statusData[0] : null;
+    
+    // Update store db with the new store status
+    if (statusId) {
+      const { error } = await supabase
+      .from('store')
+      .update({ storestatus: statusId.storestatusid })
+      .eq('storeid', storeId);
+    }
+    
+    // Set current isOpen variable its new value upon toggle
+    if (!insertErr) {
+      setIsOpen(!isOpen);
+    }
+  }
+
   return (
     <AnimatePresence mode="wait">
       <div className="bg-white grid grid-rows-[1fr_230px] h-full rounded-[15px] shadow-md">
@@ -315,9 +355,22 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.3 }}
           >
-            <button className="bg-green-600 text-white px-3 py-1 text-xs rounded-md font-bold shadow-md transition-all duration-300 hover:shadow-lg">
+          {isOpen ? (
+            <button 
+              className="bg-[#F07474] text-white px-3 py-1 text-xs rounded-md font-bold shadow-md transition-all duration-300 hover:shadow-lg"
+              onClick={toggleStoreStatus}
+            >
+              Close
+            </button>
+          ) : (
+            <button 
+              className="bg-green-600 text-white px-3 py-1 text-xs rounded-md font-bold shadow-md transition-all duration-300 hover:shadow-lg"
+              onClick={toggleStoreStatus}
+            >
               Open
             </button>
+          )}
+            
           </motion.div>
           
           {/* Eatery button positioned at the bottom of the header */}
