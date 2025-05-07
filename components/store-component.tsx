@@ -47,6 +47,8 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   const itemsPerPage = 6;
   const [isAnimationComplete, setIsAnimationComplete] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isEditing, setEditing] = useState(false);
+  const [isAddingProduct, setAddingProduct] = useState(false);
   const {
       setStoreName, 
       isOpen, 
@@ -160,7 +162,6 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
     
     // Log the current products being sent to ProductCard
     console.log('Current page products:', currentProducts);
-    
     return currentProducts;
   };
 
@@ -196,12 +197,12 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
               .select('*, productstatus(*)')
               .eq('productid', payload.new.productid)
               .single();
-              
+            
             if (data) {
               const newProduct = {
                 ...data,
-                price: typeof data.price === 'string' ? data.price : 
-                       typeof data.price === 'number' ? data.price : 'N/A',
+                price: typeof data.productstatus.price === 'string' ? data.productstatus.price : 
+                       typeof data.productstatus.price === 'number' ? data.productstatus.price : 'N/A',
                 productstatus: typeof data.productstatus === 'object' ? 
                               data.productstatus?.productstatusid || '' : 
                               data.productstatus || ''
@@ -297,11 +298,79 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
     if (!insertErr) {
       setIsOpen(!isOpen);
     }
-  }
+  };
+
+  const toggleEdit = async () => {
+    setEditing(true);
+  };
+
+  const saveEdit = () => {
+    setEditing(false);
+    setAddingProduct(false);
+
+    productNames.map(async (name, index) => {
+      if (productNames[index] && productPrices[index]) {
+        const { data, error } = await supabase
+        .from('productstatus')
+        .insert({ contributor: currentUser, price: productPrices[index], isavailable: true, })
+        .select();
+
+        const statusData = data ? data[0] : null;
+
+        if (statusData) {
+          const { error } = await supabase
+          .from('product')
+          .insert({ 
+            store: selectedStoreId, 
+            productstatus: statusData.productstatusid, 
+            contributor: currentUser,
+            brand: storeName,
+            name: name, 
+          });
+        }
+      }
+    });
+    setProductNames([]);
+    setProductPrices([]);
+  };
+
+  const cancelEdit = () => {
+    setEditing(false);
+    setAddingProduct(false);
+    setProductNames([]);
+    setProductPrices([]);
+  };
+
+  const [productNames, setProductNames] = useState<string[]>([]);
+  const [productPrices, setProductPrices] = useState<number[]>([]);
+  const addProduct = () => {
+    setAddingProduct(true);
+    setProductNames([...productNames, '']);
+    setProductPrices([...productPrices, 0]);
+  };
+
+  const handleNameChange = (index: number, value: string) => {
+    const newNameArr = [...productNames];
+    newNameArr[index] = value;
+    setProductNames(newNameArr);
+  };
+
+  const handlePriceChange = (index: number, value: number) => {
+    const newPriceArr = [...productPrices];
+    newPriceArr[index] = value;
+    setProductPrices(newPriceArr);
+  };
 
   return (
     <AnimatePresence mode="wait">
-      <div className="bg-white grid grid-rows-[1fr_230px] h-full rounded-[15px] shadow-md">
+      <motion.div
+        className="bg-white grid grid-rows-[1fr_230px] h-full rounded-[15px] shadow-md"
+        key="store"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+      >
         {/* Header with background image */}
         <motion.div 
           className="w-full relative transition-all duration-500 ease-in-out"
@@ -387,7 +456,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
         </motion.div>
 
         {/* Products section */}
-        <div className="w-full overflow-hidden flex flex-col">
+        <div className="w-full overflow-hidden flex flex-col justify-between">
           {/* Products header */}
           <div className="py-2 border-b border-gray-200 w-[85%] self-center">
             <h2 className="text-md font-semibold text-gray-800 text-left">Products</h2>
@@ -395,7 +464,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
 
           {/* Products table */}
           <div 
-            className="overflow-y-auto 
+            className="overflow-y-auto flex-grow
               [&::-webkit-scrollbar]:w-1
               [&::-webkit-scrollbar-track]:rounded-full
               [&::-webkit-scrollbar-track]:bg-gray-100
@@ -433,6 +502,39 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
                     </div>
                   ))}
                 </div>
+
+                {isAddingProduct && 
+                <div className="justify-self-center border grid grid-cols-1 justify-center w-full">
+                  {productNames.map((value, index) => (
+                    <div key={index} className="flex justify-between">
+                      <input
+                        type="text"
+                        defaultValue=""
+                        onChange={(e) => handleNameChange(index, e.target.value)}
+                        className="h-[20px] bg-white border text-black text-xs w-[80%]"
+                      />
+                      <input
+                        type="number"
+                        defaultValue=""
+                        onChange={(e) => handlePriceChange(index, Number(e.target.value))}
+                        className="h-[20px] bg-white border text-black text-xs w-[20%]"
+                      />
+                    </div>
+                  ))}
+                </div>
+                }
+
+                {isEditing &&
+                <button 
+                  className="bg-black/50 text-white text-xs flex justify-center gap-2 w-fit py-1 px-2 justify-self-center rounded-2xl m-5"
+                  onClick={addProduct}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" className="w-[12px]" fill="white">
+                    <path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/>
+                  </svg>
+                  Add Product
+                </button>
+                }
               </div>
             )}
           </div>
@@ -454,13 +556,24 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
               </button>
               
               {/* Edit Products button * */}
-              <button className="text-gray-700 flex items-center text-xs">
+              {isEditing ? (
+              <>
+                <button className="text-white bg-gray-700 text-[10px] px-2 rounded-sm" onClick={saveEdit}>
+                  Save
+                </button>
+                <button className="text-gray-700 text-[10px] border px-2 rounded-sm" onClick={cancelEdit}>  
+                  Cancel
+                </button>
+              </>
+              ) : (
+              <button className="text-gray-700 flex items-center text-xs" onClick={toggleEdit}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
                   <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
                 </svg>
                 Edit Products
               </button>
-              
+              )}
+            
               <button 
                 className={`text-sm flex items-center ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:text-gray-900'}`}
                 onClick={handleNextPage}
@@ -476,19 +589,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             </div>
           </div>
         </div>
-      </div>
-      {/*
-      <motion.div
-        className="w-full h-full bg-black rounded-[15px] flex flex-col justify-between overflow-hidden"
-        key="store"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        
       </motion.div>
-      */}
     </AnimatePresence>
   );
 };
