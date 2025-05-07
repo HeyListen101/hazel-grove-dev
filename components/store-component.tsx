@@ -184,8 +184,6 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
           filter: `store=eq.${storeId}`,
         },
         async (payload) => {
-          console.log('Product realtime update received:', payload);
-          
           // Reset animation state when products change
           setIsAnimationComplete(false);
           
@@ -228,7 +226,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
 
             setProducts(prevProducts => {
               return prevProducts.map(product => {
-                if (product.productid === payload.new.productid) {
+                if (product.productid === payload.new.productid && data?.productstatus) {
                   // Fetch the new product and add it to the list
                   return {
                     ...product,
@@ -240,7 +238,22 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
                 return product;
               });
             });
-          } else if (payload.eventType === 'DELETE') {
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (insert, update, delete)
+          schema: 'public',
+          table: 'product',
+        },
+        async (payload) => {
+          // Reset animation state when products change
+          setIsAnimationComplete(false);
+          
+          // Delete events are not filterable so this is seperated from the first 'on' change before this, without adding any filters
+          if (payload.eventType === 'DELETE') {
             // Remove the product from the list
             setProducts(prevProducts => {
               const filteredProducts = prevProducts.filter(
@@ -427,6 +440,18 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
     setCurrProdPrices(newPriceArr);
   };
 
+  const deleteProduct = async (id: string, statusid: string, _: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    const res1 = await supabase
+    .from('productstatus')
+    .delete()
+    .eq('productstatusid', statusid);
+
+    const res2 = await supabase
+    .from('product')
+    .delete()
+    .eq('productid', id);
+  };
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -551,9 +576,9 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             ) : (
               <div className="px-4 py-2" >
                 {/* Table header */}
-                <div className="flex justify-between mb-2 text-left">
+                <div className="flex mb-2 text-left gap-[50px]">
                   <div className="font-medium text-gray-700 w-1/2 text-sm">Name</div>
-                  <div className="font-medium text-gray-700 w-1/2 text-right text-sm">Price</div>
+                  <div className="font-medium text-gray-700 text-sm w-fit">Price</div>
                 </div>
                 
                 {/* Product list * */}
@@ -562,10 +587,10 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
                     {getCurrentPageProducts().map((product) => (
                       <div 
                         key={product.productid}
-                        className="flex justify-between items-center pb-1 border-b border-gray-100"
+                        className="flex items-center pb-1 border-b border-gray-100 gap-[50px]"
                       >
-                        <div className="text-left text-gray-800 text-sm">{product.name}</div>
-                        <div className="text-right text-gray-800 font-medium text-sm">₱{product.price}</div>
+                        <div className="text-gray-800 text-sm w-1/2">{product.name}</div>
+                        <div className="text-gray-800 font-medium text-sm">₱{product.price}</div>
                       </div>
                     ))}
                   </div>
@@ -574,22 +599,34 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
                     {getCurrentPageProducts().map((product, index) => (
                       <div 
                         key={product.productid}
-                        className="flex justify-between items-center pb-1 border-b border-gray-100"
+                        className="flex items-center pb-1 border-b border-gray-100 gap-[10px]"
                       >
                         <input 
                           type="text" 
                           defaultValue={product.name}
-                          className="text-left text-sm w-[80%]"
+                          className="bg-white text-black text-left text-sm w-1/2 flex-grow p-1 border rounded-[10px]"
                           onChange={(e) => handleChangeCurrentName(index, product.productid, e.target.value)}
                           required
                         />
                         <input 
                           type="number"
                           defaultValue={product.price}
-                          className="text-right text-sm w-[20%]"
+                          className="
+                            bg-white text-black text-right text-sm w-[20%] p-1 border rounded-[10px]
+                            appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+                          "
                           onChange={(e) => handleChangeCurrentPrice(index, product.productstatus, Number(e.target.value))}
                           required
                         />
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          viewBox="0 0 448 512" 
+                          className="cursor-pointer w-[15px] bg-[#F07474] rounded-2xl p-1" 
+                          fill="white"
+                          onClick={(e) => deleteProduct(product.productid, product.productstatus, e)}
+                        >
+                          <path d="M432 256c0 17.7-14.3 32-32 32L48 288c-17.7 0-32-14.3-32-32s14.3-32 32-32l352 0c17.7 0 32 14.3 32 32z"/>
+                        </svg>
                       </div>
                     ))}
                   </div>
