@@ -6,7 +6,6 @@ import { createClient } from "@/utils/supabase/client";
 import BackgroundImage from '@/components/assets/background-images/Background.png';
 import StoreStatusCard from './ui/store-status-card';
 import { useMapSearch } from '@/components/map-search-context';
-import { getSupabaseAuth } from '@/utils/supabase/auth-singleton';
 
 type StoreComponentProps = {
   storeId?: string,
@@ -35,7 +34,6 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   storeName = "",
 }) => {
   const supabase = createClient();
-  const supabaseAuth = getSupabaseAuth();
   const [currentUser, setCurrentUser] = useState<string>("User");
   const [selectedStoreId, setSelectedStoreId] = useState(storeId);
   const [isStoreSelected, setIsStoreSelected] = useState(isSelected);

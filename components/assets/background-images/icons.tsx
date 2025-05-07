@@ -248,5 +248,6 @@ export const mapIconData = [
     c: "#66CC00",
     d: "#8AD70E",
     e: "#90EE90",
-    f: "#d6d8d9"
+    f: "#D6D8D9",
+    g: "#F07474",
   }
