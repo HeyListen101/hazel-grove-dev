@@ -220,14 +220,21 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             }
           } else if (payload.eventType === 'UPDATE') {
             // Update the product in the list
+            const { data } = await supabase
+            .from('product')
+            .select('*, productstatus(*)')
+            .eq('productid', payload.new.productid)
+            .single();
+
             setProducts(prevProducts => {
               return prevProducts.map(product => {
                 if (product.productid === payload.new.productid) {
+                  // Fetch the new product and add it to the list
                   return {
                     ...product,
                     ...payload.new,
-                    price: typeof payload.new.price === 'string' ? payload.new.price : 
-                           typeof payload.new.price === 'number' ? payload.new.price : 'N/A',
+                    price: typeof data.productstatus.price === 'string' ? data.productstatus.price : 
+                           typeof data.productstatus.price === 'number' ? data.productstatus.price : 'N/A',
                   };
                 }
                 return product;
@@ -330,8 +337,41 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
         }
       }
     });
+
+    currProdNames.map(async (data, index) => {
+      const newName = data.name;
+      const prodId = data.id;
+
+      if (currProdNames[index]) {
+        const { error } = await supabase
+        .from('product')
+        .update({ name: newName })
+        .eq('productid', prodId);
+      }
+    });
+
+    currProdPrices.map(async (data, index) => {
+      const newPrice = data.price;
+      const prodStatusId = data.id;
+
+      if (currProdPrices[index]) {
+        const { error: err1 } = await supabase
+        .from('productstatus')
+        .update({ price: newPrice })
+        .eq('productstatusid', prodStatusId);
+
+        // Used only to reanimate the changing price since only the product table has realtime subscription and not the productstatus
+        const { error: err2 } = await supabase
+        .from('product')
+        .update({ productstatus: prodStatusId })
+        .eq('productstatus', prodStatusId);
+      }
+    });
+
     setProductNames([]);
     setProductPrices([]);
+    setCurrProdNames([]);
+    setCurrProdPrices([]);
   };
 
   const cancelEdit = () => {
@@ -339,6 +379,8 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
     setAddingProduct(false);
     setProductNames([]);
     setProductPrices([]);
+    setCurrProdNames([]);
+    setCurrProdPrices([]);
   };
 
   const [productNames, setProductNames] = useState<string[]>([]);
@@ -359,6 +401,30 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
     const newPriceArr = [...productPrices];
     newPriceArr[index] = value;
     setProductPrices(newPriceArr);
+  };
+
+  type UpdateProdName = {
+    id: string;
+    name: string;
+  };
+
+  type UpdateProdPrice = {
+    id: string;
+    price: number;
+  };
+
+  const [currProdNames, setCurrProdNames] = useState<UpdateProdName[]>([]);
+  const [currProdPrices, setCurrProdPrices] = useState<UpdateProdPrice[]>([]);
+  const handleChangeCurrentName = (index: number, productid: string, value: string) => {
+    const newNameArr = [...currProdNames];
+    newNameArr[index] = {id: productid, name: value};
+    setCurrProdNames(newNameArr);
+  };
+
+  const handleChangeCurrentPrice = (index: number, productstatusid: string, value: number) => {
+    const newPriceArr = [...currProdPrices];
+    newPriceArr[index] = {id: productstatusid, price: value};
+    setCurrProdPrices(newPriceArr);
   };
 
   return (
@@ -483,7 +549,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
                 <p className="text-red-500">{error}</p>
               </div>
             ) : (
-              <div className="px-4 py-2">
+              <div className="px-4 py-2" >
                 {/* Table header */}
                 <div className="flex justify-between mb-2 text-left">
                   <div className="font-medium text-gray-700 w-1/2 text-sm">Name</div>
@@ -491,17 +557,43 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
                 </div>
                 
                 {/* Product list * */}
-                <div className="space-y-2">
-                  {getCurrentPageProducts().map((product) => (
-                    <div 
-                      key={product.productid}
-                      className="flex justify-between items-center pb-1 border-b border-gray-100"
-                    >
-                      <div className="text-left text-gray-800 text-sm">{product.name}</div>
-                      <div className="text-right text-gray-800 font-medium text-sm">₱{product.price}</div>
-                    </div>
-                  ))}
-                </div>
+                {!isEditing ? (
+                  <div className="space-y-2">
+                    {getCurrentPageProducts().map((product) => (
+                      <div 
+                        key={product.productid}
+                        className="flex justify-between items-center pb-1 border-b border-gray-100"
+                      >
+                        <div className="text-left text-gray-800 text-sm">{product.name}</div>
+                        <div className="text-right text-gray-800 font-medium text-sm">₱{product.price}</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {getCurrentPageProducts().map((product, index) => (
+                      <div 
+                        key={product.productid}
+                        className="flex justify-between items-center pb-1 border-b border-gray-100"
+                      >
+                        <input 
+                          type="text" 
+                          defaultValue={product.name}
+                          className="text-left text-sm w-[80%]"
+                          onChange={(e) => handleChangeCurrentName(index, product.productid, e.target.value)}
+                          required
+                        />
+                        <input 
+                          type="number"
+                          defaultValue={product.price}
+                          className="text-right text-sm w-[20%]"
+                          onChange={(e) => handleChangeCurrentPrice(index, product.productstatus, Number(e.target.value))}
+                          required
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {isAddingProduct && 
                 <div className="justify-self-center border grid grid-cols-1 justify-center w-full">
