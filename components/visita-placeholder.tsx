@@ -4,7 +4,7 @@ import { motion } from "motion/react"
 export default function VisitaPlaceholder() {
   return (
     <motion.div 
-      className="w-full h-full aspect-[40/20] bg-cover bg-center rounded-[15px] flex flex-col justify-between items-center py-[50px] px-[25px] text-center"
+      className="w-full h-full aspect-[40/20] bg-cover bg-center rounded-[15px] flex flex-col items-center justify-center text-center relative"
       style={{
         background: `url(${BackgroundImage.src})`,
         backgroundSize: "100% 100%",
@@ -18,12 +18,12 @@ export default function VisitaPlaceholder() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <h1 className="w-full h-full aspect-[40/20] text-7xl font-bold">
+      <h1 className="text-4xl font-bold mb-[75%]">
         Welcome<br/>
         to<br/>
         Visita
       </h1>
-      <h1 className="text-m">
+      <h1 className="absolute bottom-10 text-sm">
         Try <span className="font-bold">clicking </span>
         one of the store boxes!<br/>
         <span className="font-bold text-[#F07474]">Red </span>
@@ -31,5 +31,5 @@ export default function VisitaPlaceholder() {
         <span className="font-bold text-[#F07474]"> closed</span>.
       </h1>
     </motion.div>
-  );
+  );  
 }
