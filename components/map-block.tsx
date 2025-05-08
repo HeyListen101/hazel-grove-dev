@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { color } from '@/components/assets/background-images/icons';
-import { stat } from "node:fs/promises";
 
 interface MapBlockProps {
     storeId?: string,
@@ -18,9 +17,10 @@ interface MapBlockProps {
     viewBox?: string,
     radius?: string,
     clickBlock?: (id: string) => void,
+    pointerEvents?: boolean,
 }
 
-const MapBlock: React.FC<MapBlockProps> = ({ storeId, rowStart, rowEnd, colStart, colEnd, defaultColor, width, height, icon, viewBox, clickBlock, radius }) => {
+const MapBlock: React.FC<MapBlockProps> = ({ storeId, rowStart, rowEnd, colStart, colEnd, defaultColor, width, height, icon, viewBox, clickBlock, radius, pointerEvents = true }) => {
     const supabase = createClient();
     const [bgColor, setBgColor] = useState(defaultColor);
     
@@ -63,6 +63,7 @@ const MapBlock: React.FC<MapBlockProps> = ({ storeId, rowStart, rowEnd, colStart
                 width: `${width ? width : 100}%`,
                 height: `${height ? height : 100}%`,
                 borderRadius: `${radius ? radius : 8}px`,
+                pointerEvents: pointerEvents? 'auto' : 'none',
             }}
             onClick={() => clickBlock && storeId && clickBlock(storeId)}
         >

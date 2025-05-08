@@ -247,7 +247,7 @@ export default function MapComponent() {
     // #13783e #F07474
     <main className="touch-auto bg-white flex items-center justify-center overflow-hidden fixed top-16 inset-x-0 bottom-0">
       <div 
-        className="w-[950px] h-[540px] grid place-items-center gap-[2px]"
+        className="w-full max-w-[95vw] aspect-[40/20] grid place-items-center gap-[2px]"
         style={{
           gridTemplateRows: "repeat(20, 1fr)",
           gridTemplateColumns: "repeat(40, 1fr)",
@@ -285,15 +285,15 @@ export default function MapComponent() {
         <MapBlock rowStart={1} rowEnd={3} colStart={37} colEnd={41} defaultColor={color.c} viewBox={mapIconData[26].viewBox} icon={mapIconData[26].icon} storeId='a4bf315c-be4d-4066-929e-7f18810f529c' clickBlock={handleMapBlockClick}/>
 
         {/* Roads and Walkways */}
-        <MapBlock rowStart={3} rowEnd={4} colStart={4} colEnd={19} height={30} defaultColor={color.f}/>
-        <MapBlock rowStart={3} rowEnd={5} colStart={18} colEnd={38} height={50} defaultColor={color.f}/>
-        <MapBlock rowStart={1} rowEnd={22} colStart={18} colEnd={19} defaultColor={color.f}/>
-        <MapBlock rowStart={4} rowEnd={22} colStart={37} colEnd={38} defaultColor={color.f}/>
-        <MapBlock rowStart={5} rowEnd={21} colStart={24} colEnd={25} width={30} defaultColor={color.f}/>
-        <MapBlock rowStart={13} rowEnd={21} colStart={33} colEnd={34} width={30} defaultColor={color.f}/>
-        <MapBlock rowStart={13} rowEnd={18} colStart={36} colEnd={37} width={30} defaultColor={color.f}/>
-        <MapBlock rowStart={17} rowEnd={18} colStart={24} colEnd={37} height={30} defaultColor={color.f}/>
-        <MapBlock rowStart={20} rowEnd={21} colStart={24} colEnd={34} height={30} defaultColor={color.f}/>
+        <MapBlock rowStart={3} rowEnd={4} colStart={4} colEnd={19} height={30} defaultColor={color.f} pointerEvents={false}/>
+        <MapBlock rowStart={3} rowEnd={5} colStart={18} colEnd={38} height={50} defaultColor={color.f} pointerEvents={false}/>
+        <MapBlock rowStart={1} rowEnd={22} colStart={18} colEnd={19} defaultColor={color.f} pointerEvents={false}/>
+        <MapBlock rowStart={4} rowEnd={22} colStart={37} colEnd={38} defaultColor={color.f} pointerEvents={false}/>
+        <MapBlock rowStart={5} rowEnd={21} colStart={24} colEnd={25} width={30} defaultColor={color.f} pointerEvents={false}/>
+        <MapBlock rowStart={13} rowEnd={21} colStart={33} colEnd={34} width={30} defaultColor={color.f} pointerEvents={false}/>
+        <MapBlock rowStart={13} rowEnd={18} colStart={36} colEnd={37} width={30} defaultColor={color.f} pointerEvents={false}/>
+        <MapBlock rowStart={17} rowEnd={18} colStart={24} colEnd={37} height={30} defaultColor={color.f} pointerEvents={false}/>
+        <MapBlock rowStart={20} rowEnd={21} colStart={24} colEnd={34} height={30} defaultColor={color.f} pointerEvents={false}/>
 
         {/* Rightmost Stores */} 
         <MapBlock rowStart={4} rowEnd={5} colStart={39} colEnd={41} defaultColor={color.d} viewBox={mapIconData[27].viewBox} icon={mapIconData[27].icon} storeId='3edc0d84-dd1c-4195-836d-e22df3a9571e' clickBlock={handleMapBlockClick}/>

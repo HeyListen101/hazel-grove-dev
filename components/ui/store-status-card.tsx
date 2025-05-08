@@ -4,7 +4,7 @@ type StoreStatusCardProps = {
   
 export default function StoreStatusCard({ isOpen }: StoreStatusCardProps) {
     return isOpen ? (
-        <svg width="128" height="128" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg className="pointer-events-none" width="128" height="128" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
             <line x1="14.8572" y1="24.3758" x2="37.8385" y2="5.09217" stroke="#D5D5D5" strokeWidth="2"/>
         <line y1="-1" x2="30" y2="-1" transform="matrix(-0.766044 -0.642788 -0.642788 0.766044 64.5005 25.1418)" stroke="#D5D5D5" strokeWidth="2"/>
         <g filter="url(#filter0_d_418_39)">
@@ -25,7 +25,7 @@ export default function StoreStatusCard({ isOpen }: StoreStatusCardProps) {
             </defs>
         </svg>
     ) : (
-        <svg width="128" height="128" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg className="pointer-events-none" width="128" height="128" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
             <line x1="14.8572" y1="24.3758" x2="37.8385" y2="5.09217" stroke="#D5D5D5" strokeWidth="2"/>
             <line y1="-1" x2="30" y2="-1" transform="matrix(-0.766044 -0.642788 -0.642788 0.766044 64.5005 25.1418)" stroke="#D5D5D5" strokeWidth="2"/>
         <g filter="url(#filter0_d_418_54)">

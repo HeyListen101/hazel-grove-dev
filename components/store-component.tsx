@@ -6,6 +6,7 @@ import { createClient } from "@/utils/supabase/client";
 import BackgroundImage from '@/components/assets/background-images/Background.png';
 import StoreStatusCard from './ui/store-status-card';
 import { useMapSearch } from '@/components/map-search-context';
+import { Button } from './ui/button';
 
 type StoreComponentProps = {
   storeId?: string,
@@ -484,7 +485,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
 
           {/* Status Card */}
           <motion.div 
-            className="pointer-events-auto absolute -top-[45px] -right-[55px] z-3"
+            className="pointer-events-auto absolute -right-[50] z-10"
             initial={{ opacity: 0, scale: 0.2 }}
             animate={{ opacity: 1, scale: 0.4 }}
             exit={{ opacity: 0, scale: 0.2 }}
@@ -493,7 +494,9 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
               duration: 0.3
             }}
           >
-            <StoreStatusCard isOpen={isOpen || false} />
+            <Button className="bg-transparent h-16 pb-10 px-0 rounded-[16]" onClick={toggleStoreStatus}>  
+              <StoreStatusCard isOpen={isOpen || false} />
+            </Button>
           </motion.div>
           
           {/* Store name with better visibility */}
@@ -504,33 +507,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             transition={{ delay: 0.3, duration: 0.3 }}
           >
             <h1 className="text-sm font-bold text-white">{storeName}</h1>
-          </motion.div>
-          
-          {/* Open button - positioned at the top right */}
-          <motion.div
-            className="absolute bottom-0 right-0 p-3 z-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.3 }}
-          >
-          {isOpen ? (
-            <button 
-              className="bg-[#F07474] text-white px-3 py-1 text-xs rounded-md font-bold shadow-md transition-all duration-300 hover:shadow-lg"
-              onClick={toggleStoreStatus}
-            >
-              Close
-            </button>
-          ) : (
-            <button 
-              className="bg-green-600 text-white px-3 py-1 text-xs rounded-md font-bold shadow-md transition-all duration-300 hover:shadow-lg"
-              onClick={toggleStoreStatus}
-            >
-              Open
-            </button>
-          )}
-            
-          </motion.div>
-          
+          </motion.div>          
           {/* Eatery button positioned at the bottom of the header */}
           <motion.div 
             className="absolute bottom-0 left-0 p-3 z-5"
