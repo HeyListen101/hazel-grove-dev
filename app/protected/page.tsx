@@ -18,16 +18,20 @@ export default async function ProtectedPage() {
 
   return (
     <MapSearchProvider>
-      <header className="fixed top-0 left-0 right-0 header-auth flex justify-between items-center p-[32px] h-16 z-[20]">
-          <div className="flex-1 max-w-md mx-4">
+      
+      <header className="fixed top-0 left-0 right-0 header-auth flex gap-5 sm:justify-between items-center p-[10px] h-16 z-[20]">
+          <div className="flex-1 max-w-md">
             <SearchBar/>
           </div>
           <AuthBar/>
       </header>
-      <MapComponent/>
+
+      <MapComponent />
+
       <div className="fixed bottom-5 left-5 flex items-center space-x-2 z-5">
         <ChatBox messages={data ?? []} />
       </div>
+    
     </MapSearchProvider>
   );
 }

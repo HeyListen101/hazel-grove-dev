@@ -243,14 +243,22 @@ export default function MapComponent() {
     console.log(`Store ${storeId} ${(selectedStoreId === storeId) ? 'deselected' : 'selected'}`);
   };
 
+  const targetRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    targetRef.current?.scrollIntoView({ behavior: 'smooth' }); // or 'auto'
+  }, []);
+
   return (
     // #13783e #F07474
-    <main className="touch-auto bg-white flex items-center justify-center overflow-hidden fixed top-16 inset-x-0 bottom-0">
+    <main 
+      className="touch-auto bg-white flex items-center justify-center w-[1480px] h-[920px] mt-[60px]"
+    >
       <div 
-        className="w-full max-w-[95vw] aspect-[40/20] grid place-items-center gap-[2px]"
+        className="w-[1280px] h-[720px] grid place-items-center gap-[2px] bg-white"
         style={{
           gridTemplateRows: "repeat(20, 1fr)",
-          gridTemplateColumns: "repeat(40, 1fr)",
+          gridTemplateColumns: "repeat(40, 1fr)"
         }}
       >
         {/* Top-Left Stores */}
@@ -332,6 +340,15 @@ export default function MapComponent() {
         <MapBlock rowStart={15} rowEnd={17} colStart={34} colEnd={35} defaultColor={color.b} viewBox={mapIconData[56].viewBox} icon={mapIconData[56].icon} storeId='68769d27-1592-451c-a2e1-5c29947fe57d' clickBlock={handleMapBlockClick}/>
         <MapBlock rowStart={15} rowEnd={17} colStart={35} colEnd={36} defaultColor={color.a} viewBox={mapIconData[57].viewBox} icon={mapIconData[57].icon} storeId='5ad7a95c-5765-4f4a-bd19-d65c09fa6a0f' clickBlock={handleMapBlockClick}/>
         
+        <div 
+          ref={targetRef}
+          style={{
+            gridRowStart: 3,
+            gridRowEnd: 4,
+            gridColumnStart: 16,
+            gridColumnEnd: 17,
+          }}
+        />
         {selectedStoreId ? (
           <div 
             className="rounded-[15px] h-full w-full"

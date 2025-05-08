@@ -1,6 +1,7 @@
 import { ThemeProvider } from "next-themes";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import PreventZoomWrapper from "@/components/prevent-zoom-wrapper";
 
 const poppins = Poppins({
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'], 
@@ -26,13 +27,17 @@ export default function RootLayout({
       <body 
         className="
           antialiased relative w-screen h-screen overflow-auto
-          [&::-webkit-scrollbar]:w-0
-          [&::-webkit-scrollbar]:h-0
+          [&::-webkit-scrollbar]:h-1
+          [&::-webkit-scrollbar]:w-1
+          [&::-webkit-scrollbar-thumb]:rounded-full
+          [&::-webkit-scrollbar-thumb]:bg-gray-400
         "
       >
+        <PreventZoomWrapper>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}
           </ThemeProvider>
+        </PreventZoomWrapper>
       </body>
     </html>
   );

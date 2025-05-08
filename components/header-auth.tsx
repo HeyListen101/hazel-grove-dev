@@ -56,7 +56,7 @@ export default async function AuthButton() {
   };
 
   return user ? (
-    <div className="flex items-center gap-2 bg-white rounded-[75px] shadow-sm pl-[20px]">
+    <div className="flex items-center gap-2 bg-white rounded-[75px] shadow-sm p-0 sm:pl-[20px]">
       <span className="hidden sm:inline text-[#222] text-[0.8rem] font-bold">Hey, {contributorName || "you're not supposed to be here"}!</span>
       
       <DropdownMenu>

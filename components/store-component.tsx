@@ -454,7 +454,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        className="bg-white grid grid-rows-[1fr_230px] h-full rounded-[15px] shadow-md"
+        className="bg-white grid grid-rows-[1fr_350px] h-full rounded-[15px] shadow-md"
         key="store"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -501,12 +501,12 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
           
           {/* Store name with better visibility */}
           <motion.div 
-            className="relative pt-2 pl-3 z-3"
+            className="relative pt-5 pl-5 z-3"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.3 }}
           >
-            <h1 className="text-sm font-bold text-white">{storeName}</h1>
+            <h1 className="text-md font-bold text-white w-[50%]">{storeName}</h1>
           </motion.div>          
           {/* Eatery button positioned at the bottom of the header */}
           <motion.div 
@@ -515,7 +515,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.3 }}
           >
-            <button className="bg-white text-emerald-700 px-3 py-1 text-xs rounded-full font-bold flex items-center shadow-md transition-all duration-300 hover:shadow-lg">
+            <button className="bg-white text-emerald-700 px-3 py-1 text-sm rounded-full font-bold flex items-center shadow-md transition-all duration-300 hover:shadow-lg">
               <span className="mr-1">🍴</span> Eatery
             </button>
           </motion.div>  

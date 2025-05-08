@@ -18,7 +18,7 @@ export default function VisitaPlaceholder() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <h1 className="w-full h-full aspect-[40/20] text-7xl font-bold">
+      <h1 className="w-full h-full aspect-[40/20] text-5xl 2xl:text-6xl font-bold">
         Welcome<br/>
         to<br/>
         Visita
