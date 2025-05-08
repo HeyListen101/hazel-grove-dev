@@ -490,7 +490,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
     <AnimatePresence mode="wait" key={storeId}> 
       {isSelected && storeId && (
         <motion.div
-          className="bg-white grid grid-rows-[100px_1fr] md:grid-rows-[120px_1fr] h-full rounded-[15px] shadow-md flex flex-col"
+          className="bg-white grid grid-rows-[100px_1fr] md:grid-rows-[120px_1fr] h-full rounded-[15px] shadow-md"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -517,13 +517,13 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             />
             {/* Status Card  */}
             <motion.div 
-              className="pointer-events-auto absolute right-1 top-2 md:top-2 md:-right-[75] z-10" // Adjusted positioning
+              className="pointer-events-auto absolute right-1 top-2 z-10" // Adjusted positioning
               initial={{ opacity: 0, scale: 0.2 }}
               animate={{ opacity: 1, scale: 0.4 }}
               exit={{ opacity: 0, scale: 0.2 }}
               transition={{ delay: 0.5, duration: 0.3 }}
             >
-              <Button className="bg-transparent hover:bg-transparent focus:bg-transparent h-[96px] px-0 pb-[55px] rounded-[24]" onClick={toggleStoreStatus}>  
+              <Button className="bg-transparent hover:bg-transparent focus:bg-transparent h-[96px] rounded-[24]" onClick={toggleStoreStatus}>  
                 <StoreStatusCard isOpen={isOpen || false} />
               </Button>
             </motion.div>
@@ -534,7 +534,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.3 }}
             >
-              <h1 className="text-2xl font-bold text-white line-clamp-2 pr-12">{storeName}</h1>
+              <h1 className="text-lg font-bold text-white line-clamp-2 w-[80%]">{storeName}</h1>
             </motion.div>          
             {/* Store Type Label */}
             <motion.div

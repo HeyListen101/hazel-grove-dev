@@ -4,7 +4,7 @@ import { motion } from "motion/react"
 export default function VisitaPlaceholder() {
   return (
     <motion.div 
-      className="w-full h-full aspect-[40/20] bg-cover bg-center rounded-[15px] flex flex-col items-center justify-center text-center relative"
+      className="w-full h-full aspect-[40/20] bg-cover bg-center rounded-[15px] flex flex-col items-center justify-center text-center relative p-[50px]"
       style={{
         background: `url(${BackgroundImage.src})`,
         backgroundSize: "100% 100%",
