@@ -3,6 +3,7 @@ import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { ErrorDisplay } from "@/components/error-display";
+import backgroundImage from "@/components/assets/background-images/LandingPage.png";
 import {
   Select,
   SelectContent,
@@ -17,7 +18,10 @@ export default async function SignUp(props: { searchParams: Promise<Record<strin
 
   return (
     <div
-      className={`inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden w-full h-full bg-white sm:bg-[url(@/components/assets/background-images/LandingPage.png)]`}
+      className="inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden w-full h-full bg-white"
+      style={{
+        backgroundImage: `url(${backgroundImage.src})`,
+      }}
     >
       <div className="bg-white p-8 rounded-[20px] sm:shadow-lg w-96 flex flex-col items-center">
         <h2 className="text-lg font-bold mb-3 text-black">Sign Up</h2>
