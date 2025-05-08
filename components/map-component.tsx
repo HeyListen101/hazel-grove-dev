@@ -21,6 +21,8 @@ export default function MapComponent() {
   const [rectangleData, setRectangleData] = useState(originalRectangleData);
   const [currentUser, setCurrentUser] = useState<string>("User");
   const supabase = createClient();
+  const [subscription, setSubscription] = useState<ReturnType<typeof supabase.channel> | null>(null);
+
   const { 
     selectedStoreId, 
     setSelectedStoreId, 
@@ -42,10 +44,6 @@ export default function MapComponent() {
     };
     fetchUser();
   }, []);
-
-
-  // Add state for realtime subscription
-  const [subscription, setSubscription] = useState<ReturnType<typeof supabase.channel> | null>(null);
 
   // Set up realtime subscription
   useEffect(() => {
@@ -69,7 +67,7 @@ export default function MapComponent() {
     .on(
       'postgres_changes',
       {
-        event: '*', // Listen to all events (insert, update, delete)
+        event: '*',
         schema: 'public',
         table: 'storestatus',
       },
@@ -327,8 +325,8 @@ export default function MapComponent() {
         <MapBlock rowStart={18} rowEnd={19} colStart={31} colEnd={33} defaultColor={color.b} viewBox={mapIconData[45].viewBox} icon={mapIconData[45].icon} storeId='378c68a5-8854-41f8-99ac-dc23298bb988' clickBlock={handleMapBlockClick}/>
         <MapBlock rowStart={19} rowEnd={20} colStart={25} colEnd={27} defaultColor={color.c} viewBox={mapIconData[46].viewBox} icon={mapIconData[46].icon} storeId='ed64621f-b622-4ebf-8676-7433db010a28' clickBlock={handleMapBlockClick}/>
         <MapBlock rowStart={19} rowEnd={20} colStart={27} colEnd={28} defaultColor={color.d} viewBox={mapIconData[47].viewBox} icon={mapIconData[47].icon} storeId='dd183dc4-3b40-4b5e-a6de-6580062f926e' clickBlock={handleMapBlockClick}/>
-        <MapBlock rowStart={19} rowEnd={20} colStart={28} colEnd={29} defaultColor={color.e} viewBox={mapIconData[48].viewBox} icon={mapIconData[48].icon} storeId='0ec5837b-5b59-4e56-a673-6b98105e89db' clickBlock={handleMapBlockClick}/>
-        <MapBlock rowStart={19} rowEnd={20} colStart={29} colEnd={30} defaultColor={color.a} viewBox={mapIconData[49].viewBox} icon={mapIconData[49].icon} storeId='99337afb-2ec2-4cb4-995b-fcf40b2bb6b1' clickBlock={handleMapBlockClick}/>
+        <MapBlock rowStart={19} rowEnd={20} colStart={28} colEnd={29} defaultColor={color.e} viewBox={mapIconData[48].viewBox} icon={mapIconData[48].icon} storeId='99337afb-2ec2-4cb4-995b-fcf40b2bb6b1' clickBlock={handleMapBlockClick}/>
+        <MapBlock rowStart={19} rowEnd={20} colStart={29} colEnd={30} defaultColor={color.a} viewBox={mapIconData[49].viewBox} icon={mapIconData[49].icon} storeId='0ec5837b-5b59-4e56-a673-6b98105e89db' clickBlock={handleMapBlockClick}/>
         <MapBlock rowStart={19} rowEnd={20} colStart={30} colEnd={31} defaultColor={color.b} viewBox={mapIconData[50].viewBox} icon={mapIconData[50].icon} storeId='3c896041-6c47-41a5-9f05-3d46a581a91e' clickBlock={handleMapBlockClick}/>
         <MapBlock rowStart={19} rowEnd={20} colStart={31} colEnd={32} defaultColor={color.c} viewBox={mapIconData[51].viewBox} icon={mapIconData[51].icon} storeId='2cc9f21d-38bc-4064-a1df-321508b4449c' clickBlock={handleMapBlockClick}/>
         <MapBlock rowStart={19} rowEnd={20} colStart={32} colEnd={33} defaultColor={color.d} viewBox={mapIconData[52].viewBox} icon={mapIconData[52].icon} storeId='b370821e-baa7-4f50-93c8-8fa56aee6ecc' clickBlock={handleMapBlockClick}/>
