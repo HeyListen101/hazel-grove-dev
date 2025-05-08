@@ -249,14 +249,12 @@ export default function MapComponent() {
 
   return (
     // #13783e #F07474
-    <main 
-      className="touch-auto bg-white flex items-center justify-center w-[1480px] h-[920px] mt-[60px]"
-    >
+    <main className="touch-auto bg-white flex items-center justify-center overflow-hidden fixed top-16 inset-x-0 bottom-0">
       <div 
-        className="w-[1280px] h-[720px] grid place-items-center gap-[2px] bg-white"
+        className="w-full max-w-[95vw] aspect-[40/20] grid place-items-center gap-[2px]"
         style={{
           gridTemplateRows: "repeat(20, 1fr)",
-          gridTemplateColumns: "repeat(40, 1fr)"
+          gridTemplateColumns: "repeat(40, 1fr)",
         }}
       >
         {/* Top-Left Stores */}

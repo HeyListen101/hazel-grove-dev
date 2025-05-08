@@ -1,5 +1,5 @@
 import AuthButton from "@/components/header-auth";
-import backgroundImage from "@/components/assets/background-images/LandingPage.png";
+import backgroundImage from "@/components/assets/background-images/LandingPage.png"
 
 export default async function Home() {
   return (

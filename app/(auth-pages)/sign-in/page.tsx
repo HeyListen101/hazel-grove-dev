@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { SubmitButton } from "@/components/submit-button";
 import { customSignInAction, googleSignInAction } from '@/app/server/auth-actions';
 import Link from "next/link";
-import backgroundImage from "@/components/assets/background-images/LandingPage.png";
+import backgroundImage from "@/components/assets/background-images/LandingPage.png"
 
 export default async function Home(props: { searchParams: Promise<Record<string, string>> }) {
   const params = await props.searchParams;
@@ -17,9 +17,9 @@ export default async function Home(props: { searchParams: Promise<Record<string,
   // For now, we can just leave it as is.
   return (
     <div
-      className="inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden w-full h-full bg-white"
+      className={`inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden w-full h-full bg-white`}
       style={{
-        backgroundImage: `url(${backgroundImage.src})`,
+        backgroundImage:`url(${backgroundImage.src})`,
       }}
     >
 
