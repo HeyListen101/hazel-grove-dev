@@ -233,7 +233,7 @@ const SearchBar = () => {
           <input
             type="text"
             placeholder="Search stores or products"
-            className={`w-full py-2 pl-10 pr-4 text-sm text-gray-700 bg-white ${(isSearching || searchResults.length > 0) ? 'rounded-t-md shadow-md' : 'rounded-md shadow-md'} focus:outline-none focus:ring-0`}
+            className={`w-full py-2 pl-10 pr-4 text-sm text-gray-700 bg-white ${(isSearching || searchResults.length > 0) ? 'rounded-t-[75px] shadow-sm' : 'rounded-[75px] shadow-sm'} focus:outline-none focus:ring-0`}
             value={searchTerm}
             onChange={handleInputChange}
             onKeyDown={(e) => {
@@ -242,8 +242,8 @@ const SearchBar = () => {
               }
             }}
           />
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <Search className="h-5 w-5 text-gray-500 stroke-2" />
+          <div className="absolute inset-y-0 left-0 flex items-center justify-center pl-4 pointer-events-none">
+            <Search className="h-4 w-4 text-gray-500 stroke-2" />
           </div>
         </div>
 
@@ -253,7 +253,17 @@ const SearchBar = () => {
             {isSearching ? (
               <div className="p-4 text-center text-gray-500">Searching...</div>
             ) : searchResults.length > 0 ? (
-              <ul className="divide-y divide-gray-200 max-h-[363px] overflow-y-auto">
+              <ul 
+                className="divide-y divide-gray-200 max-h-[363px] overflow-y-auto
+                  [&::-webkit-scrollbar]:w-1
+                  [&::-webkit-scrollbar-track]:rounded-full
+                  [&::-webkit-scrollbar-track]:bg-gray-100
+                  [&::-webkit-scrollbar-thumb]:rounded-full
+                  [&::-webkit-scrollbar-thumb]:bg-gray-300
+                  dark:[&::-webkit-scrollbar-track]:bg-[#F0F0F0]
+                  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-400
+                "
+              >
                 {searchResults.map((result, index) => (
                   <li
                     key={index}

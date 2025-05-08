@@ -1,6 +1,8 @@
 import { ThemeProvider } from "next-themes";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import PreventZoomWrapper from "@/components/prevent-zoom-wrapper";
+import ResolutionGuard from "@/components/resolution-context";
 
 const poppins = Poppins({
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'], 
@@ -18,11 +20,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={poppins.className}>
-      <body className="antialiased relative w-screen h-screen overflow-hidden">
+    <html lang="en" className={poppins.className} suppressHydrationWarning>
+      <body 
+        className="
+          antialiased relative w-screen h-screen overflow-auto
+          [&::-webkit-scrollbar]:h-1
+          [&::-webkit-scrollbar]:w-1
+          [&::-webkit-scrollbar-thumb]:rounded-full
+          [&::-webkit-scrollbar-thumb]:bg-gray-400
+        "
+      >
+        <PreventZoomWrapper>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            {children}
+            <ResolutionGuard minWidth={410} minHeight={450}>
+              {children}
+            </ResolutionGuard>
           </ThemeProvider>
+        </PreventZoomWrapper>
       </body>
     </html>
   );
