@@ -72,11 +72,21 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
     fetchUser();
   }, [supabase]);
 
-  // Add this useEffect to handle screen size changes
+  // Fetch store product amount on mount
   useEffect(() => {
     // Function to update items per page based on screen width
     const handleResize = () => {
-      if (window.innerWidth < 1450) {
+      if (window.innerWidth <= 881) {
+        setItemsPerPage(1);
+      } else if (window.innerWidth <= 991) {
+        setItemsPerPage(2);  
+      } else if (window.innerWidth <= 1083) {
+        setItemsPerPage(3);
+      } else if (window.innerWidth <= 1175) {
+        setItemsPerPage(4);
+      } else if (window.innerWidth <= 1265) {
+        setItemsPerPage(5);
+      } else if (window.innerWidth <= 1450) {
         setItemsPerPage(6);
       } else {
         setItemsPerPage(8);
@@ -113,7 +123,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             .single();
 
           if (storeError) {
-            console.error('Error fetching store type:', storeError.message);
+            console.log('Error fetching store type:', storeError.message);
             setStoreType('N/A'); // Or some default error value
           } else if (storeData) {
             setStoreType(storeData.store_type);
@@ -121,7 +131,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             setStoreType('N/A'); // Store not found or storetype is null
           }
         } catch (err) {
-          console.error('Exception fetching store type:', err);
+          console.log('Exception fetching store type:', err);
           setStoreType('Error');
         }
         setStoreDetailsLoading(false);
@@ -213,7 +223,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
         if (status === 'SUBSCRIBED') {
           console.log(`Subscribed to product changes for store ${storeId}`);
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-          console.error(`Product subscription error for store ${storeId}: ${status}`);
+          console.log(`Product subscription error for store ${storeId}: ${status}`);
         }
       });
     
@@ -264,7 +274,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
       setTotalPages(Math.ceil(processedProducts.length / itemsPerPage));
       
     } catch (error: any) {
-      console.error('Error fetching products:', error.message);
+      console.log('Error fetching products:', error.message);
       setError('Failed to load products');
     } finally {
       setLoading(false);
@@ -288,7 +298,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
       .single();
     
     if (insertErr || !statusData) {
-      console.error("Error creating new store status:", insertErr);
+      console.log("Error creating new store status:", insertErr);
       return;
     }
         
@@ -300,7 +310,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
     if (!updateErr) {
       setIsOpen(newStatus);
     } else {
-      console.error("Error updating store status:", updateErr);
+      console.log("Error updating store status:", updateErr);
     }
   };
 
@@ -367,10 +377,8 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
         // Optionally re-fetch products to ensure UI consistency, though realtime should handle it
         // fetchAllProducts(); 
     } catch (error: any) {
-        console.error("Error saving edits:", error.message);
+        console.log("Error saving edits:", error.message);
         setError("Failed to save changes.");
-    } finally {
-        // setIsAnimating(false);
     }
   };
 
@@ -431,7 +439,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
         // Realtime should update the list, but you could also manually filter here
         // for immediate UI feedback if needed, though it's better to rely on the subscription.
     } catch (error: any) {
-        console.error("Error deleting product:", error.message);
+        console.log("Error deleting product:", error.message);
         setError("Failed to delete product.");
     }
   };
@@ -673,7 +681,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
                     </motion.div>
                   ))}
                   
-                  {isEditing && ( // Moved Add Product button to be more accessible
+                  {isEditing && (
                     <button 
                       className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs flex items-center justify-center gap-1 w-full py-1.5 px-2 rounded-lg mt-2 mb-1 transition-colors"
                       onClick={addProduct}
@@ -689,48 +697,86 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             </div>
 
             {/* Pagination controls */}
-            <div className="border-t border-gray-200 flex-shrink-0">
-              <div className="flex justify-between items-center text-gray-500 py-2 md:py-3 px-1 md:px-2">
+            <div className="border-t border-gray-200">
+              <div className="flex justify-between items-center w-full px-2 py-2">
+
                 {/* Prev Button */}
-                <button 
-                  className={`text-xs md:text-sm flex items-center ${currentPage === 1 || products.length === 0 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:text-gray-900'}`}
+                <button
+                  className={`flex items-center justify-center min-w-[40px] sm:min-w-[60px] md:min-w-[70px] py-1 px-1 sm:px-2 rounded-md transition-colors ${
+                    currentPage === 1 || isAnimating
+                      ? 'text-gray-400 cursor-not-allowed'
+                      : 'text-emerald-700 hover:bg-emerald-50'
+                  }`}
                   onClick={handlePrevPage}
-                  disabled={currentPage === 1 || products.length === 0}
+                  disabled={currentPage === 1 || isAnimating}
                 >
-                  <svg className="w-5 h-5 md:w-6 md:h-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="m15 18-6-6 6-6"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
-                  Prev
+                  <span className="ml-1 hidden px1100:inline-block text-xs md:text-sm">Prev</span>
                 </button>
 
                 {/* Edit / Save / Cancel Buttons */}
-                {isEditing ? (
-                  <div className="flex gap-1 md:gap-2 basis-1/2">
-                    <Button variant="default" onClick={saveEdit}className="bg-emerald-600 hover:bg-emerald-700 md:text-xs w-50 h-8 basis-1/2 flex items-center">
-                      Save
+                <div className="flex-grow flex justify-center items-center px-1 sm:px-2">
+                  {isEditing ? (
+                    <div className="grid grid-cols-1 px1100:grid-cols-2 gap-1 px1100:gap-2 w-full max-w-xs sm:max-w-[240px] mx-auto">
+                      {/* Save Button */}
+                      <Button
+                        variant="default"
+                        onClick={saveEdit}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] md:text-xs w-full h-7 md:h-8 flex items-center justify-center px-1 md:px-2 transition-colors"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1 flex-shrink-0 hidden sm:inline-block">
+                          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                          <polyline points="17 21 17 13 7 13 7 21" />
+                          <polyline points="7 3 7 8 15 8" />
+                        </svg>
+                        Save
+                      </Button>
+
+                      {/* Cancel Button */}
+                      <Button
+                        variant="outline"
+                        onClick={cancelEdit}
+                        className="bg-red-100 hover:bg-red-200 border-red-300 text-red-700 text-[10px] md:text-xs w-full h-7 md:h-8 flex items-center justify-center px-1 md:px-2 transition-colors"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1 flex-shrink-0 hidden sm:inline-block">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    // Edit Button
+                    <Button
+                      variant="ghost"
+                      className="text-gray-600 hover:bg-gray-100 text-[10px] md:text-xs h-7 md:h-8 px-2 flex items-center justify-center"
+                      onClick={toggleEdit}
+                      aria-label="Edit Products"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" className="flex-shrink-0 px1100:mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                      </svg>
+                      <span className="hidden px1100:inline-block ml-1">Edit Products</span>
                     </Button>
-                    <Button variant="outline" onClick={cancelEdit} className="bg-red-300 md:text-xs w-50 h-8 text-gray-700 basis-1/2 flex items-center">  
-                      Cancel
-                    </Button>
-                  </div>
-                ) : (
-                  <Button className="bg-transparent md:text-xs w-50 h-8 text-gray-700 flex items-center" onClick={toggleEdit}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                    </svg>
-                    Edit Products
-                  </Button>
-                )}
-              {/* Next Button */}
-                <button 
-                   className={`text-xs md:text-sm flex items-center ${(currentPage === totalPages || totalPages <= 1 || products.length === 0) ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:text-gray-900'}`}
+                  )}
+                </div>
+
+                {/* Next Button */}
+                <button
+                  className={`flex items-center justify-center min-w-[40px] sm:min-w-[60px] md:min-w-[70px] py-1 px-1 sm:px-2 rounded-md transition-colors ${
+                    currentPage === totalPages || totalPages <= 1 || products.length === 0 || isAnimating
+                      ? 'text-gray-400 cursor-not-allowed'
+                      : 'text-emerald-700 hover:bg-emerald-50'
+                  }`}
                   onClick={handleNextPage}
-                  disabled={currentPage === totalPages || totalPages <= 1 || products.length === 0}
+                  disabled={currentPage === totalPages || totalPages <= 1 || products.length === 0 || isAnimating}
                 >
-                  Next
-                    <svg className="w-5 h-5 md:w-6 md:h-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="m9 18 6-6-6-6"/>
-                    </svg>
+                  <span className="mr-1 hidden px1100:inline-block text-xs md:text-sm">Next</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </button>
               </div>
             </div>
