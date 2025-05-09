@@ -50,7 +50,7 @@ export default function MapComponent() {
   } = useMapSearch();
 
   const handleToolTipPositionChange = (newPosition: 'top' | 'right' | 'bottom' | 'left') => {
-    // depending on the mapblock's tooltipPosition and the rectangle's position, determine the tooltip position
+    // Function still not working, tooltip only ever displays at the bottom
     if (newPosition === 'top') {
       setTooltipPosition('top');
     } else if (newPosition === 'right') {
