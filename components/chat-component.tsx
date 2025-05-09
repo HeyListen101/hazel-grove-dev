@@ -46,9 +46,9 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
   const [charCount, setCharCount] = useState(0);
   
   // Add this function to handle emoji selection
-  const onEmojiClick = (emojiObject: any) => {
+  const onEmojiClick = (emojiData: any, event: MouseEvent) => {
     if (message.length + 2 <= MAX_CHAR_LIMIT) { // Emoji typically counts as 2 chars
-      setMessage(prevMessage => prevMessage + emojiObject.emoji);
+      setMessage(prevMessage => prevMessage + emojiData.emoji);
       setCharCount(prevCount => prevCount + 2);
     }
     setShowEmojis(false);
@@ -251,11 +251,13 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
                 >
                   <X size={18} />
                 </button>
-                <EmojiPicker 
-                  onEmojiClick={onEmojiClick}
-                  width={280}
-                  height={350}
-                />
+                <div>
+                  <EmojiPicker  
+                    onEmojiClick={onEmojiClick}
+                    width={280}
+                    height={350}
+                  />
+                </div>
               </div>
             </div>
           )}
