@@ -506,8 +506,8 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
         >
           {/* Header with background image */}
           <motion.div 
-            className="w-full relative transition-all duration-500 ease-in-out" // Ensure minimum height for header
-            layoutId={`background-container-${storeId}`} // Make layoutId unique if multiple StoreComponents could be on screen
+            className="w-full relative transition-all duration-500 ease-in-out"
+            layoutId={`background-container-${storeId}`}
           >
             
             <motion.img
@@ -525,13 +525,13 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
             />
             {/* Status Card  */}
             <motion.div 
-              className="pointer-events-auto absolute right-1 top-2 z-10" // Adjusted positioning
+              className="pointer-events-auto absolute -right-16 top-0 z-10 touch-manipulation"
               initial={{ opacity: 0, scale: 0.2 }}
               animate={{ opacity: 1, scale: 0.4 }}
               exit={{ opacity: 0, scale: 0.2 }}
-              transition={{ delay: 0.5, duration: 0.3 }}
+              transition={{ delay: 1.7, duration: 0.3 }}
             >
-              <Button className="bg-transparent hover:bg-transparent focus:bg-transparent h-[96px] rounded-[24]" onClick={toggleStoreStatus}>  
+              <Button className="bg-transparent w-[195px] h-[100px] p-0 pb-12 z-9 rounded-[30px]" onClick={toggleStoreStatus} aria-label={isOpen ? "Mark store as closed" : "Mark store as open"}>  
                 <StoreStatusCard isOpen={isOpen || false} />
               </Button>
             </motion.div>
@@ -596,60 +596,60 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
                   )}
                   {/* Product list */}
                   <AnimatePresence>
-                  <motion.div
-                    key={currentPage} // Add key here for page transition animation
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                    className="space-y-2"
-                  >
-                    {getCurrentPageProducts().map((product, index) => (
-                      <motion.div 
-                        key={product.productid}
-                        layout // Animate layout changes (e.g., when deleting)
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="flex items-center pb-1 border-b border-gray-100 gap-x-2 md:gap-[10px]"
-                      >
-                        {isEditing ? (
-                          <>
-                            <input 
-                              type="text" 
-                              defaultValue={product.name}
-                              className="bg-white text-black text-left text-sm flex-grow p-1 border rounded-[10px] min-w-0" // min-w-0 for flex basis
-                              onChange={(e) => handleChangeCurrentName(index, product.productid, e.target.value)}
-                              required
-                            />
-                            <input 
-                              type="number"
-                              defaultValue={product.price as number} // Assuming price is number when editing
-                              className="bg-white text-black text-right text-sm w-16 md:w-[20%] p-1 border rounded-[10px] appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                              onChange={(e) => handleChangeCurrentPrice(index, product.productstatus.productstatusid, Number(e.target.value))}
-                              required
-                              step="0.01" // For currency
-                            />
-                            <button 
-                              onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => deleteProduct(product.productid, product.productstatus.productstatusid, e as any)}
-                              className="flex-shrink-0 p-1 bg-[#F07474] hover:bg-red-600 rounded-full transition-colors"
-                              aria-label="Delete product"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" className="w-[10px] h-[10px]" fill="white">
-                                <path d="M432 256c0 17.7-14.3 32-32 32L48 288c-17.7 0-32-14.3-32-32s14.3-32 32-32l352 0c17.7 0 32 14.3 32 32z"/>
-                              </svg>
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <div className="text-gray-800 text-sm flex-grow basis-2/3 md:basis-1/2 truncate" title={product.name}>{product.name}</div>
-                            <div className="text-gray-800 font-medium text-sm basis-1/3 md:basis-auto w-16 md:w-fit text-right">₱{product.price}</div>
-                          </>
-                        )}
-                      </motion.div>
-                    ))}
-                  </motion.div>
+                    <motion.div
+                      key={currentPage} // Add key here for page transition animation
+                      initial={{ opacity: 0, x: 2 }}
+                      animate={{ opacity: 1, x: 3 }}
+                      exit={{ opacity: 0, y: 0 }}
+                      transition={{ duration: 0.3, ease: 'easeIn' }}
+                      className="space-y-2"
+                    >
+                      {getCurrentPageProducts().map((product, index) => (
+                        <motion.div 
+                          key={product.productid}
+                          layout // Animate layout changes (e.g., when deleting)
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3, ease: 'easeInOut' }}
+                          className="flex items-center pb-1 border-b border-gray-100 gap-x-2 md:gap-[10px]"
+                        >
+                          {isEditing ? (
+                            <>
+                              <input 
+                                type="text" 
+                                defaultValue={product.name}
+                                className="bg-white text-black text-left text-sm flex-grow p-1 border rounded-[10px] min-w-0" // min-w-0 for flex basis
+                                onChange={(e) => handleChangeCurrentName(index, product.productid, e.target.value)}
+                                required
+                              />
+                              <input 
+                                type="number"
+                                defaultValue={product.price as number} // Assuming price is number when editing
+                                className="bg-white text-black text-right text-sm w-16 md:w-[20%] p-1 border rounded-[10px] appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                onChange={(e) => handleChangeCurrentPrice(index, product.productstatus.productstatusid, Number(e.target.value))}
+                                required
+                                step="1" // For currency
+                              />
+                              <button 
+                                onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => deleteProduct(product.productid, product.productstatus.productstatusid, e as any)}
+                                className="flex-shrink-0 p-1 bg-[#F07474] hover:bg-red-600 rounded-full transition-colors"
+                                aria-label="Delete product"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" className="w-[10px] h-[10px]" fill="white">
+                                  <path d="M432 256c0 17.7-14.3 32-32 32L48 288c-17.7 0-32-14.3-32-32s14.3-32 32-32l352 0c17.7 0 32 14.3 32 32z"/>
+                                </svg>
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <div className="text-gray-800 text-sm flex-grow basis-2/3 md:basis-1/2 truncate" title={product.name}>{product.name}</div>
+                              <div className="text-gray-800 font-medium text-sm basis-1/3 md:basis-auto w-16 md:w-fit text-right">₱{product.price}</div>
+                            </>
+                          )}
+                        </motion.div>
+                      ))}
+                    </motion.div>
                   </AnimatePresence>
                   {/* Add product button */}
                   {isEditing && productNames.map((_, index) => (
@@ -665,7 +665,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
                         placeholder="New Product Name"
                         value={productNames[index]}
                         onChange={(e) => handleNameChange(index, e.target.value)}
-                        className="h-[30px] bg-white border text-black text-sm flex-grow p-1 rounded-[10px] min-w-0"
+                        className="h-[30px] w-[fullpx] bg-white border text-black text-sm flex-grow p-1 rounded-[10px] min-w-0"
                         required
                       />
                       <input
@@ -750,8 +750,7 @@ const StoreComponent: React.FC<StoreComponentProps> = ({
                   ) : (
                     // Edit Button
                     <Button
-                      variant="ghost"
-                      className="text-gray-600 hover:bg-gray-100 text-[10px] md:text-xs h-7 md:h-8 px-2 flex items-center justify-center"
+                      className="text-gray-600 !bg-transparent text-[10px] md:text-xs h-7 md:h-8 flex items-center justify-center"
                       onClick={toggleEdit}
                       aria-label="Edit Products"
                     >

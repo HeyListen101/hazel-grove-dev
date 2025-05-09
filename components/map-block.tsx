@@ -2,9 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { color } from '@/components/assets/background-images/icons';
+import { colors } from '@/components/assets/background-images/map';
 
-interface MapBlockProps {
+type TooltipPosition = 'top' | 'right' | 'bottom' | 'left';
+
+type MapBlockProps = {
     storeId?: string,
     rowStart: number, 
     rowEnd: number,
@@ -16,11 +18,27 @@ interface MapBlockProps {
     icon?: string,
     viewBox?: string,
     radius?: string,
-    clickBlock?: (id: string) => void,
+    clickBlock?: (id: string, tooltipPosition?: TooltipPosition) => void,
     pointerEvents?: boolean,
+    tooltipPosition?: TooltipPosition,
 }
 
-const MapBlock: React.FC<MapBlockProps> = ({ storeId, rowStart, rowEnd, colStart, colEnd, defaultColor, width, height, icon, viewBox, clickBlock, radius, pointerEvents = true }) => {
+const MapBlock: React.FC<MapBlockProps> = ({ 
+    storeId,
+    rowStart, 
+    rowEnd, 
+    colStart, 
+    colEnd, 
+    defaultColor, 
+    width, 
+    height, 
+    icon, 
+    viewBox, 
+    clickBlock, 
+    radius, 
+    pointerEvents = true,
+    tooltipPosition
+}) => {
     const supabase = createClient();
     const [bgColor, setBgColor] = useState(defaultColor);
     
@@ -41,7 +59,10 @@ const MapBlock: React.FC<MapBlockProps> = ({ storeId, rowStart, rowEnd, colStart
 
                 const status = (data != null) ? data[0] : null;
 
-                setBgColor(status?.status ? defaultColor : color.g);
+                setBgColor(status?.status ? defaultColor : colors.g);
+            } 
+            if (error) {
+                console.log('Error fetching store status:', error);
             }
         }
 
@@ -51,28 +72,29 @@ const MapBlock: React.FC<MapBlockProps> = ({ storeId, rowStart, rowEnd, colStart
     });
 
     return (
-        <div 
-            id={storeId}
-            className="text-black flex items-center justify-center cursor-pointer"
-            style={{
-                gridRowStart: `${rowStart}`,
-                gridRowEnd: `${rowEnd}`,
-                gridColumnStart: `${colStart}`,
-                gridColumnEnd: `${colEnd}`,
-                backgroundColor: `${bgColor}`,
-                width: `${width ? width : 100}%`,
-                height: `${height ? height : 100}%`,
-                borderRadius: `${radius ? radius : 8}px`,
-                pointerEvents: pointerEvents? 'auto' : 'none',
-            }}
-            onClick={() => clickBlock && storeId && clickBlock(storeId)}
-        >
-            { icon &&
-            <svg xmlns="http://www.w3.org/2000/svg" width="40%" viewBox={viewBox} className="">
-                <path fill="#ffffff" d={icon} />
-            </svg>
-            }
-        </div>
+      <div 
+        id={storeId}
+        className="text-black flex items-center justify-center cursor-pointer"
+        style={{
+            gridRowStart: `${rowStart}`,
+            gridRowEnd: `${rowEnd}`,
+            gridColumnStart: `${colStart}`,
+            gridColumnEnd: `${colEnd}`,
+            backgroundColor: `${bgColor}`,
+            width: `${width ? width : 100}%`,
+            height: `${height ? height : 100}%`,
+            borderRadius: `${radius ? radius : 8}px`,
+            pointerEvents: pointerEvents? 'auto' : 'none',
+        }}
+        onClick={() => clickBlock && storeId && clickBlock(storeId, tooltipPosition)}
+      >
+        { icon &&
+        <svg xmlns="http://www.w3.org/2000/svg" width="40%" viewBox={viewBox} className="">
+            <path fill="#ffffff" d={icon} />
+        </svg>
+        }
+      </div>
+        
     )
 }
 
