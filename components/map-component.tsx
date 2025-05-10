@@ -307,9 +307,9 @@ export default function MapComponent() {
 
   return (
     // #13783e #F07474
-      <main className="touch-auto bg-white flex items-center justify-center overflow-hidden fixed top-16 inset-x-0 bottom-0">
-        <div 
-          className="w-full max-w-[95vw] aspect-[40/20] grid place-items-center gap-[2px] relative touch-pan-y touch-pan-x"
+      <main className="touch-auto bg-white flex items-center justify-center overflow-auto absolute top-16 inset-x-0 bottom-0">
+        <div
+          className="w-full max-w-[95vw] aspect-[40/20] grid place-items-center gap-[2px] relative"
           style={{
             gridTemplateRows: "repeat(20, 1fr)",
             gridTemplateColumns: "repeat(40, 1fr)",
