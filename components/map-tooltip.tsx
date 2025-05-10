@@ -12,7 +12,7 @@ type MapTooltipProps = {
   colEnd?: number;
 }
 
-const MapTooltip: React.FC<MapTooltipProps> = ({ 
+const MapTooltip: React.FC<MapTooltipProps> = ({
   // id, add this if you want to debug
   name, 
   position,
@@ -56,7 +56,7 @@ const MapTooltip: React.FC<MapTooltipProps> = ({
       gridColumnStart: `${position === 'left' ? colStart - 1 : position === 'right' ? colEnd : colStart}`,
       gridColumnEnd: `${position === 'left' ? colStart : position === 'right' ? colEnd + 1 : colEnd}`,
       margin: '0',
-      transform: 'none',
+      transform: position === 'right' ? 'translateX(40%)' : position === 'left' ? 'translateX(-40%)' : position === 'top' ? 'translateY(-30%)' : position === 'bottom'? 'translateY(30%)' : 'translateY(-30%)',
     };
     
     // Adjust pointer position based on tooltip position in grid
@@ -101,86 +101,7 @@ const MapTooltip: React.FC<MapTooltipProps> = ({
         borderTop: '10px solid rgb(97, 85, 63)',
       };
     }
-  } else {
-    // Fallback to the original absolute positioning if grid coordinates aren't provided
-    if (position === 'left') {
-      tooltipStyle = {
-        ...tooltipStyle,
-        top: '50%',
-        right: '100%',
-        transform: 'translateY(-50%)',
-        marginRight: '10px',
-        zIndex: 1000,
-      };
-      pointerStyle = {
-        ...pointerStyle,
-        top: '50%',
-        right: '-10px',
-        transform: 'translateY(-50%)',
-        borderTop: '10px solid transparent',
-        borderBottom: '10px solid transparent',
-        borderLeft: '10px solid rgb(97, 85, 63)',
-        zIndex: 1000,
-      };
-    } else if (position === 'right') {
-      tooltipStyle = {
-        ...tooltipStyle,
-        top: '50%',
-        left: '100%',
-        transform: 'translateY(-50%)',
-        marginLeft: '10px',
-        zIndex: 1000,
-      };
-      pointerStyle = {
-        ...pointerStyle,
-        top: '50%',
-        left: '-10px',
-        transform: 'translateY(-50%)',
-        borderTop: '10px solid transparent',
-        borderBottom: '10px solid transparent',
-        borderRight: '10px solid rgb(97, 85, 63)',
-        zIndex: 1000,
-      };
-    } else if (position === 'bottom') {
-      tooltipStyle = {
-        ...tooltipStyle,
-        top: '100%',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        marginTop: '10px',
-        zIndex: 1000,
-      };
-      pointerStyle = {
-        ...pointerStyle,
-        bottom: '100%',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        borderLeft: '10px solid transparent',
-        borderRight: '10px solid transparent',
-        borderBottom: '10px solid rgb(97, 85, 63)',
-        zIndex: 1000,
-      };
-    } else { // 'top' (default)
-      tooltipStyle = {
-        ...tooltipStyle,
-        bottom: '100%',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        marginBottom: '10px',
-        zIndex: 1000,
-      };
-      pointerStyle = {
-        ...pointerStyle,
-        top: '100%',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        borderLeft: '10px solid transparent',
-        borderRight: '10px solid transparent',
-        borderTop: '10px solid rgb(97, 85, 63)',
-        zIndex: 1000,
-      };
-    }
-  }
+  } 
   
   return (
     <div style={tooltipStyle} className="tooltip">

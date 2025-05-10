@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
+import AuthBar from "@/components/header-auth";
+import SearchBar from "@/components/search-bar";
+import ChatBox from "@/components/chat-component";
+import MapComponent from "@/components/map-component";
 import { createClient } from "@/utils/supabase/server";
 import { MapSearchProvider } from "@/components/map-search-context";
-import AuthBar from "@/components/header-auth";
-import ChatBox from "@/components/chat-component";
-import SearchBar from "@/components/search-bar";
-import MapComponent from "@/components/map-component";
 
 export default async function ProtectedPage() {
   const supabase = await createClient();

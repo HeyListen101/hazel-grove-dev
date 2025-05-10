@@ -67,380 +67,420 @@ export const colors = {
   g: "#F07474",
 }
 
-// Assuming svgPathVal is defined elsewhere, e.g.:
-// const svgPathVal = {
-//   restroom: "M80 48a48...",
-//   pie: "M256.03 76.47...",
-//   eatery: "M7 22q-...",
-//   // ... and so on for all your icons
-// };
-
-export const color = {
-  a: "#006600",
-  b: "#319900",
-  c: "#66CC00",
-  d: "#8AD70E",
-  e: "#90EE90",
-  f: "#D6D8D9",
-  g: "#F07474",
-};
-
 export const mapData = [
   // Top-Left Stores (Indices 0-8)
   { // 0: Top-Left Stores 1
     rowStart: 1, rowEnd: 2, colStart: 2, colEnd: 4,
-    defaultColor: color.a,
+    defaultColor: colors.a,
     viewBox: "0 0 640 512", icon: svgPathVal.restroom,
     storeId: '64bf8920-746d-4441-b14b-0ae92dab286d',
+    position: 'top'
   },
   { // 1: Top-Left Stores 2
     rowStart: 1, rowEnd: 3, colStart: 4, colEnd: 6,
-    defaultColor: color.b,
+    defaultColor: colors.b,
     viewBox: "0 0 640 512", icon: svgPathVal.pie,
     storeId: 'a75bb856-f9e8-49f7-a19c-7930ba190bd5',
+    position: 'top'
   },
   { // 2: Top-Left Stores 3
     rowStart: 1, rowEnd: 3, colStart: 6, colEnd: 8,
-    defaultColor: color.c,
+    defaultColor: colors.c,
     viewBox: "0 0 24 24", icon: svgPathVal.eatery,
     storeId: 'd589a987-a8a1-4c0a-8d05-f5cc6a7f7a1c',
+    position: 'top'
   },
   { // 3: Top-Left Stores 4
     rowStart: 1, rowEnd: 3, colStart: 8, colEnd: 10,
-    defaultColor: color.d,
+    defaultColor: colors.d,
     viewBox: "0 0 640 512", icon: svgPathVal.coffee,
     storeId: '5e6e07cf-6cc5-457a-81fa-bbb40f4adb51',
+    position: 'top'
   },
   { // 4: Top-Left Stores 5
     rowStart: 1, rowEnd: 3, colStart: 10, colEnd: 11,
-    defaultColor: color.e,
+    defaultColor: colors.e,
     viewBox: "0 0 512 512", icon: svgPathVal.pizza,
     storeId: 'd266653a-9bb9-4667-972f-14cb2cb12ea8',
+    position: 'top'
   },
   { // 5: Top-Left Stores 6
     rowStart: 1, rowEnd: 3, colStart: 11, colEnd: 12,
-    defaultColor: color.a,
+    defaultColor: colors.a,
     viewBox: "0 0 512 512", icon: svgPathVal.pizza,
     storeId: '2528f9d5-10c3-4e43-88b1-146ae2c1ae10',
+    position: 'top'
   },
   { // 6: Top-Left Stores 7
     rowStart: 1, rowEnd: 3, colStart: 12, colEnd: 15,
-    defaultColor: color.b,
+    defaultColor: colors.b,
     viewBox: "0 0 24 24", icon: svgPathVal.eatery,
     storeId: '7456ec64-52c4-4795-898a-9ff8d3215fec',
+    position: 'top'
   },
   { // 7: Top-Left Stores 8
     rowStart: 1, rowEnd: 3, colStart: 15, colEnd: 17,
-    defaultColor: color.c,
+    defaultColor: colors.c,
     viewBox: "0 0 24 24", icon: svgPathVal.eatery,
     storeId: 'd972e9f4-ddfc-4f8d-a42e-de89d2b4f1da',
+    position: 'top'
   },
   { // 8: Leftmost Store
     rowStart: 3, rowEnd: 5, colStart: 1, colEnd: 2,
-    defaultColor: color.d,
+    defaultColor: colors.d,
     viewBox: "0 0 24 24", icon: svgPathVal.clothing,
     storeId: 'ea40e428-c8dd-4cba-a155-3a7d5daa8ba1',
+    position: 'left'
   },
 
   // Top-Right Stores (Indices 9-26)
   { // 9: Top-Right Stores 1
     rowStart: 1, rowEnd: 2, colStart: 20, colEnd: 21,
-    defaultColor: color.a,
+    defaultColor: colors.a,
     viewBox: "0 0 256 256", icon: svgPathVal.cookie,
     storeId: 'bf89e6c9-85f6-40f6-a8b4-ae68cf41b01f',
+    position: 'top'
   },
   { // 10: Top-Right Stores 2
     rowStart: 1, rowEnd: 2, colStart: 21, colEnd: 22,
-    defaultColor: color.b,
+    defaultColor: colors.b,
     viewBox: "0 0 256 256", icon: svgPathVal.cookie,
     storeId: '7a8fdd07-7b85-41a5-9188-fe36495fa306',
+    position: 'top'
   },
   { // 11: Top-Right Stores 3
     rowStart: 1, rowEnd: 2, colStart: 22, colEnd: 23,
-    defaultColor: color.c,
+    defaultColor: colors.c,
     viewBox: "0 0 256 256", icon: svgPathVal.cookie,
     storeId: '23b57a8b-5f63-4372-9e16-7634e8f43441',
+    position: 'top'
   },
   { // 12: Top-Right Stores 4
     rowStart: 1, rowEnd: 2, colStart: 23, colEnd: 24,
-    defaultColor: color.d,
+    defaultColor: colors.d,
     viewBox: "0 0 256 256", icon: svgPathVal.cookie,
     storeId: '14af284c-89d2-4206-8bd1-9ea009b630e3',
+    position: 'top'
   },
   { // 13: Top-Right Stores 5
     rowStart: 1, rowEnd: 2, colStart: 24, colEnd: 25,
-    defaultColor: color.e,
+    defaultColor: colors.e,
     viewBox: "0 0 256 256", icon: svgPathVal.cookie,
     storeId: '0d9b534c-4dc5-4e2c-9af3-b0ca52bdf409',
+    position: 'top'
   },
   { // 14: Top-Right Stores 6
     rowStart: 1, rowEnd: 2, colStart: 25, colEnd: 26,
-    defaultColor: color.a,
+    defaultColor: colors.a,
     viewBox: "0 0 256 256", icon: svgPathVal.cookie,
     storeId: '51766da5-fb72-4fef-a96e-a7f6ed3d239b',
+    position: 'top'
   },
   { // 15: Top-Right Stores 7
     rowStart: 1, rowEnd: 3, colStart: 26, colEnd: 27,
-    defaultColor: color.b,
+    defaultColor: colors.b,
     viewBox: "0 0 24 24", icon: svgPathVal.notebook,
     storeId: '81b862f5-4da3-4881-8def-bafe0ac6e283',
+    position: 'top'
   },
   { // 16: Top-Right Stores 8
     rowStart: 1, rowEnd: 3, colStart: 27, colEnd: 28,
-    defaultColor: color.c,
-    viewBox: "0 0 576 512", icon: svgPathVal.basket,
+    defaultColor: colors.c,
+    viewBox: "0 0 14 14", icon: svgPathVal.printer,
     storeId: 'acb061a3-6e4a-43ce-990d-9237c0e1b314',
+    position: 'top'
   },
   { // 17: Top-Right Stores 9
     rowStart: 1, rowEnd: 3, colStart: 28, colEnd: 29,
-    defaultColor: color.d,
+    defaultColor: colors.d,
     viewBox: "0 0 576 512", icon: svgPathVal.basket,
     storeId: '86c36c61-ecdc-4fea-a7af-168e3a9cb41d',
+    position: 'top'
   },
   { // 18: Top-Right Stores 10
     rowStart: 1, rowEnd: 3, colStart: 29, colEnd: 30,
-    defaultColor: color.e,
+    defaultColor: colors.e,
     viewBox: "0 0 576 512", icon: svgPathVal.basket,
     storeId: '49c0f9c0-da7a-4732-8a9f-415ecb8f36df',
+    position: 'top'
   },
   { // 19: Top-Right Stores 11
     rowStart: 1, rowEnd: 3, colStart: 30, colEnd: 31,
-    defaultColor: color.a,
+    defaultColor: colors.a,
     viewBox: "0 0 576 512", icon: svgPathVal.basket,
     storeId: 'ab00d975-ea9a-48f9-91ca-6a45a9218233',
+    position: 'top'
   },
   { // 20: Top-Right Stores 12
     rowStart: 1, rowEnd: 3, colStart: 31, colEnd: 32,
-    defaultColor: color.b,
+    defaultColor: colors.b,
     viewBox: "0 0 576 512", icon: svgPathVal.basket,
     storeId: 'bdd1a932-4a64-43a4-9282-a3393fd0eb77',
+    position: 'top'
   },
   { // 21: Top-Right Stores 13
     rowStart: 1, rowEnd: 2, colStart: 32, colEnd: 33,
-    defaultColor: color.c,
+    defaultColor: colors.c,
     viewBox: "0 0 512 512", icon: svgPathVal.veggie,
     storeId: '8d48db72-cf13-487f-855d-9840bace55df',
+    position: 'top'
   },
   { // 22: Top-Right Stores 14
     rowStart: 1, rowEnd: 2, colStart: 33, colEnd: 34,
-    defaultColor: color.d,
+    defaultColor: colors.d,
     viewBox: "0 0 512 512", icon: svgPathVal.veggie,
     storeId: '767d6761-2b63-4f75-91ef-2a7c32271b83',
+    position: 'top'
   },
   { // 23: Top-Right Stores 15
     rowStart: 1, rowEnd: 2, colStart: 34, colEnd: 35,
-    defaultColor: color.e,
+    defaultColor: colors.e,
     viewBox: "0 0 512 512", icon: svgPathVal.veggie,
     storeId: '7a1c2004-d951-4ecc-9e0c-a08b7d7eeae0',
+    position: 'top'
   },
   { // 24: Top-Right Stores 16
     rowStart: 1, rowEnd: 2, colStart: 35, colEnd: 36,
-    defaultColor: color.a,
+    defaultColor: colors.a,
     viewBox: "0 0 512 512", icon: svgPathVal.veggie,
     storeId: '405d1a0f-b620-426a-a8db-80428a2c60f9',
+    position: 'top'
   },
   { // 25: Top-Right Stores 17
     rowStart: 1, rowEnd: 2, colStart: 36, colEnd: 37,
-    defaultColor: color.b,
+    defaultColor: colors.b,
     viewBox: "0 0 512 512", icon: svgPathVal.veggie,
     storeId: 'e859ab86-eaf9-4cbc-9dca-14f389fee755',
+    position: 'top'
   },
   { // 26: Top-Right Stores 18
     rowStart: 1, rowEnd: 3, colStart: 37, colEnd: 41,
-    defaultColor: color.c,
+    defaultColor: colors.c,
     viewBox: "0 0 24 24", icon: svgPathVal.meat,
     storeId: 'a4bf315c-be4d-4066-929e-7f18810f529c',
+    position: 'top'
   },
 
   // Rightmost Stores (Indices 27-39)
   { // 27: Rightmost 1
     rowStart: 4, rowEnd: 5, colStart: 39, colEnd: 41,
-    defaultColor: color.d,
+    defaultColor: colors.d,
     viewBox: "0 0 24 24", icon: svgPathVal.eatery,
     storeId: '3edc0d84-dd1c-4195-836d-e22df3a9571e',
+    position: 'right'
   },
   { // 28: Rightmost 2
     rowStart: 5, rowEnd: 6, colStart: 39, colEnd: 41,
-    defaultColor: color.e,
+    defaultColor: colors.e,
     viewBox: "0 0 24 24", icon: svgPathVal.eatery,
     storeId: '57e7b9e8-74ac-4695-b924-09041fd2278c',
+    position: 'right'
   },
   { // 29: Rightmost 3
     rowStart: 6, rowEnd: 7, colStart: 39, colEnd: 41,
-    defaultColor: color.a,
+    defaultColor: colors.a,
     viewBox: "0 0 24 24", icon: svgPathVal.eatery,
     storeId: 'bf83ff80-4b94-4731-b4dd-145dd0c90224',
+    position: 'right'
   },
   { // 30: Rightmost 4
     rowStart: 7, rowEnd: 8, colStart: 39, colEnd: 41,
-    defaultColor: color.b,
+    defaultColor: colors.b,
     viewBox: "0 0 24 24", icon: svgPathVal.eatery,
     storeId: 'e349cc93-66a8-4ab0-9555-8c9d4585f837',
+    position: 'right'
   },
   { // 31: Rightmost 5
     rowStart: 8, rowEnd: 9, colStart: 39, colEnd: 41,
-    defaultColor: color.c,
+    defaultColor: colors.c,
     viewBox: "0 0 24 24", icon: svgPathVal.eatery,
     storeId: '7076ad11-e371-48fd-bccd-46161c57e6d2',
+    position: 'right'
   },
   { // 32: Rightmost 6
     rowStart: 9, rowEnd: 10, colStart: 39, colEnd: 41,
-    defaultColor: color.d,
+    defaultColor: colors.d,
     viewBox: "0 0 24 24", icon: svgPathVal.eatery,
     storeId: '23636531-3c91-4204-8172-74111cc10046',
+    position: 'right'
   },
   { // 33: Rightmost 7
     rowStart: 10, rowEnd: 11, colStart: 39, colEnd: 41,
-    defaultColor: color.e,
+    defaultColor: colors.e,
     viewBox: "0 0 24 24", icon: svgPathVal.eatery,
     storeId: '05b9ebf4-0216-4099-9939-4861f6f11069',
+    position: 'right'
   },
   { // 34: Rightmost 8
     rowStart: 11, rowEnd: 12, colStart: 39, colEnd: 41,
-    defaultColor: color.a,
+    defaultColor: colors.a,
     viewBox: "0 0 24 24", icon: svgPathVal.eatery,
     storeId: 'e3556f67-2766-4356-ba54-d5c74434a056',
+    position: 'right'
   },
   { // 35: Rightmost 9
     rowStart: 13, rowEnd: 14, colStart: 39, colEnd: 41,
-    defaultColor: color.b,
+    defaultColor: colors.b,
     viewBox: "0 0 24 24", icon: svgPathVal.eatery,
     storeId: '02c63a3c-31b6-4421-8e92-b8ee97a0285b',
+    position: 'right'
   },
   { // 36: Rightmost 10
     rowStart: 14, rowEnd: 15, colStart: 39, colEnd: 41,
-    defaultColor: color.c,
+    defaultColor: colors.c,
     viewBox: "0 0 24 24", icon: svgPathVal.eatery,
     storeId: '63541b29-1b79-4986-883f-052771349ebb',
+    position: 'right'
   },
   { // 37: Rightmost 11
     rowStart: 15, rowEnd: 16, colStart: 39, colEnd: 41,
-    defaultColor: color.d,
+    defaultColor: colors.d,
     viewBox: "0 0 24 24", icon: svgPathVal.eatery,
     storeId: 'e7918daa-4a7f-439c-9ece-48e843be2c95',
+    position: 'right'
   },
   { // 38: Rightmost 12
     rowStart: 16, rowEnd: 17, colStart: 39, colEnd: 41,
-    defaultColor: color.e,
+    defaultColor: colors.e,
     viewBox: "0 0 24 24", icon: svgPathVal.eatery,
     storeId: '84230fec-fda9-4a45-9b6e-f8dc4e4a508a',
+    position: 'right'
   },
   { // 39: Rightmost 13
     rowStart: 17, rowEnd: 18, colStart: 39, colEnd: 41,
-    defaultColor: color.a,
+    defaultColor: colors.a,
     viewBox: "0 0 576 512", icon: svgPathVal.money,
     storeId: '92b4c136-6ba8-4d3d-854d-6105a31115a4',
+    position: 'right'
   },
 
   // Bottom Stores (Indices 40-52)
   { // 40: Bottom 1
     rowStart: 18, rowEnd: 19, colStart: 25, colEnd: 27,
-    defaultColor: color.b,
+    defaultColor: colors.b,
     viewBox: "0 0 576 512", icon: svgPathVal.money,
     storeId: '5453baa1-ac44-4aab-953c-41566080f12d',
+    position: 'bottom'
   },
   { // 41: Bottom 2
     rowStart: 18, rowEnd: 19, colStart: 27, colEnd: 28,
-    defaultColor: color.c,
+    defaultColor: colors.c,
     viewBox: "0 0 24 24", icon: svgPathVal.clothing,
     storeId: '13fd517d-0f7a-4dad-b21b-058df1b8a708',
+    position: 'bottom'
   },
   { // 42: Bottom 3
     rowStart: 18, rowEnd: 19, colStart: 28, colEnd: 29,
-    defaultColor: color.d,
+    defaultColor: colors.d,
     viewBox: "0 0 640 512", icon: svgPathVal.pie,
     storeId: 'cea9dd2f-67bd-458b-bb58-dfaf4d52add8',
+    position: 'bottom'
   },
   { // 43: Bottom 4
     rowStart: 18, rowEnd: 19, colStart: 29, colEnd: 30,
-    defaultColor: color.e,
+    defaultColor: colors.e,
     viewBox: "0 0 512 512", icon: svgPathVal.haircut,
     storeId: 'e3bf2e95-2655-4ad7-b3f8-6835fcae0c21',
+    position: 'bottom'
   },
   { // 44: Bottom 5
     rowStart: 18, rowEnd: 19, colStart: 30, colEnd: 31,
-    defaultColor: color.a,
+    defaultColor: colors.a,
     viewBox: "0 0 24 24", icon: svgPathVal.clothing,
     storeId: 'e612b43e-9b86-42ec-a641-a2deca15f8c0',
+    position: 'bottom'
   },
   { // 45: Bottom 6
     rowStart: 18, rowEnd: 19, colStart: 31, colEnd: 33,
-    defaultColor: color.b,
+    defaultColor: colors.b,
     viewBox: "0 0 24 24", icon: svgPathVal.clothing,
     storeId: '378c68a5-8854-41f8-99ac-dc23298bb988',
+    position: 'bottom'
   },
   { // 46: Bottom 7
     rowStart: 19, rowEnd: 20, colStart: 25, colEnd: 27,
-    defaultColor: color.c,
+    defaultColor: colors.c,
     viewBox: "0 0 24 24", icon: svgPathVal.clothing,
     storeId: 'ed64621f-b622-4ebf-8676-7433db010a28',
+    position: 'bottom'
   },
   { // 47: Bottom 8
     rowStart: 19, rowEnd: 20, colStart: 27, colEnd: 28,
-    defaultColor: color.d,
+    defaultColor: colors.d,
     viewBox: "0 0 20 20", icon: svgPathVal.mail,
     storeId: 'dd183dc4-3b40-4b5e-a6de-6580062f926e',
+    position: 'bottom'
   },
   { // 48: Bottom 9
     rowStart: 19, rowEnd: 20, colStart: 28, colEnd: 29,
-    defaultColor: color.e,
+    defaultColor: colors.e,
     viewBox: "0 0 24 24", icon: svgPathVal.milk,
     storeId: '99337afb-2ec2-4cb4-995b-fcf40b2bb6b1',
+    position: 'bottom'
   },
   { // 49: Bottom 10
     rowStart: 19, rowEnd: 20, colStart: 29, colEnd: 30,
-    defaultColor: color.a,
+    defaultColor: colors.a,
     viewBox: "0 0 576 512", icon: svgPathVal.basket,
     storeId: '0ec5837b-5b59-4e56-a673-6b98105e89db',
+    position: 'bottom'
   },
   { // 50: Bottom 11
     rowStart: 19, rowEnd: 20, colStart: 30, colEnd: 31,
-    defaultColor: color.b,
+    defaultColor: colors.b,
     viewBox: "0 0 576 512", icon: svgPathVal.basket,
     storeId: '3c896041-6c47-41a5-9f05-3d46a581a91e',
+    position: 'bottom'
   },
   { // 51: Bottom 12
     rowStart: 19, rowEnd: 20, colStart: 31, colEnd: 32,
-    defaultColor: color.c,
+    defaultColor: colors.c,
     viewBox: "0 0 14 14", icon: svgPathVal.printer,
     storeId: '2cc9f21d-38bc-4064-a1df-321508b4449c',
+    position: 'bottom'
   },
   { // 52: Bottom 13
     rowStart: 19, rowEnd: 20, colStart: 32, colEnd: 33,
-    defaultColor: color.d,
+    defaultColor: colors.d,
     viewBox: "0 0 14 14", icon: svgPathVal.printer,
     storeId: 'b370821e-baa7-4f50-93c8-8fa56aee6ecc',
+    position: 'bottom'
   },
 
   // Central Places (Indices 53-57)
   { // 53: Central 1
     rowStart: 5, rowEnd: 18, colStart: 20, colEnd: 24,
-    defaultColor: color.d,
+    defaultColor: colors.d,
     viewBox: "0 0 24 24", icon: svgPathVal.personnel,
     storeId: '558a8735-1a1e-4672-a1f2-50c1793d3035',
+    position: 'bottom',
   },
-  { // 54: Central 2 (Tree - non-interactive as per original JSX)
-    rowStart: 7, rowEnd: 17, colStart: 25, colEnd: 33,
-    defaultColor: color.e,
-    viewBox: "0 0 100 100", icon: svgPathVal.park,
-    storeId: null, // Explicitly '' as it undefined
-  },
+  // { 54: Central 2 (Tree - non-interactive as per original JSX)
+  //   rowStart: 7, rowEnd: 17, colStart: 25, colEnd: 33,
+  //   defaultColor: colors.e,
+  //   viewBox: "0 0 100 100", icon: svgPathVal.park,
+  //   storeId: null, // Explicitly '' as is undefined
+  //   position: null // Explicitly '' as is undefined
+  // },
   { // 55: Central 3
     rowStart: 13, rowEnd: 15, colStart: 34, colEnd: 36,
-    defaultColor: color.c,
+    defaultColor: colors.c,
     viewBox: "0 0 24 24", icon: svgPathVal.water,
     storeId: '8cf59478-c5fb-426d-afd3-29b724866021',
+    position: 'bottom',
   },
   { // 56: Central 4
     rowStart: 15, rowEnd: 17, colStart: 34, colEnd: 35,
-    defaultColor: color.b,
+    defaultColor: colors.b,
     viewBox: "0 0 512 512", icon: svgPathVal.haircut,
     storeId: '68769d27-1592-451c-a2e1-5c29947fe57d',
+    position: 'right',
   },
   { // 57: Central 5
     rowStart: 15, rowEnd: 17, colStart: 35, colEnd: 36,
-    defaultColor: color.a,
+    defaultColor: colors.a,
     viewBox: "0 0 24 24", icon: svgPathVal.personnel,
     storeId: '5ad7a95c-5765-4f4a-bd19-d65c09fa6a0f',
+    position: 'left',
   },
 ];

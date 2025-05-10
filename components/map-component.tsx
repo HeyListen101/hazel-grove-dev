@@ -2,16 +2,18 @@
 
 import MapBlock from './map-block';
 import MapTooltip from './map-tooltip';
+import  Controls from './ui/zoom-controls';
 import StoreComponent from './store-component';
 import VisitaPlaceholder from './visita-placeholder';
 import { createClient } from "@/utils/supabase/client";
-import { mapData } from './assets/background-images/map';
 import React, { useState, useEffect, useRef } from 'react';
 import { useMapSearch } from '@/components/map-search-context';
-import { mapIconData, color } from '@/components/assets/background-images/icons';
+import { mapData, colors } from './assets/background-images/map';
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { mapIconData } from './assets/background-images/icons';
 
 
-type TooltipPosition = 'top' | 'right' | 'bottom' | 'left';
+type TooltipPosition = 'top' | 'right' | 'bottom' | 'left' | null;
 
 type Store = {
   storeid: string;
@@ -49,16 +51,15 @@ export default function MapComponent() {
     isMapSelectionInProgress,
   } = useMapSearch();
 
-  const handleToolTipPositionChange = (newPosition: 'top' | 'right' | 'bottom' | 'left') => {
-    // Function still not working, tooltip only ever displays at the bottom
-    if (newPosition === 'top') {
-      setTooltipPosition('top');
-    } else if (newPosition === 'right') {
-      setTooltipPosition('right');
-    } else if (newPosition === 'bottom') {
+  const handleToolTipPositionChange = (position: TooltipPosition) => {
+    if (position === 'top') {
       setTooltipPosition('bottom');
-    } else if (newPosition === 'left') {
+    } else if (position === 'right') {
       setTooltipPosition('left');
+    } else if (position === 'bottom') {
+      setTooltipPosition('top');
+    } else if (position === 'left') {
+      setTooltipPosition('right');
     }
   };
 
@@ -197,42 +198,6 @@ export default function MapComponent() {
     targetRef.current?.scrollIntoView({ behavior: 'smooth' }); // or 'auto'
   }, []);
 
-  const handleMapBlockClick = (storeId: string, tooltipPosition?: TooltipPosition) => {
-    // Toggle selection - if clicking the same store, deselect it
-    const newSelectedStoreId = (selectedStoreId === storeId) ? null : storeId;
-    
-    // Update the context
-    // If selecting a store, fetch its data
-    if (newSelectedStoreId) {
-      setSelectedStoreId(newSelectedStoreId);
-      fetchStoreData(newSelectedStoreId);
-      
-      // Find the block data from mapData that matches this storeId
-      const selectedBlock = mapData.find(block => block.storeId === storeId);
-      
-      if (selectedBlock) {
-        // Update selectedBlockCoords with the block's coordinates
-        setSelectedBlockCoords({
-          rowStart: selectedBlock.rowStart,
-          rowEnd: selectedBlock.rowEnd,
-          colStart: selectedBlock.colStart,
-          colEnd: selectedBlock.colEnd
-        });
-      }
-      
-      // Update tooltip position if provided
-      if (tooltipPosition) {
-        handleToolTipPositionChange(tooltipPosition);
-      }
-    } else {
-      // Clear selection in context
-      setSelectedStoreId(null);
-      // Clear selected block coordinates
-      setSelectedBlockCoords({});
-    }
-    console.log(`Store ${storeId} ${(selectedStoreId === storeId) ? 'deselected' : 'selected'}`);
-  };
-
   // Fetch specific store data when a store is selected
   const fetchStoreData = async (storeId: string) => {
     try {
@@ -304,86 +269,127 @@ export default function MapComponent() {
       setLoading(false);
     }
   };
+  
+  const handleMapBlockClick = (storeId: string, tooltipPosition?: TooltipPosition) => {
+    // Toggle selection - if clicking the same store, deselect it
+    const newSelectedStoreId = (selectedStoreId === storeId) ? null : storeId;
+    
+    // Update the context
+    // If selecting a store, fetch its data
+    if (newSelectedStoreId) {
+      setSelectedStoreId(newSelectedStoreId);
+      fetchStoreData(newSelectedStoreId);
+      
+      // Find the block data from mapData that matches this storeId
+      const selectedBlock = mapData.find(block => block.storeId === storeId);
+      
+      if (selectedBlock) {
+        // Update selectedBlockCoords with the block's coordinates
+        setSelectedBlockCoords({
+          rowStart: selectedBlock.rowStart,
+          rowEnd: selectedBlock.rowEnd,
+          colStart: selectedBlock.colStart,
+          colEnd: selectedBlock.colEnd
+        });
+      }
+      
+      // Update tooltip position if provided
+      if (tooltipPosition) {
+        handleToolTipPositionChange(tooltipPosition);
+      }
+    } else {
+      // Clear selection in context
+      setSelectedStoreId(null);
+      // Clear selected block coordinates
+      setSelectedBlockCoords({});
+    }
+    console.log(`Store ${storeId} ${(selectedStoreId === storeId) ? 'deselected' : 'selected'}`);
+  };
 
   return (
     // #13783e #F07474
+    <TransformWrapper>
       <main className="touch-auto bg-white flex items-center justify-center overflow-auto absolute top-16 inset-x-0 bottom-0">
-        <div
-          className="w-full max-w-[95vw] aspect-[40/20] grid place-items-center gap-[2px] relative"
-          style={{
-            gridTemplateRows: "repeat(20, 1fr)",
-            gridTemplateColumns: "repeat(40, 1fr)",
-          }}
-        >
-        {/* Roads and Walkways */}
-        <MapBlock rowStart={1} rowEnd={22} colStart={18} colEnd={19} defaultColor={color.f} pointerEvents={false}/>
-        <MapBlock rowStart={3} rowEnd={4} colStart={4} colEnd={19} height={30} defaultColor={color.f} pointerEvents={false}/>
-        <MapBlock rowStart={3} rowEnd={5} colStart={18} colEnd={38} height={50} defaultColor={color.f} pointerEvents={false}/>
-        <MapBlock rowStart={4} rowEnd={22} colStart={37} colEnd={38} defaultColor={color.f} pointerEvents={false}/>
-        <MapBlock rowStart={5} rowEnd={21} colStart={24} colEnd={25} width={30} defaultColor={color.f} pointerEvents={false}/>
-        <MapBlock rowStart={13} rowEnd={21} colStart={33} colEnd={34} width={30} defaultColor={color.f} pointerEvents={false}/>
-        <MapBlock rowStart={13} rowEnd={18} colStart={36} colEnd={37} width={30} defaultColor={color.f} pointerEvents={false}/>
-        <MapBlock rowStart={17} rowEnd={18} colStart={24} colEnd={37} height={30} defaultColor={color.f} pointerEvents={false}/>
-        <MapBlock rowStart={20} rowEnd={21} colStart={24} colEnd={34} height={30} defaultColor={color.f} pointerEvents={false}/>
-        
-        {/* Map all store blocks from mapData */}
-        {mapData.map((block, index) => (
-          <MapBlock
-            // id={block.storeId} // add this if you want to debug
-            key={index}
-            storeId={block.storeId || ''}
-            rowStart={block.rowStart}
-            rowEnd={block.rowEnd}
-            colStart={block.colStart}
-            colEnd={block.colEnd}
-            defaultColor={block.defaultColor}
-            icon={block.icon}
-            viewBox={block.viewBox}
-            clickBlock={handleMapBlockClick}
-            tooltipPosition="bottom"
-          />
-        ))}
-        {/* Selected Store Tooltip */}
-        {selectedStoreId && selectedBlockCoords.rowStart && (
-          <MapTooltip
-            // id={selectedStoreId} // add this if you want to debug
-            name={storeName || "Unknown Store"}
-            position={tooltipPosition}
-            rowStart={selectedBlockCoords.rowStart}
-            rowEnd={selectedBlockCoords.rowEnd}
-            colStart={selectedBlockCoords.colStart}
-            colEnd={selectedBlockCoords.colEnd}
-          />
-        )}
-        <div 
-          ref={targetRef}
-          style={{
-            gridRowStart: 3,
-            gridRowEnd: 4,
-            gridColumnStart: 16,
-            gridColumnEnd: 17,
-          }}
-        />
-        {selectedStoreId ? (
-            <div 
-              className="rounded-[15px] h-full w-full"
-              style={{
-                gridRowStart: 5,
-                gridRowEnd: 20,
-                gridColumnStart: 5,
-                gridColumnEnd: 16,
-              }}
-            >
-              <StoreComponent 
-                storeId={selectedStoreId}
-                isSelected={!!selectedStoreId}
-                storeName={storeName || ''}
+        <TransformComponent contentStyle={{width: "95vw", height: "50vw"}}>
+          <div
+            className="w-full grid place-items-center gap-[2px] relative"
+            style={{
+              gridTemplateRows: "repeat(20, 1fr)",
+              gridTemplateColumns: "repeat(40, 1fr)",
+            }}
+          >
+            {/* Roads and Walkways */}
+            <MapBlock rowStart={1} rowEnd={22} colStart={18} colEnd={19} defaultColor={colors.f} pointerEvents={false}/>
+            <MapBlock rowStart={3} rowEnd={4} colStart={4} colEnd={19} height={30} defaultColor={colors.f} pointerEvents={false}/>
+            <MapBlock rowStart={3} rowEnd={5} colStart={18} colEnd={38} height={50} defaultColor={colors.f} pointerEvents={false}/>
+            <MapBlock rowStart={4} rowEnd={22} colStart={37} colEnd={38} defaultColor={colors.f} pointerEvents={false}/>
+            <MapBlock rowStart={5} rowEnd={21} colStart={24} colEnd={25} width={30} defaultColor={colors.f} pointerEvents={false}/>
+            <MapBlock rowStart={13} rowEnd={21} colStart={33} colEnd={34} width={30} defaultColor={colors.f} pointerEvents={false}/>
+            <MapBlock rowStart={13} rowEnd={18} colStart={36} colEnd={37} width={30} defaultColor={colors.f} pointerEvents={false}/>
+            <MapBlock rowStart={17} rowEnd={18} colStart={24} colEnd={37} height={30} defaultColor={colors.f} pointerEvents={false}/>
+            <MapBlock rowStart={20} rowEnd={21} colStart={24} colEnd={34} height={30} defaultColor={colors.f} pointerEvents={false}/>
+            <MapBlock rowStart={7} rowEnd={17} colStart={25} colEnd={33} defaultColor={colors.e} icon={mapIconData[54].icon} pointerEvents={false}/>
+            {/* Map all store blocks from mapData */}
+            {mapData.map((block, index) => (
+              <MapBlock
+                // id={block.storeId} // add this if you want to debug
+                key={index}
+                storeId={block.storeId || ''}
+                rowStart={block.rowStart}
+                rowEnd={block.rowEnd}
+                colStart={block.colStart}
+                colEnd={block.colEnd}
+                defaultColor={block.defaultColor}
+                icon={block.icon}
+                viewBox={block.viewBox}
+                clickBlock={handleMapBlockClick}
+                tooltipPosition={block.position as TooltipPosition}
               />
+            ))}
+            {/* Selected Store Tooltip */}
+            {selectedStoreId && selectedBlockCoords.rowStart && (
+              <MapTooltip
+                // id={selectedStoreId} // add this if you want to debug
+                name={storeName || "Unknown Store"}
+                position={tooltipPosition}
+                rowStart={selectedBlockCoords.rowStart}
+                rowEnd={selectedBlockCoords.rowEnd}
+                colStart={selectedBlockCoords.colStart}
+                colEnd={selectedBlockCoords.colEnd}
+              />
+            )}
+          <div 
+            ref={targetRef}
+            style={{
+              gridRowStart: 3,
+              gridRowEnd: 4,
+              gridColumnStart: 16,
+              gridColumnEnd: 17,
+            }}
+          />
+            {selectedStoreId ? (
+              <div 
+                className="rounded-[15px] h-full w-full"
+                style={{
+                  gridRowStart: 5,
+                  gridRowEnd: 20,
+                  gridColumnStart: 5,
+                  gridColumnEnd: 16,
+                }}
+              >
+                <StoreComponent 
+                  storeId={selectedStoreId}
+                  isSelected={!!selectedStoreId}
+                  storeName={storeName || ''}
+                />
+              </div>
+              ) : (
+            <VisitaPlaceholder/>
+              )}
             </div>
-        ) : (
-          <VisitaPlaceholder/>
-        )}
-      </div>
-    </main>
-  )
+          </TransformComponent>
+        <Controls/>
+      </main>
+    </TransformWrapper>
+  );
 }

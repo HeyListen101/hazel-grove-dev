@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { colors } from '@/components/assets/background-images/map';
 
-type TooltipPosition = 'top' | 'right' | 'bottom' | 'left';
+type TooltipPosition = 'top' | 'right' | 'bottom' | 'left' | null;
 
 type MapBlockProps = {
     storeId?: string,
@@ -20,7 +20,7 @@ type MapBlockProps = {
     radius?: string,
     clickBlock?: (id: string, tooltipPosition?: TooltipPosition) => void,
     pointerEvents?: boolean,
-    tooltipPosition?: TooltipPosition,
+    tooltipPosition?: TooltipPosition | null,
 }
 
 const MapBlock: React.FC<MapBlockProps> = ({ 
@@ -86,7 +86,7 @@ const MapBlock: React.FC<MapBlockProps> = ({
             borderRadius: `${radius ? radius : 8}px`,
             pointerEvents: pointerEvents? 'auto' : 'none',
         }}
-        onClick={() => clickBlock && storeId && clickBlock(storeId, tooltipPosition)}
+        onClick={() => clickBlock && storeId && clickBlock(storeId, tooltipPosition || null)}
       >
         { icon &&
         <svg xmlns="http://www.w3.org/2000/svg" width="40%" viewBox={viewBox} className="">

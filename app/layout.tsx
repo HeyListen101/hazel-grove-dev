@@ -12,7 +12,6 @@ const poppins = Poppins({
 export const metadata = {
   title: "Visita",
   description: "Go to the market without even going to the market!",
-  viewport: 'width=device-width, initial-scale=1.0, user-scalable=yes',
 };
 
 export default function RootLayout({
@@ -22,9 +21,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={poppins.className} suppressHydrationWarning>
-       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      </head>
       <body 
         className="
           antialiased relative w-screen h-screen overflow-auto
@@ -36,7 +32,7 @@ export default function RootLayout({
       >
         <PreventZoomWrapper>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <ResolutionGuard minWidth={300} minHeight={400}>
+            <ResolutionGuard minWidth={410} minHeight={450}>
               {children}
             </ResolutionGuard>
           </ThemeProvider>
