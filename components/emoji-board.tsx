@@ -27,7 +27,7 @@ function EmojiPicker({ className, ...props }: React.ComponentProps<typeof EmojiP
 
 function EmojiPickerSearch({ className, ...props }: React.ComponentProps<typeof EmojiPickerPrimitive.Search>) {
   return (
-    <div className={cn("flex h-9 items-center gap-2 border-b px-3 text-black", className)} data-slot="emoji-picker-search-wrapper">
+    <div className={cn("flex h-9 items-center gap-2 border-b px-3 text-muted-foreground", className)} data-slot="emoji-picker-search-wrapper">
       <SearchIcon className="size-4 shrink-0" />
       <EmojiPickerPrimitive.Search
         className="outline-none placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
@@ -47,26 +47,11 @@ function EmojiPickerRow({ children, ...props }: EmojiPickerListRowProps) {
 }
 
 // MODIFIED EmojiPickerEmoji for always-visible blurred emoji background
-function EmojiPickerEmoji({ emoji, className, ...props }: EmojiPickerListEmojiProps) {
+function EmojiPickerEmoji({ emoji, ...props }: EmojiPickerListEmojiProps) {
   return (
     <button
       {...props}
-      className={cn(
-        // Base styles for the button
-        "relative flex aspect-square size-8 items-center justify-center overflow-hidden rounded-md text-lg",
-        
-        // Active state overlay for the button itself (will sit on top of the ::before)
-        // For light theme (your white board)
-        "data-[active]:bg-neutral-100/80", 
-        // For dark theme (if ever used, or if frimousse applies dark mode classes automatically)
-        "dark:data-[active]:bg-neutral-800/80", 
-        
-        // ::before pseudo-element: always visible, acts as the "colored" background
-        // Removed `before:hidden` and `data-[active]:before:flex` for conditional visibility.
-        // Now it's always `before:flex`.
-        "before:absolute before:inset-0 before:-z-1 before:flex before:items-center before:justify-center before:text-[2.5em] before:blur-lg before:saturate-200 before:content-(--emoji)",
-        
-        className // Allows for additional classes to be passed in
+      className={cn("relative flex aspect-square size-8 items-center justify-center overflow-hidden rounded-md text-lg data-[active]:bg-[#00843d] dark:data-[active]:bg-[#00843d] before:absolute before:inset-0 before:-z-1 before:hidden before:items-center before:justify-center before:text-[2.5em] before:blur-lg before:saturate-200 before:content-(--emoji) data-[active]:before:flex"
       )}
       style={{
         "--emoji": `"${emoji.emoji}"`
