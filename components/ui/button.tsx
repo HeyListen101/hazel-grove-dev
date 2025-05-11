@@ -17,11 +17,9 @@ const buttonVariants = cva(
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
           "bg-white text-[#6B5C3D] ",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        chat: "flex items-center bg-white text-black shadow-lg hover:bg-gray-100",
+        chat: "flex items-center bg-white/80 text-black shadow-lg hover:bg-gray-100 backdrop-blur-sm",
       },
       size: {
         default: "h-12 w-full px-6 py-2 rounded-md text-md font-semibold", 

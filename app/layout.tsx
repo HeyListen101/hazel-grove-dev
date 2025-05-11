@@ -32,7 +32,7 @@ export default function RootLayout({
       >
         <PreventZoomWrapper>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <ResolutionGuard minWidth={300} minHeight={400}>
+            <ResolutionGuard minWidth={410} minHeight={450}>
               {children}
             </ResolutionGuard>
           </ThemeProvider>

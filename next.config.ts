@@ -63,6 +63,7 @@ const nextConfig: NextConfig = {
         // Allow connections to Supabase (wss for realtime, https for API)
         supabaseHostname ? `wss://${supabaseHostname}` : "",
         supabaseHostname ? `https://${supabaseHostname}` : "",
+        'https://cdn.jsdelivr.net',
         // Add other trusted API endpoints your app connects to
         // e.g. 'https://api.yourothersevice.com'
       ].filter(Boolean),

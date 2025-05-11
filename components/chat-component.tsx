@@ -6,7 +6,8 @@ import { getSupabaseAuth } from "@/utils/supabase/auth-singleton";
 import MessageComponent from "@/components/ui/message-card";
 import { Button } from "@/components/ui/button";
 import { Send, X } from "lucide-react";
-import EmojiPicker from 'emoji-picker-react';
+import { EmojiPicker, EmojiPickerSearch, EmojiPickerContent, EmojiPickerFooter } from "@/components/emoji-board";
+import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
 
 // chatmessage table structure since supabase needs docker to automatically create the table for us
 type ChatMessage = {
@@ -39,21 +40,12 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
   const [chats, setChats] = useState<ChatMessage[]>(messages || []);
   const [message, setMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [showEmojis, setShowEmojis] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<string>("User");
   const [channel, setChannel] = useState<ReturnType<typeof supabase.channel> | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [charCount, setCharCount] = useState(0);
   
-  // Add this function to handle emoji selection
-  const onEmojiClick = (emojiData: any, event: MouseEvent) => {
-    if (message.length + 2 <= MAX_CHAR_LIMIT) { // Emoji typically counts as 2 chars
-      setMessage(prevMessage => prevMessage + emojiData.emoji);
-      setCharCount(prevCount => prevCount + 2);
-    }
-    setShowEmojis(false);
-  };
-
   useEffect(() => {
     // Get the current user when component mounts
     const fetchUser = async () => {
@@ -156,7 +148,7 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
   return (
     <div className="fixed bottom-6 left-7 flex items-center z-10">
       <Button 
-        variant="chat"
+        variant={"chat"}
         onClick={() => setShowChat(!showChat)}
         className="w-[160px] flex justify-center items-center h-[40px]"
       >
@@ -210,57 +202,51 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
 
           {/* Input Box */}
           <div className="flex items-center p-3 bg-white relative">
-          <div className="flex-grow relative flex items-center justify-between bg-[#F0F0F0] rounded-full">
-            <textarea 
-              maxLength={MAX_CHAR_LIMIT}
-              className="flex-grow p-2 text-sm bg-transparent text-black outline-none pl-4 resize-none overflow-hidden max-h-10"
-              placeholder="Say hi to everyone!"
-              value={message}
-              onChange={(e) => {
-                setMessage(e.target.value);
-                // Auto-resize the textarea
-                e.target.style.height = 'auto';
-                e.target.style.height = `${Math.min(e.target.scrollHeight, 80)}px`;
-              }}
-              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), sendMessage())}
-              rows={1}
-              style={{
-                resize: 'none',
-                minHeight: '32px',
-                maxHeight: '120px',
-                width: '160px', // Fixed width in pixels
-                maxWidth: '200px', // Maximum width
-                overflow: 'hidden',
-              }}
-            />
-            <button 
-              onClick={() => setShowEmojis(!showEmojis)} 
-              className="p-1 text-gray-500 ml-auto mr-1"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                <path fill="#13783e" d="M12 23C5.925 23 1 18.075 1 12S5.925 1 12 1s11 4.925 11 11s-4.925 11-11 11M6.769 11.866l3.464-2l-1-1.732l-3.464 2zm11.464-1.732l-3.464-2l-1 1.732l3.464 2zM9.4 14.499l-.501-.866l-1.731 1.002l.5.866A5 5 0 0 0 12 18a5 5 0 0 0 4.331-2.5l.501-.865l-1.731-1.001l-.5.865c-.521.9-1.491 1.5-2.6 1.5a3 3 0 0 1-2.6-1.5" />
-              </svg>
-            </button>
-          </div>
-          {showEmojis && (
-            <div className="absolute bottom-16 right-0 z-50" style={{ boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
-              <div className="relative" onClick={(e) => e.stopPropagation()}>
-                <button 
-                  className="absolute top-[-10] left-[-10] z-10 bg-[#13783e] rounded-full p-1 shadow-sm hover:bg-gray-100"
-                  onClick={() => setShowEmojis(false)}
-                >
-                  <X size={18} />
-                </button>
-                <div>
-                  <EmojiPicker  
-                    onEmojiClick={onEmojiClick}
-                    width={280}
-                    height={350}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+            <div className="flex-grow relative flex items-center justify-between bg-[#F0F0F0] rounded-full">
+              <textarea 
+                maxLength={MAX_CHAR_LIMIT}
+                className="flex-grow p-2 text-sm bg-transparent text-black outline-none pl-4 resize-none overflow-hidden max-h-10"
+                placeholder="Say hi to everyone!"
+                value={message}
+                onChange={(e) => {
+                  setMessage(e.target.value);
+                  // Auto-resize the textarea
+                  e.target.style.height = 'auto';
+                  e.target.style.height = `${Math.min(e.target.scrollHeight, 80)}px`;
+                }}
+                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), sendMessage())}
+                rows={1}
+                style={{
+                  resize: 'none',
+                  minHeight: '32px',
+                  maxHeight: '120px',
+                  width: '160px', // Fixed width in pixels
+                  maxWidth: '200px', // Maximum width
+                  overflow: 'hidden',
+                }}
+              />
+              <Popover onOpenChange={setIsOpen} open={isOpen}>
+                <PopoverTrigger asChild>
+                  <button className="p-1 ml-auto mr-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                      <path fill="#13783e" d="M12 23C5.925 23 1 18.075 1 12S5.925 1 12 1s11 4.925 11 11s-4.925 11-11 11M6.769 11.866l3.464-2l-1-1.732l-3.464 2zm11.464-1.732l-3.464-2l-1 1.732l3.464 2zM9.4 14.499l-.501-.866l-1.731 1.002l.5.866A5 5 0 0 0 12 18a5 5 0 0 0 4.331-2.5l.501-.865l-1.731-1.001l-.5.865c-.521.9-1.491 1.5-2.6 1.5a3 3 0 0 1-2.6-1.5" />
+                    </svg>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-fit p-0">
+                  <EmojiPicker
+                    className="h-[312px] w-[250px]"
+                    onEmojiSelect={({ emoji }) => {
+                      setIsOpen(false)
+                      setMessage(prevMessage => prevMessage + emoji) // Append the emoji to the existing text
+                    }}
+                  >
+                    <EmojiPickerSearch />
+                    <EmojiPickerContent />
+                  </EmojiPicker>
+                </PopoverContent>
+              </Popover>
+            </div>          
           <button 
             onClick={sendMessage} 
             className="p-2 text-gray-500 ml-1"

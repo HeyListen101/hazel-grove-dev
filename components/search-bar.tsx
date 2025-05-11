@@ -233,7 +233,7 @@ const SearchBar = () => {
           <input
             type="text"
             placeholder="Search stores or products"
-            className={`w-full py-2 pl-10 pr-4 text-sm text-gray-700 bg-white ${(isSearching || searchResults.length > 0) ? 'rounded-t-[75px] shadow-sm' : 'rounded-[75px] shadow-sm'} focus:outline-none focus:ring-0`}
+            className={`w-full py-2 pl-10 pr-4 text-sm text-gray-700 bg-white ${(isSearching || searchResults.length > 0) ? 'rounded-t-md shadow-sm' : 'rounded-[75px] shadow-sm'} focus:outline-none focus:ring-0`}
             value={searchTerm}
             onChange={handleInputChange}
             onKeyDown={(e) => {
