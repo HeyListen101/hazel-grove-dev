@@ -19,13 +19,12 @@ const config = {
     },
     extend: {
       screens: {
-        xs: "430px",
-        sm: "640px",
-        md: "768px",
+        sm: "630px",
+        md: "767px",
         lg: "1024px",
-        xl: "1280px",
+        xl: "1347px",
         "px1100": "1100px",
-        "2xl": "1536px", 
+        "2xl": "1699px", 
       },
       colors: {
         border: "hsl(var(--border))",

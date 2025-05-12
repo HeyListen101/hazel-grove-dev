@@ -18,12 +18,12 @@ export default function VisitaPlaceholder() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <h1 className="w-full h-full aspect-[40/20] text-5xl 2xl:text-6xl font-bold">
+      <h1 className="absolute top-[125] w-full h-full md:text-4xl lg:text-6xl font-bold">
         Welcome<br/>
         to<br/>
         Visita
       </h1>
-      <h1 className="absolute bottom-10 text-sm">
+      <h1 className="absolute  bottom-10 text-[10px] lg:text-lg">
         Try <span className="font-bold">clicking </span>
         one of the store boxes!<br/>
         <span className="font-bold text-[#F07474]">Red </span>

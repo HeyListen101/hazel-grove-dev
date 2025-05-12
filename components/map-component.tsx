@@ -1,5 +1,6 @@
 "use client";
 
+import { debounce } from 'lodash';
 import MapBlock from './map-block';
 import MapTooltip from './map-tooltip';
 import  Controls from './ui/zoom-controls';
@@ -8,8 +9,8 @@ import VisitaPlaceholder from './visita-placeholder';
 import { createClient } from "@/utils/supabase/client";
 import React, { useState, useEffect, useRef } from 'react';
 import { useMapSearch } from '@/components/map-search-context';
-import { mapData, colors, svgPathVal } from './assets/background-images/map';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { mapData, colors, svgPathVal } from './assets/background-images/map';
 
 type TooltipPosition = 'top' | 'right' | 'bottom' | 'left' | null;
 
@@ -29,6 +30,8 @@ export default function MapComponent() {
   const [storeData, setStoreData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<string>("User");
+  const [isSelectionLoading, setIsSelectionLoading] = useState(false);
+  const [dimensions, setDimensions] = useState({ width: "70vw", height: "30vw" });
   const [storeStatusMap, setStoreStatusMap] = useState<Record<string, boolean>>({});
   const [subscription, setSubscription] = useState<ReturnType<typeof supabase.channel> | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<'top' | 'right' | 'bottom' | 'left'>('top');
@@ -42,47 +45,32 @@ export default function MapComponent() {
     selectedStoreId, 
     setSelectedStoreId, 
     storeName, 
-    setStoreName, 
-    isOpen, 
+    setStoreName,
     setIsOpen,
-    selectedProductName,
     isMapSelectionInProgress,
   } = useMapSearch();
 
-  const handleToolTipPositionChange = (position: TooltipPosition) => {
-    if (position === 'top') {
-      setTooltipPosition('bottom');
-    } else if (position === 'right') {
-      setTooltipPosition('left');
-    } else if (position === 'bottom') {
-      setTooltipPosition('top');
-    } else if (position === 'left') {
-      setTooltipPosition('right');
-    }
-  };
-
-  const fetchStores = async (): Promise<{storeData: Store[], storeStatusMap: Record<string, boolean>}> => {
-    try {
-      // Joined the tables and selected everything from both tables
-      const { data: stores, error } = await supabase.from('store').select(`*, storestatus:storestatus(*)`);
-  
-      if (error) {
-        return { storeData: [], storeStatusMap: {} };
-      }
-  
-      // Create a map of store IDs to their status
-      const storeStatusMap: Record<string, boolean> = {};
-      
-      stores?.forEach(store => {
-        const isOpen = store.storestatus?.status === true;
-        storeStatusMap[store.storeid] = isOpen;
+  // useEffect for handling window resize
+  useEffect(() => {
+    // This code only runs on the client after component mounts
+    const handleResize = () => {
+      setDimensions({
+        width: window.innerWidth > 1697 ? "95vw" : "95vw",
+        height: window.innerHeight > 796 ? "45vw" : "50vw"
       });
-      return { storeData: stores || [], storeStatusMap };
-    } catch (error) {
-      return { storeData: [], storeStatusMap: {} };
-    }
-  };
+    };
+    
+    // Set initial dimensions
+    handleResize();
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', handleResize);
+    
+    // Clean up event listener
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
+  // useEffect for getting the current user
   useEffect(() => {
     // Get the current user when component mounts
     const fetchUser = async () => {
@@ -192,83 +180,135 @@ export default function MapComponent() {
     };
   }, [selectedStoreId, isMapSelectionInProgress, mapData]);
 
+  // Scroll to the target element when the component mounts
   useEffect(() => {
     targetRef.current?.scrollIntoView({ behavior: 'smooth' }); // or 'auto'
   }, []);
 
-  // Fetch specific store data when a store is selected
-  const fetchStoreData = async (storeId: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-  
-      // Joined the tables and selected everything from both tables
-      const { data: store, error } = await supabase
-      .from('store')
-      .select(`*, 
-              storestatus:storestatus(*)`)
-      .eq('storeid', storeId);
-  
-      let fetchedStoreData = store ? store[0] : null;
-
-      // Create store statuts if null then update the clicked store with that newly created status
-      if (fetchedStoreData && !fetchedStoreData.storestatus && currentUser) {
-        const { data: statusData, error: insertErr } = await supabase
-        .from('storestatus')
-        .insert({ contributor: currentUser, status: false })
-        .select();
-        const statusId = statusData? statusData[0] : null;
-        if (statusId) {
-          const { error } = await supabase
-          .from('store')
-          .update({ storestatus: statusId.storestatusid })
-          .eq('storeid', fetchedStoreData.storeid);
-        }
+  // Debounced version of fetchStoreData eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedFetchStoreData = useRef(
+    debounce(async (storeId: string) => {
+      try {
+        setLoading(true);
+        setError(null);
+    
+        // Joined the tables and selected everything from both tables
         const { data: store, error } = await supabase
         .from('store')
         .select(`*, 
                 storestatus:storestatus(*)`)
         .eq('storeid', storeId);
+    
+        let fetchedStoreData = store ? store[0] : null;
 
-        fetchedStoreData = store ? store[0] : null;
-      }
-      
-      if (fetchedStoreData && fetchedStoreData.storestatus) {
-        setStoreName(fetchedStoreData.name || 'No Name');
-        setIsOpen(fetchedStoreData.storestatus.status === true);
-        setStoreData(fetchedStoreData);
+        // Create store statuts if null then update the clicked store with that newly created status
+        if (fetchedStoreData && !fetchedStoreData.storestatus && currentUser) {
+          const { data: statusData, error: insertErr } = await supabase
+          .from('storestatus')
+          .insert({ contributor: currentUser, status: false })
+          .select();
+          const statusId = statusData? statusData[0] : null;
+          if (statusId) {
+            const { error } = await supabase
+            .from('store')
+            .update({ storestatus: statusId.storestatusid })
+            .eq('storeid', fetchedStoreData.storeid);
+          }
+          const { data: store, error } = await supabase
+          .from('store')
+          .select(`*, 
+                  storestatus:storestatus(*)`)
+          .eq('storeid', storeId);
+
+          fetchedStoreData = store ? store[0] : null;
+        }
         
-        // Update the store status map
-        setStoreStatusMap(prev => ({
-          ...prev,
-          [storeId]: fetchedStoreData.storestatus.status === true
-        }));
-      } else {
-        // Handle the case when fetchedStoreData is null or missing storestatus
-        setStoreName('No Data');
+        if (fetchedStoreData && fetchedStoreData.storestatus) {
+          setStoreName(fetchedStoreData.name || 'No Name');
+          setIsOpen(fetchedStoreData.storestatus.status === true);
+          setStoreData(fetchedStoreData);
+          
+          // Update the store status map
+          setStoreStatusMap(prev => ({
+            ...prev,
+            [storeId]: fetchedStoreData.storestatus.status === true
+          }));
+        } else {
+          // Handle the case when fetchedStoreData is null or missing storestatus
+          setStoreName('No Data');
+          setIsOpen(false);
+          setStoreData(null);
+          
+          // Update the store status map to show as closed
+          setStoreStatusMap(prev => ({
+            ...prev,
+            [storeId]: false
+          }));
+        }
+      } catch (error) {
+        setError('Failed to load store');
+        console.log('Error fetching store:', error);
+        
+        // Set fallback values in case of error
+        setStoreName('Error Loading Data');
         setIsOpen(false);
         setStoreData(null);
-        
-        // Update the store status map to show as closed
-        setStoreStatusMap(prev => ({
-          ...prev,
-          [storeId]: false
-        }));
+      } finally {
+        setLoading(false);
+        setIsSelectionLoading(false); // Reset selection loading state
       }
-    } catch (error) {
-      setError('Failed to load store');
-      console.log('Error fetching store:', error);
-      
-      // Set fallback values in case of error
-      setStoreName('Error Loading Data');
-      setIsOpen(false);
-      setStoreData(null);
-    } finally {
-      setLoading(false);
+    }, 300) // 300ms debounce time - adjust as needed
+  ).current;
+
+  // Function to change the tooltip position
+  const handleToolTipPositionChange = (position: TooltipPosition) => {
+    if (position === 'top') {
+      setTooltipPosition('bottom');
+    } else if (position === 'right') {
+      setTooltipPosition('left');
+    } else if (position === 'bottom') {
+      setTooltipPosition('top');
+    } else if (position === 'left') {
+      setTooltipPosition('right');
     }
   };
+
+  // Fetch all stores and their statuses
+  const fetchStores = async (): Promise<{storeData: Store[], storeStatusMap: Record<string, boolean>}> => {
+    try {
+      // Joined the tables and selected everything from both tables
+      const { data: stores, error } = await supabase.from('store').select(`*, storestatus:storestatus(*)`);
   
+      if (error) {
+        return { storeData: [], storeStatusMap: {} };
+      }
+  
+      // Create a map of store IDs to their status
+      const storeStatusMap: Record<string, boolean> = {};
+      
+      stores?.forEach(store => {
+        const isOpen = store.storestatus?.status === true;
+        storeStatusMap[store.storeid] = isOpen;
+      });
+      return { storeData: stores || [], storeStatusMap };
+    } catch (error) {
+      return { storeData: [], storeStatusMap: {} };
+    }
+  };
+
+  // Fetch specific store data when a store is selected
+  const fetchStoreData = (storeId: string) => {
+    setIsSelectionLoading(true); // Set loading state
+    debouncedFetchStoreData(storeId);
+  };
+  
+  // Function to handle map block click to prevent rapid clicks
   const handleMapBlockClick = (storeId: string, tooltipPosition?: TooltipPosition) => {
+    // Prevent action if already loading
+    if (isSelectionLoading) {
+      return;
+    }
+    
     // Toggle selection - if clicking the same store, deselect it
     const newSelectedStoreId = (selectedStoreId === storeId) ? null : storeId;
     
@@ -306,9 +346,13 @@ export default function MapComponent() {
 
   return (
     // #13783e #F07474
-    <TransformWrapper>
-      <main className="touch-auto bg-white flex items-center justify-center overflow-auto absolute top-16 inset-x-0 bottom-0">
-        <TransformComponent contentStyle={{width: "95vw", height: "50vw"}}>
+    <TransformWrapper
+    initialScale={1}
+    limitToBounds={true}
+    centerOnInit={true}
+    >
+      <main className="bg-white flex flex-col items-center justify-center overflow-hidden absolute top-16 inset-x-0 bottom-0">
+        <TransformComponent contentStyle={{width: dimensions.width, height: dimensions.height }}>
           <div
             className="w-full grid place-items-center gap-[2px] relative"
             style={{
