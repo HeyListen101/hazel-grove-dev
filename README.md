@@ -8,7 +8,49 @@ A web-based VSU Market Directory designed to help students, faculty, staff, and 
 | HG.010.002 | 2025-03-30 |
 | HG.010.003 | 2025-04-07 |
 | HG.010.004 | 2025-05-05 |
+| HG.011.001 | 2025-05-15 |
 | ... | ... |
+
+## HG.011.001 Release Notes
+- Updated jest tests
+- Updated UI/UX
+- Updated emoji board
+- Updated chat component
+- Updated UI/UX
+- Added panning ability again
+- Added testing functions
+- Cleaned files for deployment
+- Updated files
+- Updating to reflect on deployed app
+- Updated landing page routing
+- Apply proper backgound image import to auth pages
+- Add new Visita logo ico file
+- [NF] Resolution guard
+- Adjust elements sizes and spacing
+- Adjust mobile responsiveness of map interface
+- Updated store information manager
+- Updated UI/UX
+- Add live map color update on all stores indicating if they're either open or closed
+- Add delete product function in store component
+- Add the edit products functionality to store products data of each store
+- Make an add products functionality to store products data in each individual store
+- Add toggling function for store status
+- Add function that inserts and updates storestatus upon clicking store block
+- Fix scaling and position issue of store component
+- Added content secutiy policies
+- Adjust design of some ui components
+- Patched chat component
+- Updated community chat
+- Updated store component
+- Updated interactive map
+- Updated UI/UX
+- Update README.md
+- Adjust chat component UI
+- Add store and place icons
+- Adjust size and scroll responsiveness of map interface
+- Improve map interface and scalability
+- Arrange header elements
+- Improve code spacing and readability
 
 ## HG.010.004 Release Notes
 - Improve user interpretability on the the reset password errors
