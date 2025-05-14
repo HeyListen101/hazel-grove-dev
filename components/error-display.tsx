@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { X } from "lucide-react";
 
-export function ErrorDisplay({ message }: { message: string }) {
+export function ErrorDisplay({ message }: { message: string | null }) {
   const [isVisible, setIsVisible] = useState(true);
 
+  if (!message) return null;
   if (!isVisible) return null;
 
   return (

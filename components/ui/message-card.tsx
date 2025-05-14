@@ -26,13 +26,13 @@ export default function MessageComponent({ sentBy, context }: MessageProps) {
       const currentUser = await supabaseAuth.getUser();
       
       // Check if this message was sent by the current user
-      if (currentUser && currentUser.id === sentBy) {
+      if (currentUser && currentUser?.id === sentBy) {
         setIsCurrentUser(true);
         setDisplayName("You");
         
         // Get avatar URL for current user if available
-        if (currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture) {
-          setAvatarUrl(currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture);
+        if (currentUser?.user_metadata?.avatar_url || currentUser?.user_metadata?.picture) {
+          setAvatarUrl(currentUser?.user_metadata?.avatar_url || currentUser?.user_metadata?.picture);
         }
         return;
       } else {
@@ -77,8 +77,8 @@ export default function MessageComponent({ sentBy, context }: MessageProps) {
       
       let finalAvatarUrl = null;
       
-      if (userData && userData.avatar_url) {
-        finalAvatarUrl = userData.avatar_url;
+      if (userData && userData?.avatar_url) {
+        finalAvatarUrl = userData?.avatar_url;
         setAvatarUrl(finalAvatarUrl);
       } else {
         // If no avatar URL is found, try to get the email address
