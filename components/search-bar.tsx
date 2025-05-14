@@ -1,3 +1,4 @@
+// src/components/SearchBar.tsx (or your actual path)
 "use client";
 
 import React, { useState } from 'react';
@@ -14,7 +15,7 @@ type SearchResult = {
 
 const supabase = createClient();
 
-const SearchBar = () => {
+export const SearchBar = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -23,87 +24,64 @@ const SearchBar = () => {
   const handleSearch = async (term: string) => {
     if (!term.trim()) {
       setSearchResults([]);
-      setIsSearching(false);
+      setIsSearching(false); // Ensure isSearching is false if term is empty
       return;
     }
   
     setIsSearching(true);
   
     try {
+      // ... (your existing search logic remains the same) ...
       let combinedResults: SearchResult[] = [];
       
-      // Determine search type based on term
       if (term.length <= 3) {
-        // For short terms, only search products
         const { data: products, error: productError } = await supabase
           .from('product')
-          .select(`
-            *,
-            productstatus:productstatus(*),
-            store:store(*)
-          `)
+          .select(`*, productstatus:productstatus(*), store:store(*)`)
           .ilike('name', `%${term}%`);
     
-        if (productError) {
-          console.log('Error fetching products:', productError);
-        }
+        if (productError) console.log('Error fetching products:', productError);
     
         if (products && products.length > 0) {
-          const productResults = products.map((item) => ({
+          combinedResults = products.map((item) => ({
             productName: item.name,
             storeName: item.store?.name || 'Unknown Store',
             price: `Php ${item.productstatus?.price ?? 'N/A'}`,
-            storeId: item.store?.storeid || '', // Make sure we're using storeid consistently
+            storeId: item.store?.storeid || '',
           }));
-          
-          combinedResults = [...productResults];
         }
       } else {
-        // For longer terms, search both products and stores
-        
-        // First, search products
         const { data: products, error: productError } = await supabase
           .from('product')
-          .select(`
-            *,
-            productstatus:productstatus(*),
-            store:store(*)
-          `)
+          .select(`*, productstatus:productstatus(*), store:store(*)`)
           .ilike('name', `%${term}%`);
     
-        if (productError) {
-          console.log('Error fetching products:', productError);
-        }
+        if (productError) console.log('Error fetching products:', productError);
     
         if (products && products.length > 0) {
-          const productResults = products.map((item) => ({
-            productName: item.name,
-            storeName: item.store?.name || 'Unknown Store',
-            price: `Php ${item.productstatus?.price ?? 'N/A'}`,
-            storeId: item.store?.storeid || '', // Make sure we're using storeid consistently
-          }));
-          
-          combinedResults = [...productResults];
+          combinedResults = [
+            ...combinedResults, 
+            ...products.map((item) => ({
+              productName: item.name,
+              storeName: item.store?.name || 'Unknown Store',
+              price: `Php ${item.productstatus?.price ?? 'N/A'}`,
+              storeId: item.store?.storeid || '',
+            }))
+          ];
         }
         
-        // Then, search stores
         const { data: stores, error: storeError } = await supabase
           .from('store')
           .select('*')
           .ilike('name', `%${term}%`);
     
-        if (storeError) {
-          console.log('Error fetching stores:', storeError);
-        }
+        if (storeError) console.log('Error fetching stores:', storeError);
     
         if (stores && stores.length > 0) {
           for (const store of stores) {
             const { data: storeItems, error } = await supabase
               .from('product')
-              .select(`
-                *,
-                productstatus:productstatus(*)
-              `)
+              .select(`*, productstatus:productstatus(*)`)
               .eq('brand', store.name);
     
             if (error) {
@@ -112,28 +90,27 @@ const SearchBar = () => {
             }
     
             if (storeItems && storeItems.length > 0) {
-              const items = storeItems.map((item) => ({
-                productName: item.name,
-                storeName: store.name,
-                price: `Php ${item.productstatus?.price ?? 'N/A'}`,
-                storeId: store.storeid, // Using storeid consistently
-              }));
-    
-              combinedResults = [...combinedResults, ...items];
+              combinedResults = [
+                ...combinedResults,
+                ...storeItems.map((item) => ({
+                  productName: item.name,
+                  storeName: store.name,
+                  price: `Php ${item.productstatus?.price ?? 'N/A'}`,
+                  storeId: store.storeid,
+                }))
+              ];
             } else {
-              // If no products found, still add the store as a result
               combinedResults.push({
                 productName: 'View all products',
                 storeName: store.name,
                 price: '',
-                storeId: store.storeid, // Using storeid consistently
+                storeId: store.storeid,
               });
             }
           }
         }
       }
   
-      // De-duplicate by (productName + storeName)
       const seen = new Set();
       const uniqueResults = combinedResults.filter((item) => {
         const key = `${item.productName}-${item.storeName}`;
@@ -142,7 +119,6 @@ const SearchBar = () => {
         return true;
       });
   
-      console.log('Final unique search results:', uniqueResults);
       setSearchResults(uniqueResults);
   
     } catch (error) {
@@ -161,71 +137,60 @@ const SearchBar = () => {
       handleSearch(newTerm);
     } else {
       setSearchResults([]);
-      setIsSearching(false);
+      setIsSearching(false); // Also reset isSearching when term is cleared
     }
   };
 
-  // Handle result click - open the store component
-    const handleResultClick = async (result: SearchResult) => {
-      console.log('Selected result:', result); // Debug the selected result
-      
-      // Make sure we're using the correct ID for the store
-      const storeId = result.storeId;
-      
-      if (!storeId) {
-        console.log('Store ID is missing from the search result');
-        return;
-      }
-      
-      try {
-        const store = await fetchStoreData(storeId);
-        
-        if (store) {
-          console.log('Fetched store data:', store); // Debug the fetched store
-          
-          // Update the context with the store information
-          setStoreName(store.name || result.storeName);
-          setIsOpen(store.storestatus?.isopen || false);
-          setSelectedStoreId(store.storeid);
-        } else {
-          console.log('Store not found for ID:', storeId);
-        }
-      } catch (error) {
-        console.log('Error processing search result:', error);
-      }
-    
-      // Clear search UI
+  const handleResultClick = async (result: SearchResult) => {
+    // ... (your existing logic) ...
+    const storeId = result.storeId;
+    if (!storeId) {
+      console.log('Store ID is missing');
       setSearchTerm('');
       setSearchResults([]);
-    };
+      return;
+    }
+    try {
+      const store = await fetchStoreData(storeId);
+      if (store) {
+        setStoreName(store.name || result.storeName);
+        setIsOpen(store.storestatus?.isopen || false);
+        setSelectedStoreId(store.storeid);
+      }
+    } catch (error) {
+      console.log('Error processing result:', error);
+    }
+    setSearchTerm('');
+    setSearchResults([]);
+  };
 
   const fetchStoreData = async (id: string) => {
+    // ... (your existing logic) ...
     try {
-      setIsSearching(true);
-  
-      const { data: store, error } = await supabase
-        .from('store')
-        .select(`
-          *,
-          storestatus:storestatus(*)
-        `)
-        .eq('storeid', id)
-        .single();
-  
-      if (error) {
-        console.log('Error fetching store:', error);
+        // No need to set setIsSearching(true) here unless it's a very long operation
+        // and you want a global loading state for this specific fetch.
+        // The main search bar handles its own isSearching.
+        const { data: store, error } = await supabase
+          .from('store')
+          .select(`*, storestatus:storestatus(*)`)
+          .eq('storeid', id)
+          .single();
+        if (error) {
+          console.log('Error fetching store:', error);
+          return null;
+        }
+        return store;
+      } catch (error) {
+        console.log('Unexpected error fetching store:', error);
         return null;
       }
-  
-      return store;
-    } catch (error) {
-      console.log('Unexpected error fetching store:', error);
-      return null;
-    } finally {
-      setIsSearching(false);
-    }
+      // No finally setIsSearching(false) here if you remove it from try
   };
   
+  // Determine if the results dropdown should be shown.
+  // Show it if there's a search term, regardless of whether it's currently searching or has results.
+  const showResultsDropdown = searchTerm.trim() !== '';
+
   return (
     <>
       <div className="relative max-w-md w-full">
@@ -233,12 +198,16 @@ const SearchBar = () => {
           <input
             type="text"
             placeholder="Search stores or products"
-            className={`w-full py-2 pl-10 pr-4 text-sm text-gray-700 bg-white ${(isSearching || searchResults.length > 0) ? 'rounded-t-md shadow-sm' : 'rounded-[75px] shadow-sm'} focus:outline-none focus:ring-0`}
+            className={`w-full py-2 pl-10 pr-4 text-sm text-gray-700 bg-white ${
+              showResultsDropdown ? 'rounded-t-md shadow-sm' : 'rounded-[75px] shadow-sm'
+            } focus:outline-none focus:ring-0`}
             value={searchTerm}
             onChange={handleInputChange}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
-                handleSearch(searchTerm);
+                // Optional: handleSearch(searchTerm); 
+                // handleInputChange already triggers search on change.
+                // This could be for users who type and expect Enter to finalize.
               }
             }}
           />
@@ -247,9 +216,12 @@ const SearchBar = () => {
           </div>
         </div>
 
-        {/* Search Results */}
-        {(isSearching || searchResults.length > 0) && (
-          <div className="absolute top-full left-0 right-0 w-full bg-white rounded-b-md shadow-lg z-50 overflow-hidden border-x border-b border-gray-200">
+        {/* Search Results: Use the new showResultsDropdown condition */}
+        {showResultsDropdown && (
+          <div 
+            data-testid="search-results-dropdown" // Added for clarity in testing if needed
+            className="absolute top-full left-0 right-0 w-full bg-white rounded-b-md shadow-lg z-50 overflow-hidden border-x border-b border-gray-200"
+          >
             {isSearching ? (
               <div className="p-4 text-center text-gray-500">Searching...</div>
             ) : searchResults.length > 0 ? (
@@ -270,6 +242,7 @@ const SearchBar = () => {
                     className="px-4 py-3 hover:bg-gray-50 cursor-pointer"
                     onClick={() => handleResultClick(result)}
                   >
+                    {/* ... result item structure ... */}
                     <div className="flex justify-between items-start">
                       <div>
                         <div className="text-base font-medium text-gray-800">{result.storeName}</div>
@@ -277,18 +250,7 @@ const SearchBar = () => {
                       </div>
                       <div className="flex items-center">
                         <span className="text-gray-600 mr-2">{result.price}</span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="text-gray-400"
-                        >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
                           <path d="M5 12h14M12 5l7 7-7 7" />
                         </svg>
                       </div>
@@ -297,7 +259,13 @@ const SearchBar = () => {
                 ))}
               </ul>
             ) : (
-              <div className="p-4 text-center text-gray-500">No results found</div>
+              // This div will now be rendered if:
+              // showResultsDropdown is true (searchTerm is not empty)
+              // AND isSearching is false
+              // AND searchResults.length is 0
+              <div data-testid="no-results-message" className="p-4 text-center text-gray-500">
+                No results found
+              </div>
             )}
           </div>
         )}
@@ -305,5 +273,3 @@ const SearchBar = () => {
     </>
   );
 };
-
-export default SearchBar;

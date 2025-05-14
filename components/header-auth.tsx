@@ -6,11 +6,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Settings, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 export default async function AuthButton() {
   const supabase = await createClient();
@@ -75,13 +74,6 @@ export default async function AuthButton() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="bg-white border border-gray-200 shadow-md rounded-md p-1 w-48">
-          <DropdownMenuItem asChild className="rounded-sm px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer">
-            <Link href="/forgot-password" className="flex items-center gap-2 text-gray-700">
-              <Settings size={16} />
-              <span>Settings</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator className="h-px bg-gray-200 my-1" />
           <form action={signOutAction} className="w-full">
             <DropdownMenuItem asChild className="rounded-sm px-3 py-2 text-sm hover:bg-red-50 cursor-pointer">
               <div className="flex items-center gap-2 text-red-600 w-full">

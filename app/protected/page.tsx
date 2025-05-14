@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import AuthBar from "@/components/header-auth";
-import SearchBar from "@/components/search-bar";
+import { SearchBar } from "@/components/search-bar";
 import ChatBox from "@/components/chat-component";
 import MapComponent from "@/components/map-component";
 import { createClient } from "@/utils/supabase/server";

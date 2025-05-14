@@ -235,7 +235,7 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
                 </PopoverTrigger>
                 <PopoverContent className="w-fit p-0">
                   <EmojiPicker
-                    className="h-[312px] w-[250px]"
+                    className="h-[170px] w-[250px]"
                     onEmojiSelect={({ emoji }) => {
                       setIsOpen(false)
                       setMessage(prevMessage => prevMessage + emoji) // Append the emoji to the existing text
