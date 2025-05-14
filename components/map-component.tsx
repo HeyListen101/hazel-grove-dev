@@ -81,7 +81,7 @@ export default function MapComponent() {
       }
     };
     fetchUser();
-  }, []);
+  }, [supabase]);
 
   // Set up realtime subscription
   useEffect(() => {

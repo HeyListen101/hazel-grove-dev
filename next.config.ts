@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  crossOrigin: 'use-credentials',
   images: {
     domains: [
       'lh3.googleusercontent.com',

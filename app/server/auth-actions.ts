@@ -60,8 +60,6 @@ function isValidEmail(email: string): boolean {
   return isAllowed;
 }
 
-
-
 function detectInjection(input: string): boolean {
   if (!input) return false;
 
@@ -76,7 +74,6 @@ function detectInjection(input: string): boolean {
 
   return sqlPattern.test(normalizedInput) || htmlPattern.test(normalizedInput);
 }
-
 
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
@@ -147,7 +144,7 @@ export const signUpAction = async (formData: FormData) => {
 
   // Handle unexpected errors
   if (error) {
-    console.error(error.code + " " + error.message);
+    console.log(error.code + " " + error.message);
     return encodedRedirect("error", "/sign-up", error.message);
   } else {
     return encodedRedirect(
@@ -167,16 +164,16 @@ export const customSignInAction = async (formData: FormData) => {
     return encodedRedirect("error", "/sign-in", "Email and password are required");
   }
 
-  if (!isValidEmail(email)) {
-    return encodedRedirect("error", "/sign-in", "Invalid email address");
-  }
-
   if (detectInjection(email) || detectInjection(password)) {
     return encodedRedirect(
       "error",
       "/sign-in",
       "Tsk tsk tsk! No injections here!",
     );
+  }
+
+  if (!isValidEmail(email)) {
+    return encodedRedirect("error", "/sign-in", "Invalid email address");
   }
 
   // Check if email isn't already registered
@@ -199,7 +196,14 @@ export const customSignInAction = async (formData: FormData) => {
   });
 
   if (error) {
-    console.error("Sign-in error:", error.message);
+    console.log("Sign-in error:", error.message);
+    if (error.status === 429) {
+      return encodedRedirect(
+        "error",
+        "/sign-in",
+        "Too many sign-in attempts. Please try again later."
+      );
+    }
     return encodedRedirect("error", "/sign-in", "Wrong credentials");
   }
 
@@ -218,7 +222,7 @@ export const googleSignInAction = async function () {
   });
 
   if (error) {
-    console.error("Google Sign-In Error:", error.message);
+    console.log("Google Sign-In Error:", error.message);
     return encodedRedirect("error", "/sign-in", error.message);
   }
 
@@ -254,7 +258,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
   .maybeSingle();
 
   if (dbError) {
-    console.error("Database error:", dbError.message);
+    console.log("Database error:", dbError.message);
     return encodedRedirect("error", "/forgot-password", "Something went wrong. Please try again.");
   }
 
@@ -271,7 +275,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
   });
 
   if (error) {
-    console.error(error.message);
+    console.log(error.message);
     return encodedRedirect(
       "error",
       "/forgot-password",
@@ -299,7 +303,7 @@ export const resetPasswordAction = async (formData: FormData) => {
   const confirmPassword = formData.get("confirmPassword") as string;
 
   if (!password || !confirmPassword) {
-    encodedRedirect(
+    return encodedRedirect(
       "error",
       "/reset-password",
       "Password and password confirmation are required",
@@ -307,7 +311,7 @@ export const resetPasswordAction = async (formData: FormData) => {
   }
 
   if (password !== confirmPassword) {
-    encodedRedirect(
+    return encodedRedirect(
       "error",
       "/reset-password",
       "Passwords do not match",
@@ -319,14 +323,14 @@ export const resetPasswordAction = async (formData: FormData) => {
   });
 
   if (error) {
-    encodedRedirect(
+    return encodedRedirect(
       "error",
       "/reset-password",
       error.message,
     );
   }
 
-  encodedRedirect("success", "/sign-in", "Your password has been updated!");
+  return encodedRedirect("success", "/sign-in", "Your password has been updated!");
 };
 
 export const signOutAction = async () => {

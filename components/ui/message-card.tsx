@@ -77,8 +77,8 @@ export default function MessageComponent({ sentBy, context }: MessageProps) {
       
       let finalAvatarUrl = null;
       
-      if (userData && userData.avatar_url) {
-        finalAvatarUrl = userData.avatar_url;
+      if (userData && userData?.avatar_url) {
+        finalAvatarUrl = userData?.avatar_url;
         setAvatarUrl(finalAvatarUrl);
       } else {
         // If no avatar URL is found, try to get the email address
