@@ -8,10 +8,10 @@ A web-based VSU Market Directory designed to help students, faculty, staff, and 
 | HG.010.002 | 2025-03-30 |
 | HG.010.003 | 2025-04-07 |
 | HG.010.004 | 2025-05-05 |
-| HG.011.001 | 2025-05-15 |
+| HG.011.000 | 2025-05-15 |
 | ... | ... |
 
-## HG.011.001 Release Notes
+## HG.011.000 Release Notes
 - Updated jest tests
 - Updated UI/UX
 - Updated emoji board
