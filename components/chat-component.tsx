@@ -20,12 +20,28 @@ type ChatMessage = {
 
 const MAX_CHAR_LIMIT = 250;
 
-// Function to sanitize text and prevent XSS attacks
+// Function to sanitize text and prevent XSS/SQL injection attacks
 const sanitizeText = (text: string): string => {
+  if (!text) return '';
+
+  // Normalize input for injection detection
+  const normalizedInput = text.trim().toLowerCase();
+
+  // SQL Injection patterns
+  const sqlPattern = /('|--|;|\b(OR|AND|UNION|SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|EXEC|FROM|WHERE)\b)/i;
+
+  // HTML/JS Injection patterns  
+  const htmlPattern = /<[^>]*>|javascript:|onerror=|onload=|alert\(|eval\(|document\.|window\./i;
+
+  // Check for malicious patterns
+  if (sqlPattern.test(normalizedInput) || htmlPattern.test(normalizedInput)) {
+    return 'I sent an injection to the database!!!';
+  }
+  
   // Replace HTML tags and potentially dangerous characters
   return text
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+    .replace(/>/g, '&gt;') 
     .replace(/&/g, '&amp;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#x27;')

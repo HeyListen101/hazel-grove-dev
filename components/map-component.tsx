@@ -4,7 +4,7 @@ import { debounce } from 'lodash';
 import MapBlock from './map-block';
 import MapTooltip from './map-tooltip';
 import  Controls from './ui/zoom-controls';
-import StoreComponent from './store-component';
+import StoreCard from './ui/store-card';
 import VisitaPlaceholder from './visita-placeholder';
 import { createClient } from "@/utils/supabase/client";
 import React, { useState, useEffect, useRef } from 'react';
@@ -14,7 +14,7 @@ import { mapData, colors, svgPathVal } from './assets/background-images/map';
 
 type TooltipPosition = 'top' | 'right' | 'bottom' | 'left' | null;
 
-type Store = {
+export type Store = {
   storeid: string;
   owner: string;
   storestatus: string;
@@ -49,26 +49,6 @@ export default function MapComponent() {
     setIsOpen,
     isMapSelectionInProgress,
   } = useMapSearch();
-
-  // useEffect for handling window resize
-  useEffect(() => {
-    // This code only runs on the client after component mounts
-    const handleResize = () => {
-      setDimensions({
-        width: window.innerWidth > 1697 ? "95vw" : "95vw",
-        height: window.innerHeight > 796 ? "45vw" : "50vw"
-      });
-    };
-    
-    // Set initial dimensions
-    handleResize();
-    
-    // Add event listener for window resize
-    window.addEventListener('resize', handleResize);
-    
-    // Clean up event listener
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   // useEffect for getting the current user
   useEffect(() => {
@@ -181,9 +161,9 @@ export default function MapComponent() {
   }, [selectedStoreId, isMapSelectionInProgress, mapData]);
 
   // Scroll to the target element when the component mounts
-  useEffect(() => {
-    targetRef.current?.scrollIntoView({ behavior: 'smooth' }); // or 'auto'
-  }, []);
+  // useEffect(() => {
+  //   targetRef.current?.scrollIntoView({ behavior: 'smooth' }); // or 'auto'
+  // }, []);
 
   // Debounced version of fetchStoreData eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedFetchStoreData = useRef(
@@ -351,8 +331,8 @@ export default function MapComponent() {
     limitToBounds={true}
     centerOnInit={true}
     >
-      <main className="bg-white flex flex-col items-center justify-center overflow-hidden absolute top-16 inset-x-0 bottom-0">
-        <TransformComponent contentStyle={{width: dimensions.width, height: dimensions.height }}>
+      <main className="bg-white flex flex-col items-center justify-center overflow-hidden absolute top-0 inset-x-0 bottom-0">
+        <TransformComponent contentStyle={{width: '95vw', height: '50vw' }}>
           <div
             className="w-full grid place-items-center gap-[2px] relative"
             style={{
@@ -400,34 +380,12 @@ export default function MapComponent() {
                 colEnd={selectedBlockCoords.colEnd}
               />
             )}
-          <div 
-            ref={targetRef}
-            style={{
-              gridRowStart: 3,
-              gridRowEnd: 4,
-              gridColumnStart: 16,
-              gridColumnEnd: 17,
-            }}
-          />
-            {selectedStoreId ? (
-              <div 
-                className="rounded-[15px] h-full w-full"
-                style={{
-                  gridRowStart: 5,
-                  gridRowEnd: 20,
-                  gridColumnStart: 5,
-                  gridColumnEnd: 16,
-                }}
-              >
-                <StoreComponent 
-                  storeId={selectedStoreId}
-                  isSelected={!!selectedStoreId}
-                  storeName={storeName || ''}
-                />
+            {/* Loading Indicator
+            {isSelectionLoading && (
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <LoadingIndicator/>
               </div>
-              ) : (
-            <VisitaPlaceholder/>
-              )}
+            )} */}
             </div>
           </TransformComponent>
         <Controls/>
