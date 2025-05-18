@@ -34,18 +34,18 @@ export default async function ProtectedPage() {
           - On desktop (md and up): flex-row (though MapComponent might take full width visually), and StoreComponent will use absolute positioning.
           The 'md:relative' on main is key for StoreComponent's absolute positioning on desktop.
         */}
-        <main className="flex-grow pt-16 flex flex-col md:relative overflow-hidden">
+        <main className="flex-grow pt-16 flex flex-col md:relative overflow-hidden relative">
 
           {/* Store Component - Always rendered. Its own classes will handle visibility/layout. */}
           {/* On mobile, it will be a block. On desktop, it will be absolute. */}
-          <div className="w-full md:contents"> {/* On mobile, this div helps control its flow height. On desktop, 'md:contents' makes it not affect layout. */}
+          <div className="w-full md:contents relative p-8"> {/* On mobile, this div helps control its flow height. On desktop, 'md:contents' makes it not affect layout. */}
              <StoreComponent />
           </div>
 
 
           {/* Map Component Area - Will be visually below StoreComponent on mobile due to flex-col */}
           {/* On desktop, StoreComponent will overlay it. */}
-          <div className="flex-grow relative w-full h-full"> {/* Ensures MapComponent can fill space */}
+          <div className="flex-auto relative w-full min-h-0 top-8 p-0"> {/* Ensures MapComponent can fill space */}
             <MapComponent />
           </div>
 

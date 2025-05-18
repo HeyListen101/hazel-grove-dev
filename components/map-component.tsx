@@ -4,8 +4,6 @@ import { debounce } from 'lodash';
 import MapBlock from './map-block';
 import MapTooltip from './map-tooltip';
 import  Controls from './ui/zoom-controls';
-import StoreCard from './ui/store-card';
-import VisitaPlaceholder from './visita-placeholder';
 import { createClient } from "@/utils/supabase/client";
 import React, { useState, useEffect, useRef } from 'react';
 import { useMapSearch } from '@/components/map-search-context';
@@ -50,6 +48,7 @@ export default function MapComponent() {
     isMapSelectionInProgress,
   } = useMapSearch();
 
+  
   // useEffect for getting the current user
   useEffect(() => {
     // Get the current user when component mounts
@@ -326,70 +325,79 @@ export default function MapComponent() {
 
   return (
     // #13783e #F07474
-    <TransformWrapper
-    initialScale={1}
-    limitToBounds={true}
-    centerOnInit={true}
-    >
-      <main className="bg-white flex flex-col items-center justify-center overflow-hidden absolute top-0 inset-x-0 bottom-0">
-        <TransformComponent contentStyle={{width: '95vw', height: '50vw' }}>
-          <div
-            className="w-full grid place-items-center gap-[2px] relative"
-            style={{
-              gridTemplateRows: "repeat(20, 1fr)",
-              gridTemplateColumns: "repeat(40, 1fr)",
+    <div className='map-mobile-absolute'>
+      <TransformWrapper
+      initialScale={typeof window !== 'undefined' && window.innerWidth <= 526 ? 0.94 : 1}
+      limitToBounds={true}
+      centerOnInit={true}
+      >
+        <main className="bg-white flex flex-col items-center overflow-hidden absolute top-0 inset-x-0 bottom-0">
+          {/* Use CSS to maintain the proper aspect ratio */}
+          <TransformComponent 
+            contentStyle={{
+              width: '95vw', 
+              height: 'calc(95vw * 0.5)', // Maintain 2:1 aspect ratio (40:20 grid)
+              maxHeight: '80vh',  // Limit maximum height on taller screens
             }}
           >
-            {/* Roads and Walkways */}
-            <MapBlock rowStart={1} rowEnd={22} colStart={18} colEnd={19} defaultColor={colors.f} pointerEvents={false}/>
-            <MapBlock rowStart={3} rowEnd={4} colStart={4} colEnd={19} height={30} defaultColor={colors.f} pointerEvents={false}/>
-            <MapBlock rowStart={3} rowEnd={5} colStart={18} colEnd={38} height={50} defaultColor={colors.f} pointerEvents={false}/>
-            <MapBlock rowStart={4} rowEnd={22} colStart={37} colEnd={38} defaultColor={colors.f} pointerEvents={false}/>
-            <MapBlock rowStart={5} rowEnd={21} colStart={24} colEnd={25} width={30} defaultColor={colors.f} pointerEvents={false}/>
-            <MapBlock rowStart={13} rowEnd={21} colStart={33} colEnd={34} width={30} defaultColor={colors.f} pointerEvents={false}/>
-            <MapBlock rowStart={13} rowEnd={18} colStart={36} colEnd={37} width={30} defaultColor={colors.f} pointerEvents={false}/>
-            <MapBlock rowStart={17} rowEnd={18} colStart={24} colEnd={37} height={30} defaultColor={colors.f} pointerEvents={false}/>
-            <MapBlock rowStart={20} rowEnd={21} colStart={24} colEnd={34} height={30} defaultColor={colors.f} pointerEvents={false}/>
-            <MapBlock rowStart={7} rowEnd={17} colStart={25} colEnd={33} defaultColor={colors.e} icon={svgPathVal.park} pointerEvents={false}/>
-            {/* Map all store blocks from mapData */}
-            {mapData.map((block, index) => (
-              <MapBlock
-                // id={block.storeId} // add this if you want to debug
-                key={index}
-                storeId={block.storeId || ''}
-                rowStart={block.rowStart}
-                rowEnd={block.rowEnd}
-                colStart={block.colStart}
-                colEnd={block.colEnd}
-                defaultColor={block.defaultColor}
-                icon={block.icon}
-                viewBox={block.viewBox}
-                clickBlock={handleMapBlockClick}
-                tooltipPosition={block.position as TooltipPosition}
-              />
-            ))}
-            {/* Selected Store Tooltip */}
-            {selectedStoreId && selectedBlockCoords.rowStart && (
-              <MapTooltip
-                // id={selectedStoreId} // add this if you want to debug
-                name={storeName || "Unknown Store"}
-                position={tooltipPosition}
-                rowStart={selectedBlockCoords.rowStart}
-                rowEnd={selectedBlockCoords.rowEnd}
-                colStart={selectedBlockCoords.colStart}
-                colEnd={selectedBlockCoords.colEnd}
-              />
-            )}
-            {/* Loading Indicator
-            {isSelectionLoading && (
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <LoadingIndicator/>
+            <div
+              className="w-full h-full grid place-items-center gap-[2px] relative"
+              style={{
+                gridTemplateRows: "repeat(20, 1fr)",
+                gridTemplateColumns: "repeat(40, 1fr)",
+              }}
+            >
+              {/* Roads and Walkways */}
+              <MapBlock rowStart={1} rowEnd={22} colStart={18} colEnd={19} defaultColor={colors.f} pointerEvents={false}/>
+              <MapBlock rowStart={3} rowEnd={4} colStart={4} colEnd={19} height={30} defaultColor={colors.f} pointerEvents={false}/>
+              <MapBlock rowStart={3} rowEnd={5} colStart={18} colEnd={38} height={50} defaultColor={colors.f} pointerEvents={false}/>
+              <MapBlock rowStart={4} rowEnd={22} colStart={37} colEnd={38} defaultColor={colors.f} pointerEvents={false}/>
+              <MapBlock rowStart={5} rowEnd={21} colStart={24} colEnd={25} width={30} defaultColor={colors.f} pointerEvents={false}/>
+              <MapBlock rowStart={13} rowEnd={21} colStart={33} colEnd={34} width={30} defaultColor={colors.f} pointerEvents={false}/>
+              <MapBlock rowStart={13} rowEnd={18} colStart={36} colEnd={37} width={30} defaultColor={colors.f} pointerEvents={false}/>
+              <MapBlock rowStart={17} rowEnd={18} colStart={24} colEnd={37} height={30} defaultColor={colors.f} pointerEvents={false}/>
+              <MapBlock rowStart={20} rowEnd={21} colStart={24} colEnd={34} height={30} defaultColor={colors.f} pointerEvents={false}/>
+              <MapBlock rowStart={7} rowEnd={17} colStart={25} colEnd={33} defaultColor={colors.e} icon={svgPathVal.park} pointerEvents={false}/>
+              {/* Map all store blocks from mapData */}
+              {mapData.map((block, index) => (
+                <MapBlock
+                  // id={block.storeId} // add this if you want to debug
+                  key={index}
+                  storeId={block.storeId || ''}
+                  rowStart={block.rowStart}
+                  rowEnd={block.rowEnd}
+                  colStart={block.colStart}
+                  colEnd={block.colEnd}
+                  defaultColor={block.defaultColor}
+                  icon={block.icon}
+                  viewBox={block.viewBox}
+                  clickBlock={handleMapBlockClick}
+                  tooltipPosition={block.position as TooltipPosition}
+                />
+              ))}
+              {/* Selected Store Tooltip */}
+              {selectedStoreId && selectedBlockCoords.rowStart && (
+                <MapTooltip
+                  // id={selectedStoreId} // add this if you want to debug
+                  name={storeName || "Unknown Store"}
+                  position={tooltipPosition}
+                  rowStart={selectedBlockCoords.rowStart}
+                  rowEnd={selectedBlockCoords.rowEnd}
+                  colStart={selectedBlockCoords.colStart}
+                  colEnd={selectedBlockCoords.colEnd}
+                />
+              )}
+              {/* Loading Indicator
+              {isSelectionLoading && (
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  <LoadingIndicator/>
+                </div>    
+              )} */}
               </div>
-            )} */}
-            </div>
-          </TransformComponent>
-        <Controls/>
-      </main>
-    </TransformWrapper>
+            </TransformComponent>
+          <Controls/>
+        </main>
+      </TransformWrapper>
+    </div>
   );
 }

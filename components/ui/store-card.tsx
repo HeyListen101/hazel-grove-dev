@@ -537,7 +537,6 @@ const StoreCard: React.FC<StoreComponentProps> = ({
                   { (paginatedProductsToDisplay.length > 0 || newlyAddedDraftProducts.length > 0 || isEditing) && (
                     <div className="grid grid-cols-[1fr_auto_auto] items-center gap-x-2 md:gap-x-3 py-1.5 border-b border-gray-200 sticky top-0 bg-white z-[5]">
                       <div className="font-medium text-gray-500 text-xs md:text-sm">Name</div>
-                      {/* Added pr-0.5 (2px) to Price label for alignment */}
                       <div className="font-medium text-gray-500 text-xs md:text-sm text-right -mr-3">Price</div>
                       {isEditing && <div className="w-6 h-1"></div>}
                     </div>

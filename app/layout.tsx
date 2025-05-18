@@ -30,13 +30,11 @@ export default function RootLayout({
           [&::-webkit-scrollbar-thumb]:bg-gray-400
         "
       >
-        <PreventZoomWrapper>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <ResolutionGuard minWidth={410} minHeight={450}>
+            <ResolutionGuard minWidth={375} minHeight={375}>
               {children}
             </ResolutionGuard>
           </ThemeProvider>
-        </PreventZoomWrapper>
       </body>
     </html>
   );

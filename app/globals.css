@@ -213,3 +213,35 @@
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
+
+@media (max-width: 526px) {
+.store-mobile-absolute {
+    position: relative !important; 
+    top: auto !important;         
+    left: auto !important;        
+    transform: none !important;   
+    height: 50vh !important;     
+    width: 80% !important;
+    margin-left: auto !important; /* Added for centering */
+    margin-right: auto !important; /* Added for centering */
+    margin-bottom: 0 !important; /* Ensures map is pushed up directly below */
+    max-width: 100%;       
+    z-index: auto;            
+    border-radius: 15px;
+    /* overflow-y: auto !important; Allow scrolling if content exceeds height */
+    /* margin-left: 10px; (This was from your last snippet, now auto) */
+  }
+
+  .map-mobile-absolute {
+    position: relative !important; 
+    top: auto !important;         
+    left: auto !important;
+    margin-left: auto !important; /* Added for centering */   
+    margin-right: auto!important; /* Added for centering */
+    width: 90vw !important;      
+    height: 45vw !important;      /* Fill its parent container */
+    z-index: auto;            
+    margin-bottom: 50px; /* Space below the map, e.g., for chat */
+    background: #000000;
+  }
+}
