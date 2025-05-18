@@ -1,116 +1,104 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import { Store } from './map-component'
 
 // Define the context type
 type MapSearchContextType = {
   selectedStoreId: string | null;
-  setSelectedStoreId: (id: string | null) => void;
+  setSelectedStoreId: (id: string | null) => void; // Keep existing signature
   storeName: string | null;
   setStoreName: (name: string | null) => void;
   isOpen: boolean | null;
   setIsOpen: (isOpen: boolean | null) => void;
-  selectedProductName: string | null;
+  selectedProductName: string | null; // Assuming this is used elsewhere
   setSelectedProductName: (name: string | null) => void;
-  // Add a flag to prevent event dispatch when selection comes from map component
+
+  storeDetails: Store | null; // Use your Store type
+  setStoreDetails: (details: Store | null) => void; // Actual setter
+
   isMapSelectionInProgress: boolean;
   setIsMapSelectionInProgress: (inProgress: boolean) => void;
-  // Add a flag to prevent event handling in the map component
-  isEventDispatchInProgress: boolean;
+  isEventDispatchInProgress: boolean; // Keep if your event logic needs it
 };
 
 // Create the context with default values
-const MapSearchContext = createContext<MapSearchContextType>({
-  selectedStoreId: null,
-  setSelectedStoreId: () => {},
-  storeName: null,
-  setStoreName: () => {},
-  isOpen: null,
-  setIsOpen: () => {},
-  selectedProductName: null,
-  setSelectedProductName: () => {},
-  isMapSelectionInProgress: false,
-  setIsMapSelectionInProgress: () => {},
-  isEventDispatchInProgress: false,
-});
 
-// Custom hook to use the context
-export const useMapSearch = () => useContext(MapSearchContext);
+const MapSearchContext = createContext<MapSearchContextType | undefined>(undefined);
+
+export const useMapSearch = () => {
+  const context = useContext(MapSearchContext);
+  if (context === undefined) {
+    throw new Error('useMapSearch must be used within a MapSearchProvider');
+  }
+  return context;
+};
 
 // Provider component
 export const MapSearchProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [selectedStoreIdState, setSelectedStoreIdState] = useState<string | null>(null);
-  const [storeName, setStoreName] = useState<string | null>(null);
-  const [isOpen, setIsOpen] = useState<boolean | null>(null);
-  const [selectedProductName, setSelectedProductName] = useState<string | null>(null);
-  const [isMapSelectionInProgress, setIsMapSelectionInProgress] = useState<boolean>(false);
+  const [storeNameState, setStoreNameState] = useState<string | null>(null);
+  const [isOpenState, setIsOpenState] = useState<boolean | null>(null);
+  const [selectedProductNameState, setSelectedProductNameState] = useState<string | null>(null);
+  const [storeDetailsState, setStoreDetailsState] = useState<Store | null>(null); // Typed state
+  const [isMapSelectionInProgressState, setIsMapSelectionInProgressState] = useState<boolean>(false);
   const isEventDispatchInProgressRef = useRef<boolean>(false);
 
   // Create a custom event when store is selected from search
   const handleSetSelectedStoreId = useCallback((id: string | null) => {
-    console.log("Context: handleSetSelectedStoreId called with:", id, "isMapSelectionInProgress:", isMapSelectionInProgress);
+    console.log("Context: handleSetSelectedStoreId called with:", id, "isMapSelectionInProgress:", isMapSelectionInProgressState);
     
     // First, update the state
     setSelectedStoreIdState(id);
 
     if (id === null) {
-      setStoreName(null);
-      setIsOpen(null);
-    }
-    
-    // Only dispatch event if:
-    // 1. Not from map component
-    // 2. ID is different from current
-    // 3. ID is not null
-    // 4. Not already dispatching an event
-    if (
-      typeof window !== 'undefined' && 
-      id !== null && 
-      !isMapSelectionInProgress && 
-      id !== selectedStoreIdState &&
-      !isEventDispatchInProgressRef.current
-    ) {
-      console.log("Context: Dispatching 'storeSelected' event for:", id);
-      
-      // Set flag to prevent recursive event handling
-      isEventDispatchInProgressRef.current = true;
-      
-      // Dispatch the event
-      const storeSelectedEvent = new CustomEvent('storeSelected', {
-        detail: { storeId: id }
-      });
-      window.dispatchEvent(storeSelectedEvent);
-      
-      // Reset the flag after a short delay to ensure event handling is complete
-      setTimeout(() => {
-        isEventDispatchInProgressRef.current = false;
-      }, 0);
-    }
+      setStoreNameState(null);
+      setIsOpenState(null);
+      setStoreDetailsState(null); // Clear details on deselect
+  }
+  setSelectedStoreIdState(id);
 
-    // Reset the map selection flag if it was set
-    if (isMapSelectionInProgress) {
-      console.log("Context: Resetting isMapSelectionInProgress to false");
-      setIsMapSelectionInProgress(false);
-    }
-  }, [isMapSelectionInProgress, selectedStoreIdState]);
+  // Event dispatch logic (ensure 'origin' is handled if you re-introduce it)
+  if (
+    typeof window !== 'undefined' &&
+    id !== null &&
+    !isMapSelectionInProgressState && // Use state here
+    id !== selectedStoreIdState && // Compare with previous state value if needed
+    !isEventDispatchInProgressRef.current
+  ) {
+    isEventDispatchInProgressRef.current = true;
+    const storeSelectedEvent = new CustomEvent('storeSelected', {
+      detail: { storeId: id /*, origin: 'search' // if you track origin */ }
+    });
+    window.dispatchEvent(storeSelectedEvent);
+    setTimeout(() => {
+      isEventDispatchInProgressRef.current = false;
+    }, 0);
+  }
+  if (isMapSelectionInProgressState) { // Use state here
+    setIsMapSelectionInProgressState(false);
+  }
+}, [isMapSelectionInProgressState, selectedStoreIdState]); // Add selectedStoreIdState to deps
   
-  return (
-    <MapSearchContext.Provider
-      value={{
-        selectedStoreId: selectedStoreIdState,
-        setSelectedStoreId: handleSetSelectedStoreId,
-        storeName,
-        setStoreName,
-        isOpen,
-        setIsOpen,
-        selectedProductName,
-        setSelectedProductName,
-        isMapSelectionInProgress,
-        setIsMapSelectionInProgress,
-        isEventDispatchInProgress: isEventDispatchInProgressRef.current
-      }}
-    >
-      {children}
-    </MapSearchContext.Provider>
+return (
+  <MapSearchContext.Provider
+    value={{
+      selectedStoreId: selectedStoreIdState,
+      setSelectedStoreId: handleSetSelectedStoreId,
+      storeName: storeNameState,
+      setStoreName: setStoreNameState,
+      isOpen: isOpenState,
+      setIsOpen: setIsOpenState,
+      selectedProductName: selectedProductNameState,
+      setSelectedProductName: setSelectedProductNameState,
+      storeDetails: storeDetailsState,
+      setStoreDetails: setStoreDetailsState, // Provide the actual setter
+      isMapSelectionInProgress: isMapSelectionInProgressState,
+      setIsMapSelectionInProgress: setIsMapSelectionInProgressState,
+      isEventDispatchInProgress: isEventDispatchInProgressRef.current,
+    }}
+  >
+    {children}
+  </MapSearchContext.Provider>
   );
 };
