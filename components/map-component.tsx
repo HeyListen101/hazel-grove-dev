@@ -357,7 +357,7 @@ export default function MapComponent() {
               <MapBlock rowStart={13} rowEnd={18} colStart={36} colEnd={37} width={30} defaultColor={colors.f} pointerEvents={false}/>
               <MapBlock rowStart={17} rowEnd={18} colStart={24} colEnd={37} height={30} defaultColor={colors.f} pointerEvents={false}/>
               <MapBlock rowStart={20} rowEnd={21} colStart={24} colEnd={34} height={30} defaultColor={colors.f} pointerEvents={false}/>
-              <MapBlock rowStart={7} rowEnd={17} colStart={25} colEnd={33} defaultColor={colors.e} icon={svgPathVal.park} pointerEvents={false}/>
+              <MapBlock rowStart={7} rowEnd={17} colStart={25} colEnd={33} defaultColor={colors.e} icon={svgPathVal.park} viewBox="0 0 100 100" pointerEvents={false}/>
               {/* Map all store blocks from mapData */}
               {mapData.map((block, index) => (
                 <MapBlock
