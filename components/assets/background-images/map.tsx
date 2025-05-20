@@ -365,7 +365,7 @@ export const mapData = [
   { // 41: Bottom 2
     rowStart: 18, rowEnd: 19, colStart: 27, colEnd: 28,
     defaultColor: colors.c,
-    viewBox: "0 0 24 24", icon: svgPathVal.clothing,
+    viewBox: "0 0 20 20", icon: svgPathVal.clothing,
     storeId: '13fd517d-0f7a-4dad-b21b-058df1b8a708',
     position: 'bottom'
   },
@@ -386,7 +386,7 @@ export const mapData = [
   { // 44: Bottom 5
     rowStart: 18, rowEnd: 19, colStart: 30, colEnd: 31,
     defaultColor: colors.a,
-    viewBox: "0 0 24 24", icon: svgPathVal.clothing,
+    viewBox: "0 0 20 20", icon: svgPathVal.clothing,
     storeId: 'e612b43e-9b86-42ec-a641-a2deca15f8c0',
     position: 'bottom'
   },
