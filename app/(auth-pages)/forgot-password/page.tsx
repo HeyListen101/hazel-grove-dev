@@ -1,51 +1,25 @@
-import { forgotPasswordAction } from "@/app/server/auth-actions";
-import { SubmitButton } from "@/components/submit-button";
-import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { ErrorDisplay } from "@/components/error-display";
-import backgroundImage from "@/components/assets/background-images/LandingPage.png";
+// src/app/forgot-password/page.tsx
+import { ForgotPasswordFormComponent } from "@/components/auth/forgot-password-form"; // Adjust path as needed
+import backgroundImage from "@/components/assets/background-images/LandingPage.png"; // Adjust path as needed
+import { Metadata } from 'next';
 
-export default async function ForgotPassword(props: { searchParams: Promise<Record<string, string>> }) {
-  const params = await props.searchParams;
-  const errorMessage = (params?.error && !params?.clear_error) ? params.error : null;
+export const metadata: Metadata = {
+  title: 'Forgot Password',
+  description: 'Request a password reset link for your account.',
+};
 
+// This page is now a simple Server Component wrapper.
+// It no longer needs to handle searchParams directly for error display,
+// as the client component ForgotPasswordFormComponent will manage that.
+export default function ForgotPasswordPage() {
   return (
     <div
-      className="inset-0 flex items-center justify-center bg-cover bg-center overflow-hidden w-full h-full bg-white"
+      className="flex min-h-screen items-center justify-center bg-cover bg-center overflow-hidden bg-white" // Matched style from ResetPasswordPage
       style={{
         backgroundImage: `url(${backgroundImage.src})`,
       }}
     >
-      <div className="bg-white p-8 rounded-[20px] sm:shadow-lg w-96 flex flex-col items-center">
-        <h2 className="text-lg font-bold mb-7 text-black">
-          Forgot Password
-        </h2>
-        {errorMessage && <ErrorDisplay message={errorMessage} />}
-        <form className="w-full flex flex-col" autoComplete="off">
-          <Input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            className="input-field mb-4 text-sm text-[#111111]"
-            required
-          />
-          <SubmitButton
-            pendingText="Sending Reset Link..."
-            formAction={forgotPasswordAction}
-            className="font-semibold hover:bg-[#57503A]"
-          >
-            Send Reset Link
-          </SubmitButton>
-          {/* Login Link */}
-          <div className="mt-4 text-sm text-gray-600 text-center w-full">
-            Suddenly remembered your password?
-            <br />
-            <Link href="/sign-in" className="text-[#6B5C3D] font-semibold underline">
-              Log In
-            </Link>
-          </div>
-        </form>
-      </div>
+      <ForgotPasswordFormComponent />
     </div>
   );
 }

@@ -229,7 +229,7 @@ const SearchBar = () => {
       const store = await fetchStoreData(storeId);
       if (store) {
         setStoreName(store.name || result.storeName);
-        setIsOpen(store.storestatus?.isopen || false); // Assuming 'isopen' field in your storestatus table
+        setIsOpen(store.storestatus?.isopen || false); 
         setSelectedStoreId(store.storeid);
       } else {
         console.log('Store not found for ID:', storeId);
@@ -251,7 +251,7 @@ const SearchBar = () => {
     try {
       const { data: store, error } = await supabase
         .from('store')
-        .select(`*, storestatus:storestatus(isopen)`) // Fetching `isopen` from storestatus
+        .select(`*, storestatus:storestatus(isopen)`) 
         .eq('storeid', id)
         .single();
       if (error) { console.log('Error fetching store:', JSON.stringify(error, null, 2)); return null; }
@@ -264,19 +264,26 @@ const SearchBar = () => {
 
   const showResultsContainer = searchTerm.trim() !== '' && (isSearching || searchAttempted);
   
+  // Define shadow styles for clarity and reusability
+  const inputShadowBase = "shadow-[0_3px_5px_rgba(0,0,0,0.12),_inset_0_1px_1px_rgba(255,255,255,0.6)]";
+  // Stronger downward shadow when results are open
+  const inputShadowOpen = "shadow-[0_5px_8px_rgba(0,0,0,0.15),_inset_0_1px_1px_rgba(255,255,255,0.6)]"; 
+  
   return (
     <>
       <div className="relative max-w-md w-full">
-        <div className="relative flex items-center"> {/* Flex container for input and X button */}
+        <div className="relative flex items-center"> 
           <div className="absolute inset-y-0 left-0 flex items-center justify-center pl-4 pointer-events-none">
             <Search className="h-4 w-4 text-gray-500 stroke-2" />
           </div>
           <input
-            ref={inputRef} // Assign ref
+            ref={inputRef}
             type="text"
             placeholder="Search stores or products"
-            className={`w-full py-2 pl-10 pr-10 text-sm text-gray-700 bg-white ${ // Increased pr-10 for X button
-              showResultsContainer ? 'rounded-t-md shadow-sm' : 'rounded-[75px] shadow-sm'
+            className={`w-full py-2 pl-10 pr-10 text-sm text-gray-700 bg-white ${
+              showResultsContainer 
+                ? `rounded-t-md ${inputShadowOpen}` 
+                : `rounded-[75px] ${inputShadowBase}`
             } focus:outline-none focus:ring-0`}
             value={searchTerm}
             onChange={handleInputChange}
@@ -287,7 +294,7 @@ const SearchBar = () => {
               }
             }}
           />
-          {searchTerm && ( // Conditionally render X button
+          {searchTerm && ( 
             <button
               type="button"
               onClick={clearSearch}
@@ -300,7 +307,7 @@ const SearchBar = () => {
         </div>
 
         {showResultsContainer && (
-          <div className="absolute top-full left-0 right-0 w-full bg-white rounded-b-md shadow-lg z-50 overflow-hidden border-x border-b border-gray-200">
+          <div className="absolute top-full left-0 right-0 w-full bg-white rounded-b-md shadow-lg z-50 overflow-hidden border-b border-gray-200">
             {isSearching && searchResults.length === 0 ? (
               <div className="p-4 text-center text-gray-500">Searching...</div>
             ) : !isSearching && searchResults.length === 0 && searchAttempted ? (
