@@ -1,4 +1,4 @@
-import AuthButton from "@/components/header-auth";
+import AuthComponent from "@/components/header-auth";
 import backgroundImage from "@/components/assets/background-images/LandingPage.png"
 
 export default async function Home() {
@@ -19,7 +19,7 @@ export default async function Home() {
         <p className="text-lg mb-6 bg-black/35 px-5 py-3 rounded-lg">
           Go to the market, without actually going to the market!
         </p>
-        <AuthButton />
+        <AuthComponent />
       </div>
     </div>
   );

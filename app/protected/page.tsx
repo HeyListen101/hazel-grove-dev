@@ -1,6 +1,5 @@
-// page.tsx
 import { redirect } from "next/navigation";
-import AuthBar from "@/components/header-auth";
+import AuthComponent from "@/components/header-auth";
 import SearchBar from "@/components/search-bar";
 import ChatBox from "@/components/chat-component";
 import MapComponent from "@/components/map-component";
@@ -25,7 +24,7 @@ export default async function ProtectedPage() {
           <div className="flex-1 max-w-md">
             <SearchBar />
           </div>
-          <AuthBar />
+          <AuthComponent />
         </header>
 
         {/* Main content area, takes remaining height */}
