@@ -233,13 +233,16 @@ export const forgotPasswordAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
-  const callbackUrl = formData.get("callbackUrl")?.toString();
 
-  if (!email) {
-    return encodedRedirect("error", "/forgot-password", "Email is required");
+  if (isValidEmail(email!) === false) {
+    return encodedRedirect(
+      "error",
+      "/forgot-password",
+      "Invalid email address",
+    );
   }
 
-  if (detectInjection(email)) {
+  if (detectInjection(email!)) {
     return encodedRedirect(
       "error",
       "/forgot-password",
@@ -247,87 +250,48 @@ export const forgotPasswordAction = async (formData: FormData) => {
     );
   }
 
-  const { data: user, error : dbError } = await supabase
-  .from("contributor")
-  .select("*")
-  .eq("emailaddress", email.toLowerCase().trim())
-  .maybeSingle();
-
-  if (dbError) {
-    console.error("Database error:", dbError.message);
-    return encodedRedirect("error", "/forgot-password", "Something went wrong. Please try again.");
+  if (!email) {
+    return encodedRedirect(
+      "error",
+      "/forgot-password",
+      "Email is required",
+    );
   }
 
+  // Check if email is already registered
+  const { data: user } = await supabase
+   .from("contributor")
+   .select("*")
+   .eq("emailaddress", email)
+   .single();
   if (!user) {
     return encodedRedirect(
       "error",
       "/forgot-password",
-      "Unfortunately, we don't have that email registered in our system. Please check your spelling or contact us if you think this is an error."
-    );
+      "Unfortunately, we don't have that email registered in our system. Please check your spelling or contact us if you think this is an error.",
+    )
   }
 
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/auth/callback?redirect_to=/reset-password`,
+  const { error } = await supabase.auth.resetPasswordForEmail(email!, {
+    redirectTo: `${origin}/reset-password`,
   });
 
   if (error) {
-    console.error(error.message);
-    return encodedRedirect(
+    console.error("Error sending password reset email:", error.message); // Log for clarity
+    return encodedRedirect( // Ensure 'return'
       "error",
       "/forgot-password",
-      "Email doesn't exist",
+      "Failed to send password reset email. Please try again.", // More generic error
     );
   }
 
-  if (callbackUrl) {
-    return redirect(callbackUrl);
-  }
-
-  await supabase.auth.signOut();
-
-  return encodedRedirect(
+  return encodedRedirect( // Ensure 'return'
     "success",
-    "/sign-in",
-    "Check your email for a link to reset your password",
+    "/sign-in", // Redirect to sign-in page to show the success message
+    "Check your email for a link to reset your password. The link will take you directly to the reset password page.",
   );
 };
 
-export const resetPasswordAction = async (formData: FormData) => {
-  const supabase = await createClient();
-
-  const password = formData.get("password") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
-
-  if (!password || !confirmPassword) {
-    encodedRedirect(
-      "error",
-      "/reset-password",
-      "Password and password confirmation are required",
-    );
-  }
-
-  if (password !== confirmPassword) {
-    encodedRedirect(
-      "error",
-      "/reset-password",
-      "Passwords do not match",
-    );
-  }
-
-  const { error } = await supabase.auth.updateUser({
-    password: password,
-  });
-
-  if (error) {
-    encodedRedirect(
-      "error",
-      "/reset-password",
-      error.message,
-    );
-  }
-
-  encodedRedirect("success", "/sign-in", "Your password has been updated!");
-};
 
 export const signOutAction = async () => {
   const supabase = await createClient();

@@ -1,7 +1,8 @@
-import { SuccessDialog } from "@/components/success-dialog"; // Keep if used for success messages
-import { SignInFormComponent } from "@/components/auth/sign-in-form"; // Adjust path as needed
-import backgroundImage from "@/components/assets/background-images/LandingPage.png"; // Adjust path as needed
+import { SuccessDialog } from "@/components/success-dialog";
+import { SignInFormComponent } from "@/components/auth/sign-in-form";
+import backgroundImage from "@/components/assets/background-images/LandingPage.png";
 import { Metadata } from 'next';
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: 'Sign In',
@@ -9,14 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Home(props: { searchParams: Promise<Record<string, string>> }) {
-  const params = await props.searchParams;
-  const errorMessage = (params?.error && !params?.clear_error) ? params.error : null;
-  // We can return this entire thing as a client side component so that we can clear the input fields with useState or useEffect whenever an error occurs.
-  // So that we have an automatic cleaner for the form data. 
-  // But this isn't as important as it is.
-  // Just an optimization idea for the time being.
-  // We can always add it later if we need it.
-  // For now, we can just leave it as is.
+
   return (
     <div
       className="flex min-h-screen items-center justify-center bg-cover bg-center overflow-hidden bg-white"
@@ -24,9 +18,17 @@ export default async function Home(props: { searchParams: Promise<Record<string,
         backgroundImage: `url(${backgroundImage.src})`,
       }}
     >
-      <SignInFormComponent />
-      {/* SuccessDialog might still read from searchParams or be triggered by other state */}
-      <SuccessDialog />
+      {/* Main form, correctly centered */}
+      <Suspense fallback={
+        <div className="bg-white p-8 rounded-[20px] sm:shadow-lg w-96 flex flex-col items-center">
+          <p className="text-gray-500">Loading form...</p>
+        </div>
+      }>
+        <SignInFormComponent />
+      </Suspense>
+      <Suspense fallback={null}>
+        <SuccessDialog />
+      </Suspense>
     </div>
   );
 }
