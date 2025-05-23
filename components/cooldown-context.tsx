@@ -1,98 +1,119 @@
+// src/contexts/EditCooldownContext.tsx
 'use client';
 
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 
-const COOLDOWN_DURATION_MINUTES = 10; // 10 minutes
-const COOLDOWN_ERROR_MESSAGE_TEMPLATE = `Malicious input detected. Editing is disabled for {time}.`;
+const COOLDOWN_DURATION_MS = 10 * 60 * 1000; // 10 minutes
+const LOCAL_STORAGE_COOLDOWN_KEY = 'editCooldownEndTime';
 
 interface EditCooldownContextType {
   isEditCooldownActive: boolean;
+  editCooldownEndTime: number | null;
   triggerGlobalEditCooldown: () => void;
   getGlobalCooldownRemainingTime: () => string;
   globalCooldownError: string | null;
-  clearGlobalCooldownError: () => void; // To manually clear an error if needed
+  clearGlobalCooldownError: () => void; // To manually clear error message if needed
+  clearCooldownManually: () => void; // For debugging/testing if needed
 }
 
 const EditCooldownContext = createContext<EditCooldownContextType | undefined>(undefined);
 
-export const EditCooldownProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const EditCooldownProvider = ({ children }: { children: ReactNode }) => {
+  const [isCooldownActive, setIsCooldownActive] = useState(false);
   const [cooldownEndTime, setCooldownEndTime] = useState<number | null>(null);
-  const [remainingTime, setRemainingTime] = useState<string>('');
-  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+  const [cooldownError, setCooldownError] = useState<string | null>(null);
 
-  // Load initial cooldown state from localStorage
+  // Effect to initialize from localStorage on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedEndTime = localStorage.getItem('editCooldownEndTime');
-      if (storedEndTime) {
-        const endTime = parseInt(storedEndTime, 10);
-        if (endTime > Date.now()) {
-          setCooldownEndTime(endTime);
-        } else {
-          localStorage.removeItem('editCooldownEndTime'); // Clear if expired
+    if (typeof window !== 'undefined') { // Ensure localStorage is available
+        const storedEndTimeString = localStorage.getItem(LOCAL_STORAGE_COOLDOWN_KEY);
+        if (storedEndTimeString) {
+            const storedEndTime = parseInt(storedEndTimeString, 10);
+            if (!isNaN(storedEndTime) && storedEndTime > Date.now()) {
+                setCooldownEndTime(storedEndTime);
+                setIsCooldownActive(true);
+                setCooldownError(`Typing is temporarily disabled due to a previous malicious input attempt. Please try again in ${Math.max(0, Math.ceil((storedEndTime - Date.now()) / 1000 / 60))} mins.`);
+                console.log("Global edit cooldown restored from localStorage.");
+            } else {
+                // Stored time is invalid or in the past, clear it
+                localStorage.removeItem(LOCAL_STORAGE_COOLDOWN_KEY);
+            }
+        }
+    }
+  }, []); // Run only once on mount
+
+  // Effect to manage the timer and clear localStorage when cooldown ends
+  useEffect(() => {
+    let timerId: NodeJS.Timeout;
+    if (isCooldownActive && cooldownEndTime) {
+      const now = Date.now();
+      const remainingTime = cooldownEndTime - now;
+
+      if (remainingTime > 0) {
+        timerId = setTimeout(() => {
+          setIsCooldownActive(false);
+          setCooldownEndTime(null);
+          setCooldownError(null);
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem(LOCAL_STORAGE_COOLDOWN_KEY);
+          }
+          console.log("Global edit cooldown ended and localStorage cleared.");
+        }, remainingTime);
+      } else {
+        // Cooldown already expired (e.g., due to system clock change or fast reload)
+        setIsCooldownActive(false);
+        setCooldownEndTime(null);
+        setCooldownError(null);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(LOCAL_STORAGE_COOLDOWN_KEY);
         }
       }
     }
-  }, []);
+    return () => clearTimeout(timerId);
+  }, [isCooldownActive, cooldownEndTime]);
 
-  const calculateAndSetRemainingTime = useCallback(() => {
-    if (!cooldownEndTime || cooldownEndTime <= Date.now()) {
-      setCooldownEndTime(null);
-      if (typeof window !== 'undefined') localStorage.removeItem('editCooldownEndTime');
-      setRemainingTime('');
-      if (intervalId) clearInterval(intervalId);
-      setIntervalId(null);
-      return '';
-    }
-    const diff = cooldownEndTime - Date.now();
-    const minutes = Math.floor(diff / 60000);
-    const seconds = Math.floor((diff % 60000) / 1000);
-    const timeStr = `${minutes}m ${seconds < 10 ? '0' : ''}${seconds}s`;
-    setRemainingTime(timeStr);
-    return timeStr;
-  }, [cooldownEndTime, intervalId]);
-
-  useEffect(() => {
-    if (cooldownEndTime && cooldownEndTime > Date.now()) {
-      calculateAndSetRemainingTime(); // Initial call
-      const id = setInterval(() => {
-        calculateAndSetRemainingTime();
-      }, 1000);
-      setIntervalId(id);
-      return () => clearInterval(id);
-    } else if (cooldownEndTime && cooldownEndTime <= Date.now()) {
-      // Handles case where cooldownEndTime was loaded but already expired
-      setCooldownEndTime(null);
-      if (typeof window !== 'undefined') localStorage.removeItem('editCooldownEndTime');
-      setRemainingTime('');
-    }
-  }, [cooldownEndTime, calculateAndSetRemainingTime]);
-
-  const triggerGlobalEditCooldown = useCallback(() => {
-    const endTime = Date.now() + COOLDOWN_DURATION_MINUTES * 60 * 1000;
+  const triggerGlobalEditCooldown = () => {
+    console.log("Global malicious input detected. Edit cooldown triggered.");
+    const endTime = Date.now() + COOLDOWN_DURATION_MS;
     setCooldownEndTime(endTime);
-    if (typeof window !== 'undefined') localStorage.setItem('editCooldownEndTime', endTime.toString());
-    // Remaining time will be updated by the useEffect managing the interval
-  }, []);
+    setIsCooldownActive(true);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(LOCAL_STORAGE_COOLDOWN_KEY, endTime.toString());
+    }
+    setCooldownError(`Malicious input attempt. Editing disabled globally for ${COOLDOWN_DURATION_MS / 1000 / 60} minutes.`);
+  };
 
-  const clearGlobalCooldownError = useCallback(() => {
-    // If you need to clear the visual error message without resetting the cooldown timer itself.
-    // Currently, the error message is tied to isEditCooldownActive.
-    // For now, this can be a no-op or used if a more nuanced error display is needed.
-  }, []);
-  
-  const isEditCooldownActive = !!(cooldownEndTime && cooldownEndTime > Date.now());
-  const globalCooldownError = isEditCooldownActive 
-    ? COOLDOWN_ERROR_MESSAGE_TEMPLATE.replace('{time}', remainingTime || `${COOLDOWN_DURATION_MINUTES}m 00s`)
-    : null;
+  const getGlobalCooldownRemainingTime = () => {
+    if (!isCooldownActive || !cooldownEndTime) return "";
+    const remaining = Math.max(0, Math.ceil((cooldownEndTime - Date.now()) / 1000 / 60));
+    return `(Retry in ${remaining} min)`;
+  };
+
+  const clearGlobalCooldownError = () => {
+    setCooldownError(null);
+  };
+
+  // For debugging/testing purposes if you need to clear it manually
+  const clearCooldownManually = () => {
+    setIsCooldownActive(false);
+    setCooldownEndTime(null);
+    setCooldownError(null);
+    if (typeof window !== 'undefined') {
+        localStorage.removeItem(LOCAL_STORAGE_COOLDOWN_KEY);
+    }
+    console.log("Global cooldown manually cleared.");
+  };
+
 
   return (
-    <EditCooldownContext.Provider value={{ 
-      isEditCooldownActive, 
-      triggerGlobalEditCooldown, 
-      getGlobalCooldownRemainingTime: () => remainingTime,
-      globalCooldownError,
-      clearGlobalCooldownError
+    <EditCooldownContext.Provider value={{
+        triggerGlobalEditCooldown,
+        getGlobalCooldownRemainingTime,
+        isEditCooldownActive: isCooldownActive,
+        editCooldownEndTime: cooldownEndTime,
+        globalCooldownError: cooldownError,
+        clearGlobalCooldownError,
+        clearCooldownManually 
     }}>
       {children}
     </EditCooldownContext.Provider>
