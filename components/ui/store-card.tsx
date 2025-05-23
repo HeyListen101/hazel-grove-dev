@@ -89,7 +89,7 @@ const StoreCard: React.FC<StoreComponentProps> = ({
 
   useEffect(() => {
     const handleResize = () => {
-      let newItemsPerPage = 8;
+      let newItemsPerPage = 9;
       if (window.innerWidth <= 881) newItemsPerPage = 2;
       else if (window.innerWidth <= 991) newItemsPerPage = 3;
       else if (window.innerWidth <= 1083) newItemsPerPage = 4;
@@ -123,7 +123,7 @@ const StoreCard: React.FC<StoreComponentProps> = ({
 
           const { data: productsData, error: productsError } = await supabase 
             .from('product')
-            .select('*, productstatus:productstatus(productstatusid, price, isavailable, contributor)')
+            .select('*, productstatus:productstatus(*)')
             .eq('store', storeId)
             .order('name', { ascending: true });
           if (productsError) throw productsError;
@@ -228,41 +228,50 @@ const StoreCard: React.FC<StoreComponentProps> = ({
 
 
   const toggleStoreStatus = async () => {
-    // ... (keep your existing toggleStoreStatus logic, ensure it updates DB correctly)
     // This function is outside the scope of product drafting.
     if (!storeId || currentUser === "User") return;
     const newStatus = !isOpen;
-    // You might need to fetch the store's current storestatus ID first if not available
-    // For simplicity, assuming a mechanism to update or create status:
     const { data: existingStatus, error: fetchErr } = await supabase
         .from('store')
         .select('storestatus')
         .eq('storeid', storeId)
         .single();
 
-    if (fetchErr) { console.error("Error fetching current status:", fetchErr); return; }
+    if (fetchErr) { 
+      console.error("Error fetching current status:", fetchErr); 
+      return; 
+    }
 
     let statusIdToUpdate = existingStatus?.storestatus;
 
     if (statusIdToUpdate) {
         const { error: updateErr } = await supabase
             .from('storestatus')
-            .update({ status: newStatus, contributor: currentUser, lastupdated: new Date().toISOString() })
+            .update({ status: newStatus })
             .eq('storestatusid', statusIdToUpdate);
-        if (updateErr) { console.error("Error updating status:", updateErr); return; }
+        if (updateErr) { 
+          console.error("Error updating status:", updateErr); 
+          return; 
+        }
     } else {
         const { data: newStatusData, error: insertErr } = await supabase
             .from('storestatus')
-            .insert({ contributor: currentUser, status: newStatus })
+            .insert({ status: newStatus })
             .select('storestatusid')
             .single();
-        if (insertErr || !newStatusData) { console.error("Error creating status:", insertErr); return; }
+        if (insertErr || !newStatusData) { 
+          console.error("Error creating status:", insertErr); 
+          return; 
+        }
         statusIdToUpdate = newStatusData.storestatusid;
         const { error: linkErr } = await supabase
             .from('store')
             .update({ storestatus: statusIdToUpdate })
             .eq('storeid', storeId);
-        if (linkErr) { console.error("Error linking new status:", linkErr); return; }
+        if (linkErr) { 
+          console.error("Error linking new status:", linkErr);
+          return; 
+          }
     }
     setIsOpen(newStatus); // Update local UI state
   };
@@ -453,7 +462,7 @@ const StoreCard: React.FC<StoreComponentProps> = ({
   
   const getStoreEmoji = (type: string | null): string => {
     if (!type) return "🏪"; const lowerType = type.toLowerCase();
-    switch (lowerType) { /* ... your emoji switch cases ... */ 
+    switch (lowerType) {
       case 'eatery': return "🍴"; case 'pie': return "🥧"; case 'restroom': return "🚻";
       case 'clothing': return "👕"; case 'pizza': return "🍕"; case 'cookie': return "🍪";
       case 'notebook': return "📓"; case 'printer': return "🖨️"; case 'basket': return "🧺";
@@ -489,7 +498,7 @@ const StoreCard: React.FC<StoreComponentProps> = ({
             
             {currentUser !== "User" && (
                 <motion.div 
-                className="pointer-events-auto absolute -right-2 -top-1 sm:-right-3 sm:top-0 md:-right-4 md:top-1 z-20 transform scale-[0.3] sm:scale-[0.35] md:scale-[0.4]"
+                className="pointer-events-auto absolute -right-2 -top-1 sm:-right-12 sm:-top-2 md:-right-4 md:top-1 z-20 transform scale-[0.3] sm:scale-[0.35] md:scale-[0.4]"
                 initial={{ opacity: 0, scale: 0.2 }} animate={{ opacity: 1, scale: 0.4 }} exit={{ opacity: 0, scale: 0.2 }}
                 transition={{ delay: 0.5, type: "spring", stiffness: 200, damping: 15 }}
                 >
@@ -648,7 +657,7 @@ const StoreCard: React.FC<StoreComponentProps> = ({
               <div className="flex justify-between items-center w-full">
                 <Button variant="ghost" size="sm" onClick={handlePrevPage} 
                   disabled={currentPage === 1 || (isEditing ? draftProducts.filter(p=>!p._isDeleted).length === 0 : products.length === 0)}
-                  className="text-emerald-700 disabled:text-gray-400 hover:bg-emerald-50 px-1 sm:px-2">
+                  className="text-emerald-700 hover:text-emerald-700 disabled:text-gray-400 hover:bg-emerald-50 px-1 sm:px-2">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                   <span className="ml-1 hidden sm:inline text-xs">Prev</span>
                 </Button>
@@ -671,7 +680,7 @@ const StoreCard: React.FC<StoreComponentProps> = ({
 
                 <Button variant="ghost" size="sm" onClick={handleNextPage} 
                   disabled={currentPage === totalPages || totalPages <= 1 || (isEditing ? draftProducts.filter(p=>!p._isDeleted).length === 0 : products.length === 0)}
-                  className="text-emerald-700 disabled:text-gray-400 hover:bg-emerald-50 px-1 sm:px-2">
+                  className="text-emerald-700 hover:text-emerald-700 disabled:text-gray-400 hover:bg-emerald-50 px-1 sm:px-2">
                   <span className="mr-1 hidden sm:inline text-xs">Next</span>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                 </Button>
