@@ -3,13 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { getSupabaseAuth } from "@/utils/supabase/auth-singleton";
-import MessageComponent from "@/components/ui/message-card";
+import MessageComponent from "@/components/ui/message-card"; // Assuming MessageComponent props will be updated
 import { Button } from "@/components/ui/button";
 import { Send, X } from "lucide-react";
-import { EmojiPicker, EmojiPickerSearch, EmojiPickerContent, EmojiPickerFooter } from "@/components/emoji-board";
-import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
+import { EmojiPicker, EmojiPickerSearch, EmojiPickerContent } from "@/components/emoji-board";
+import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 
-// chatmessage table structure since supabase needs docker to automatically create the table for us
+// chatmessage table structure
 type ChatMessage = {
   chatmessageid: string;  
   sentby: string;         
@@ -18,35 +18,34 @@ type ChatMessage = {
   isarchived: boolean;    
 };
 
-const MAX_CHAR_LIMIT = 250;
+// For MessageComponent, the props would ideally change to something like this:
+// type MessageProps = {
+//   sentBy: string;
+//   context: string;
+//   dateCreated: string;
+//   viewingUserId?: string | null;
+//   viewingUserFullName?: string | null;
+//   viewingUserAvatarUrl?: string | null;
+// };
+// MessageComponent would then use these viewingUser... props if sentBy === viewingUserId.
+// For other users, it would use its existing cache/fetch logic.
 
-// Function to sanitize text and prevent XSS/SQL injection attacks
+const MAX_CHAR_LIMIT = 100;
+
+// Function to sanitize text
 const sanitizeText = (text: string): string => {
   if (!text) return '';
-
-  // Normalize input for injection detection
   const normalizedInput = text.trim().toLowerCase();
-
-  // SQL Injection patterns
   const sqlPattern = /('|--|;|\b(OR|AND|UNION|SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|EXEC|FROM|WHERE)\b)/i;
-
-  // HTML/JS Injection patterns  
   const htmlPattern = /<[^>]*>|javascript:|onerror=|onload=|alert\(|eval\(|document\.|window\./i;
-
-  // Check for malicious patterns
   if (sqlPattern.test(normalizedInput) || htmlPattern.test(normalizedInput)) {
     return 'I sent an injection to the database!!!';
   }
-  
-  // Replace HTML tags and potentially dangerous characters
   return text
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;') 
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;')
-    .replace(/`/g, '&#96;');
+    .replace(/</g, '<')
+    .replace(/>/g, '>') 
+    .replace(/&/g, '&')
+    .replace(/"/g, '"')
 };
 
 export default function ChatComponent({ messages }: { messages: ChatMessage[] }) {
@@ -57,107 +56,171 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
   const [message, setMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<string>("User");
+  
+  const [currentUserDetails, setCurrentUserDetails] = useState<{
+    id: string | null;
+    fullName: string | null;
+    avatarUrl: string | null;
+  }>({
+    id: null,
+    fullName: "User", // Default/initial full name
+    avatarUrl: null,   // Default/initial avatar
+  });
+
   const [channel, setChannel] = useState<ReturnType<typeof supabase.channel> | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [charCount, setCharCount] = useState(0);
+  const [charCount, setCharCount] = useState(0); // Already present, ensure it's used if needed.
   
   useEffect(() => {
-    // Get the current user when component mounts
-    const fetchUser = async () => {
+    // Get the current user's details when component mounts
+    const fetchCurrentUserDetails = async () => {
       const user = await supabaseAuth.getUser();
-      if (user) {
-        // Use email or id as the user identifier
-        setCurrentUser(user.id);
+
+
+      if (user && user.id) {
+        const userId = user.id;
+        let fetchedFullName: string | null = null;
+        let fetchedAvatarUrl: string | null = null;
+
+        // Fetch Full Name:
+        // 1. From user_metadata
+        fetchedFullName = user.user_metadata?.full_name || user.user_metadata?.name || null;
+        // 2. If not in metadata, try 'contributor' table
+        if (!fetchedFullName) {
+          try {
+            const { data: contributor, error: contributorError } = await supabase
+              .from("contributor")
+              .select("name")
+              .eq("contributorid", userId)
+              .single();
+            if (contributorError && contributorError.code !== 'PGRST116') { // PGRST116: 0 rows, not an error here
+                throw contributorError;
+            }
+            if (contributor) {
+              fetchedFullName = contributor.name;
+            }
+          } catch (e) {
+            console.error("Error fetching current user's full name from contributor:", e);
+          }
+        }
+
+        // Fetch Avatar URL:
+        // 1. From user_metadata
+        fetchedAvatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+        // 2. If not in metadata, try RPC 'get_user_avatar'
+        if (!fetchedAvatarUrl) {
+          try {
+            const { data: avatarRpcResult, error: avatarRpcError } = await supabase
+              .rpc('get_user_avatar', { user_id: userId });
+            if (avatarRpcError) {
+                throw avatarRpcError;
+            }
+            if (avatarRpcResult) {
+              fetchedAvatarUrl = avatarRpcResult.avatar_url || avatarRpcResult.picture || null;
+            }
+          } catch (e) {
+            console.error("Error fetching current user avatar via RPC:", e);
+          }
+        }
+        
+        setCurrentUserDetails({
+          id: userId,
+          fullName: fetchedFullName || "User", // Fallback name
+          avatarUrl: fetchedAvatarUrl,
+        });
+      } else {
+         setCurrentUserDetails({ id: null, fullName: "User", avatarUrl: null });
       }
     };
     
-    fetchUser();
+    fetchCurrentUserDetails();
     
-    // Create a new broadcast channel
     const newChannel = supabase.channel('chat-room');
     
     newChannel
       .on('broadcast', { event: 'message' }, (payload) => {
-        // Add the received message to our chat state
         const broadcastMessage = payload.payload as ChatMessage;
         setChats((prevChats) => [...prevChats, broadcastMessage]);
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
           setIsConnected(true);
+        } else {
+          setIsConnected(false);
         }
       });
     
     setChannel(newChannel);
     
     return () => {
-      // Clean up the channel when component unmounts
-      supabase.removeChannel(newChannel);
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
     };
-  }, []);
+  }, [supabase, supabaseAuth]); // Added supabase and supabaseAuth to dependencies
 
-  // Add new effect to scroll to bottom when new messages are added
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chats]);
 
-  // Add new effect to scroll to bottom when chat is opened
   useEffect(() => {
     if (showChat) {
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100); // Small delay to ensure the chat container is fully rendered
+      }, 100);
     }
   }, [showChat]);
 
   const sendMessage = async () => {
-    if (!message.trim() || !channel || !isConnected) return;
+    if (!message.trim() || !channel || !isConnected || !currentUserDetails.id) {
+        if(!currentUserDetails.id) console.warn("Cannot send message: current user ID is not available.");
+        return;
+    }
     
-    // Get the current message content from textarea and sanitize it
     const messageContent = sanitizeText(message.trim());
     
-    // Create a new message object
     const newMessage: ChatMessage = {
       chatmessageid: crypto.randomUUID(),
-      sentby: currentUser,
+      sentby: currentUserDetails.id, // Use current user's ID
       content: messageContent,
       datecreated: new Date().toISOString(),
       isarchived: false
     };
     
-    // Update local state immediately for the sender
     setChats((prevChats) => [...prevChats, newMessage]);
-    
-    // Clear the input field
     setMessage("");
     setCharCount(0);
     
-    // Reset textarea height to default
     const textarea = document.querySelector('textarea');
     if (textarea) {
-      textarea.style.height = '32px';
+      textarea.style.height = '32px'; 
     }
     
-    // Send the message via broadcast channel
-    await channel.send({
-      type: 'broadcast',
-      event: 'message',
-      payload: newMessage,
-    });
-    
-    // Log what we're sending to the database
+    try {
+        await channel.send({
+            type: 'broadcast',
+            event: 'message',
+            payload: newMessage,
+        });
+    } catch (error) {
+        console.error("Failed to broadcast message:", error);
+        // Potentially roll back adding the message to local state or show an error
+        return;
+    }
+        
     const dbPayload = { 
-      sentby: currentUser,
+      sentby: currentUserDetails.id,
       content: messageContent,
+      // chatmessageid and datecreated might be handled by DB defaults/triggers
     };
     console.log('Sending to database:', dbPayload);
     
-    // Save to database for persistence
     try {
-      await supabase.from("chatmessage").insert([dbPayload]);
+      const { error: insertError } = await supabase.from("chatmessage").insert([dbPayload]);
+      if (insertError) throw insertError;
     } catch (error) {
       console.error("Failed to save message to database:", error);
+      // Handle failed DB save, e.g., notify user, maybe remove from local `chats`
     }
   };
 
@@ -208,6 +271,7 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
                   sentBy={chat.sentby}
                   context={chat.content}
                   dateCreated={chat.datecreated}
+                  viewingUserId={currentUserDetails.id}
                 />
               ))
             ) : (
@@ -226,7 +290,7 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
                 value={message}
                 onChange={(e) => {
                   setMessage(e.target.value);
-                  // Auto-resize the textarea
+                  setCharCount(e.target.value.length); // Update char count
                   e.target.style.height = 'auto';
                   e.target.style.height = `${Math.min(e.target.scrollHeight, 80)}px`;
                 }}
@@ -235,10 +299,10 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
                 style={{
                   resize: 'none',
                   minHeight: '32px',
-                  maxHeight: '120px',
-                  width: '160px', // Fixed width in pixels
-                  maxWidth: '200px', // Maximum width
-                  overflow: 'hidden',
+                  maxHeight: '120px', // Increased maxHeight a bit just in case
+                  width: '160px', 
+                  maxWidth: '200px',
+                  overflow: 'hidden', 
                 }}
               />
               <Popover onOpenChange={setIsOpen} open={isOpen}>
@@ -254,7 +318,8 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
                     className="h-[170px] w-[250px]"
                     onEmojiSelect={({ emoji }) => {
                       setIsOpen(false)
-                      setMessage(prevMessage => prevMessage + emoji) // Append the emoji to the existing text
+                      setMessage(prevMessage => prevMessage + emoji) 
+                      setCharCount(prevCharCount => prevCharCount + emoji.length); // Update char count
                     }}
                   >
                     <EmojiPickerSearch />
@@ -265,7 +330,8 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
             </div>          
           <button 
             onClick={sendMessage} 
-            className="p-2 text-gray-500 ml-1"
+            disabled={!currentUserDetails.id || !isConnected || message.trim().length === 0} // Disable if no user, not connected, or message empty
+            className="p-2 text-gray-500 ml-1 disabled:opacity-50"
           >
             <Send size={20} />
           </button>
