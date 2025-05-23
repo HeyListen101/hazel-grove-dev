@@ -7,6 +7,7 @@ import BackgroundImage from '@/components/assets/background-images/Background.pn
 import StoreStatusCard from './store-status-card';
 import { useMapSearch } from '@/components/map-search-context';
 import { Button } from './button';
+import { useEditCooldown } from '../cooldown-context';
 
 type ProductStatusInfo = {
   productstatusid: string;
@@ -60,6 +61,7 @@ const StoreCard: React.FC<StoreComponentProps> = ({
     storeName = "",
   }) => {
     const supabase = createClient();
+    const { isEditCooldownActive, globalCooldownError, triggerGlobalEditCooldown } = useEditCooldown();
     const {isOpen, setIsOpen} = useMapSearch();
     const [loading, setLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -77,8 +79,6 @@ const StoreCard: React.FC<StoreComponentProps> = ({
     const [storeDetailsLoading, setStoreDetailsLoading] = useState(false);
     const [paginationDirection, setPaginationDirection] = useState(0);
   
-
-
   useEffect(() => {
     const fetchUser = async () => {
       const { data } = await supabase.auth.getUser();
@@ -198,6 +198,15 @@ const StoreCard: React.FC<StoreComponentProps> = ({
     return () => { supabase.removeChannel(productChannel); };
   }, [storeId, isSelected, supabase, isEditing]); // Add isEditing to dependencies
 
+  // Effect to handle cooldown activation while editing
+  useEffect(() => {
+    if (isEditCooldownActive && isEditing) {
+      cancelEdit();
+      // Optionally: show a notification that editing was cancelled due to cooldown
+      // setError("Editing cancelled: Cooldown is active."); // This might be too intrusive or override other errors
+    }
+  }, [isEditCooldownActive, isEditing]);
+
 
   const handlePrevPage = () => {
     if (currentPage > 1) {
@@ -278,6 +287,10 @@ const StoreCard: React.FC<StoreComponentProps> = ({
 
 
   const toggleEdit = () => {
+    if (isEditCooldownActive) {
+      // setError(globalCooldownError || "Cannot edit: Cooldown is active."); // Display the cooldown error
+      return; // Prevent entering edit mode
+    }
     if (!isEditing) {
       setDraftProducts(products.map(p => ({ ...p, _original: { ...p } })));
       setCurrentPage(1);
@@ -288,6 +301,7 @@ const StoreCard: React.FC<StoreComponentProps> = ({
   };
 
   const cancelEdit = () => {
+    // No need to check isEditCooldownActive here, as cancelling is always allowed
     setDraftProducts([]);
     setEditing(false);
     setError(null);
@@ -298,6 +312,8 @@ const StoreCard: React.FC<StoreComponentProps> = ({
 
   // --- Draft Mode Functions ---
   const handleDraftAddProduct = () => {
+    if (isEditCooldownActive) return; // Prevent adding product if cooldown active
+
     const newTempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`; // More unique temp ID
     setDraftProducts(prev => [
       ...prev,
@@ -318,12 +334,14 @@ const StoreCard: React.FC<StoreComponentProps> = ({
   };
 
   const handleDraftProductChange = (productId: string, field: keyof Product, value: any) => {
+    if (isEditCooldownActive) return; // Prevent changes if cooldown active
     setDraftProducts(prev =>
       prev.map(p => (p.productid === productId ? { ...p, [field]: value } : p))
     );
   };
 
   const handleDraftDeleteProduct = (productId: string) => {
+    if (isEditCooldownActive) return; // Prevent deletion if cooldown active
     setDraftProducts(prev =>
       prev.map(p => {
         if (p.productid === productId) {
@@ -339,6 +357,10 @@ const StoreCard: React.FC<StoreComponentProps> = ({
   // --- End Draft Mode Functions ---
 
   const saveEdit = async () => {
+    if (isEditCooldownActive) {
+      setError(globalCooldownError || "Cannot save: Cooldown is active.");
+      return;
+    }
     if (currentUser === "User") {
       setError("Login required to save changes.");
       return;
@@ -528,15 +550,21 @@ const StoreCard: React.FC<StoreComponentProps> = ({
           <div className="w-full overflow-hidden flex flex-col justify-between rounded-b-[15px]">
             <div className="px-3 pt-2 md:px-4 md:pt-3">
               <h2 className="text-base md:text-lg font-semibold text-gray-700">Products/Services</h2>
+              {isEditCooldownActive && globalCooldownError && (
+                <p className="text-red-500 text-sm pt-1">{globalCooldownError}</p>
+              )}
             </div>
-            <div className="overflow-y-auto flex-grow px-3 md:px-4 pt-1 pb-2
+
+            {/* If cooldown is active, perhaps hide the product list entirely or show a simplified message */}
+            {/* For now, inputs will be disabled, and error message shown above. */}
+            <div className="overflow-y-auto flex-grow px-3 md:px-4 pb-2
                 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-gray-100 
                 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full"
             >
               {loading && !products.length && !isEditing ? ( <p>Loading...</p>
-              ) : error ? ( <p className="text-red-500">{error}</p>
+              ) : error && !globalCooldownError ? ( <p className="text-red-500">{error}</p> // Don't show general error if cooldown error is shown
               ) : (isEditing ? draftProducts.filter(p => !p._isDeleted && !p._isNew).length === 0 : products.length === 0) && 
-                  newlyAddedDraftProducts.length === 0 && !isEditing ? ( 
+                  newlyAddedDraftProducts.length === 0 && !isEditing && !isEditCooldownActive ? ( // Only show "No products" if not in cooldown
                 <p className="text-gray-500 text-center py-4">
                   {isEditing ? "No existing products to edit. Add some!" : "No products found."}
                 </p>
@@ -575,6 +603,7 @@ const StoreCard: React.FC<StoreComponentProps> = ({
                             <>
                               <input 
                                 type="text" 
+                                disabled={isEditCooldownActive}
                                 value={product.name} // Controlled component from draft
                                 onChange={(e) => handleDraftProductChange(product.productid, 'name', e.target.value)}
                                 className="bg-gray-50 text-black text-xs md:text-sm p-1.5 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500 min-w-0"
@@ -582,13 +611,14 @@ const StoreCard: React.FC<StoreComponentProps> = ({
                               />
                               <input 
                                 type="number"
+                                disabled={isEditCooldownActive}
                                 value={String(product.price).replace(/^0+(?=\d)/, '')} // Controlled, remove leading zeros unless it's just "0"
                                 onChange={(e) => handleDraftProductChange(product.productid, 'price', e.target.value === '' ? '' : parseFloat(e.target.value))}
                                 className="bg-gray-50 text-black text-right text-xs md:text-sm w-20 p-1.5 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500 appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 placeholder="Price"
                                 step="1"
                               />
-                              <Button variant="ghost" size="icon" onClick={() => handleDraftDeleteProduct(product.productid)}
+                              <Button variant="ghost" size="icon" onClick={() => handleDraftDeleteProduct(product.productid)} disabled={isEditCooldownActive}
                                 className="text-red-500 hover:bg-red-100 h-7 w-7 p-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" className="w-3 h-3" fill="currentColor"><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"/></svg>
                               </Button>
@@ -597,7 +627,7 @@ const StoreCard: React.FC<StoreComponentProps> = ({
                             <>
                               <div className="text-gray-700 text-xs md:text-sm truncate" title={product.name}>{product.name}</div>
                               <div className="-mr-9 text-gray-700 font-medium text-xs md:text-sm text-right whitespace-nowrap">
-                                {typeof product.price === 'number' ? `₱${product.price.toFixed(2)}` : (product.price || "N/A")}
+                                {typeof product.price === 'number' ? `₱${product.price}` : (product.price || "N/A")}
                               </div>
                                <div className="w-6 h-1"></div> {/* Spacer to match edit mode */}
                             </>
@@ -607,7 +637,7 @@ const StoreCard: React.FC<StoreComponentProps> = ({
                     </motion.div>
                   </AnimatePresence>
                   
-                  {/* Newly Added Draft Products (always at the bottom, not paginated) */}
+                  {/* Newly Added Draft Products */}
                   {isEditing && newlyAddedDraftProducts.length > 0 && (
                      <div className="mt-3 pt-2 border-t border-dashed border-gray-300">
                        <h3 className="text-xs text-gray-500 mb-1.5 px-1">New Products (Draft)</h3>
@@ -622,16 +652,18 @@ const StoreCard: React.FC<StoreComponentProps> = ({
                             transition={{ type: "spring", stiffness: 300, damping: 25 }}
                             className="grid grid-cols-[1fr_auto_auto] items-center gap-x-2 md:gap-x-3 py-1.5 border-b border-gray-100"
                           >
-                            <input type="text" value={product.name}
+                            <input type="text" value={product.name} disabled={isEditCooldownActive}
                               onChange={(e) => handleDraftProductChange(product.productid, 'name', e.target.value)}
                               className="bg-gray-50 text-black text-xs md:text-sm p-1.5 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500 min-w-0"
                               placeholder="Product Name" />
                             {/* Price input with pr-0.5 for alignment */}
-                            <input type="number" value={String(product.price).replace(/^0+(?=\d)/, '')}
+                            <input type="number" value={String(product.price).replace(/^0+(?=\d)/, '')} disabled={isEditCooldownActive}
                               onChange={(e) => handleDraftProductChange(product.productid, 'price', e.target.value === '' ? '' : parseFloat(e.target.value))}
                               className="bg-gray-50 text-black text-right text-xs md:text-sm w-20 p-1.5 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500 appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none pr-0.5"
                               placeholder="Price" step="1" />
-                            <Button variant="ghost" size="icon" onClick={() => handleDraftDeleteProduct(product.productid)}
+                            <Button variant="ghost" size="icon" 
+                              onClick={() => handleDraftDeleteProduct(product.productid)} 
+                              disabled={isEditCooldownActive}
                               className="text-red-500 hover:bg-red-100 h-7 w-7 p-1">
                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" className="w-3 h-3" fill="currentColor"><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"/></svg>
                             </Button>
@@ -643,7 +675,10 @@ const StoreCard: React.FC<StoreComponentProps> = ({
 
 
                   {isEditing && currentUser !== "User" && (
-                    <Button variant="outline" size="sm" onClick={handleDraftAddProduct} className="w-full mt-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 text-xs">
+                    <Button variant="outline" size="sm" 
+                      onClick={handleDraftAddProduct} 
+                      disabled={isEditCooldownActive}
+                      className="w-full mt-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 text-xs">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" className="w-3 h-3 mr-1.5" fill="currentColor"><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0-32-14.3-32-32s-14.3-32-32-32H256V80z"/></svg>
                       Add Product
                     </Button>
@@ -656,7 +691,7 @@ const StoreCard: React.FC<StoreComponentProps> = ({
             <div className="border-t border-gray-200 px-2 py-1.5 md:py-2">
               <div className="flex justify-between items-center w-full">
                 <Button variant="ghost" size="sm" onClick={handlePrevPage} 
-                  disabled={currentPage === 1 || (isEditing ? draftProducts.filter(p=>!p._isDeleted).length === 0 : products.length === 0)}
+                  disabled={isEditCooldownActive || currentPage === 1 || (isEditing ? draftProducts.filter(p=>!p._isDeleted).length === 0 : products.length === 0)}
                   className="text-emerald-700 hover:text-emerald-700 disabled:text-gray-400 hover:bg-emerald-50 px-1 sm:px-2">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                   <span className="ml-1 hidden sm:inline text-xs">Prev</span>
@@ -665,13 +700,13 @@ const StoreCard: React.FC<StoreComponentProps> = ({
                 <div className="flex-grow flex justify-center items-center space-x-1 sm:space-x-2 px-1">
                   {currentUser !== "User" && (isEditing ? (
                     <>
-                      <Button size="sm" onClick={saveEdit} disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] md:text-xs h-7 md:h-8 px-2 sm:px-3">
+                      <Button size="sm" onClick={saveEdit} disabled={isEditCooldownActive || isSaving} className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] md:text-xs h-7 md:h-8 px-2 sm:px-3">
                         {isSaving ? "Saving..." : "Save"}
                       </Button>
-                      <Button variant="outline" size="sm" onClick={cancelEdit} disabled={isSaving} className="border-gray-300 text-gray-600 hover:bg-gray-100 text-[10px] md:text-xs h-7 md:h-8 px-2 sm:px-3">Cancel</Button>
+                      <Button variant="outline" size="sm" onClick={cancelEdit} disabled={isEditCooldownActive || isSaving} className="border-gray-300 text-gray-600 hover:bg-gray-100 text-[10px] md:text-xs h-7 md:h-8 px-2 sm:px-3">Cancel</Button>
                     </>
                   ) : (
-                    <Button variant="ghost" size="sm" onClick={toggleEdit} className="text-gray-600 hover:bg-gray-100 hover:text-black text-[10px] md:text-xs h-7 md:h-8 px-2 sm:px-3">
+                    <Button variant="ghost" size="sm" onClick={toggleEdit} disabled={isEditCooldownActive} className="text-gray-600 hover:bg-gray-100 hover:text-black text-[10px] md:text-xs h-7 md:h-8 px-2 sm:px-3">
                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" className="sm:mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
                       <span className="hidden sm:inline">Edit Products</span>
                     </Button>
@@ -679,7 +714,7 @@ const StoreCard: React.FC<StoreComponentProps> = ({
                 </div>
 
                 <Button variant="ghost" size="sm" onClick={handleNextPage} 
-                  disabled={currentPage === totalPages || totalPages <= 1 || (isEditing ? draftProducts.filter(p=>!p._isDeleted).length === 0 : products.length === 0)}
+                  disabled={isEditCooldownActive || currentPage === totalPages || totalPages <= 1 || (isEditing ? draftProducts.filter(p=>!p._isDeleted).length === 0 : products.length === 0)}
                   className="text-emerald-700 hover:text-emerald-700 disabled:text-gray-400 hover:bg-emerald-50 px-1 sm:px-2">
                   <span className="mr-1 hidden sm:inline text-xs">Next</span>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
