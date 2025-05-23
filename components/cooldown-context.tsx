@@ -32,7 +32,7 @@ export const EditCooldownProvider = ({ children }: { children: ReactNode }) => {
             if (!isNaN(storedEndTime) && storedEndTime > Date.now()) {
                 setCooldownEndTime(storedEndTime);
                 setIsCooldownActive(true);
-                setCooldownError(`Editing is temporarily disabled due to a previous attempt. Please try again in ${Math.max(0, Math.ceil((storedEndTime - Date.now()) / 1000 / 60))} mins.`);
+                setCooldownError(`Typing is temporarily disabled due to a previous malicious input attempt. Please try again in ${Math.max(0, Math.ceil((storedEndTime - Date.now()) / 1000 / 60))} mins.`);
                 console.log("Global edit cooldown restored from localStorage.");
             } else {
                 // Stored time is invalid or in the past, clear it

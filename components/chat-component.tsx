@@ -3,13 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { getSupabaseAuth } from "@/utils/supabase/auth-singleton";
-import MessageComponent from "@/components/ui/message-card";
+import MessageComponent from "@/components/ui/message-card"; // Assuming MessageComponent props will be updated
 import { Button } from "@/components/ui/button";
 import { Send, X } from "lucide-react";
-import { EmojiPicker, EmojiPickerSearch, EmojiPickerContent, EmojiPickerFooter } from "@/components/emoji-board";
-import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
+import { EmojiPicker, EmojiPickerSearch, EmojiPickerContent } from "@/components/emoji-board";
+import { useEditCooldown } from './cooldown-context'; // Assuming cooldown-context.tsx is in the same directory or adjust path
+import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 
-// chatmessage table structure since supabase needs docker to automatically create the table for us
+// chatmessage table structure
 type ChatMessage = {
   chatmessageid: string;  
   sentby: string;         
@@ -18,35 +19,34 @@ type ChatMessage = {
   isarchived: boolean;    
 };
 
-const MAX_CHAR_LIMIT = 250;
+// For MessageComponent, the props would ideally change to something like this:
+// type MessageProps = {
+//   sentBy: string;
+//   context: string;
+//   dateCreated: string;
+//   viewingUserId?: string | null;
+//   viewingUserFullName?: string | null;
+//   viewingUserAvatarUrl?: string | null;
+// };
+// MessageComponent would then use these viewingUser... props if sentBy === viewingUserId.
+// For other users, it would use its existing cache/fetch logic.
 
-// Function to sanitize text and prevent XSS/SQL injection attacks
+const MAX_CHAR_LIMIT = 100;
+
+// Function to sanitize text
 const sanitizeText = (text: string): string => {
   if (!text) return '';
-
-  // Normalize input for injection detection
   const normalizedInput = text.trim().toLowerCase();
-
-  // SQL Injection patterns
   const sqlPattern = /('|--|;|\b(OR|AND|UNION|SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|EXEC|FROM|WHERE)\b)/i;
-
-  // HTML/JS Injection patterns  
   const htmlPattern = /<[^>]*>|javascript:|onerror=|onload=|alert\(|eval\(|document\.|window\./i;
-
-  // Check for malicious patterns
   if (sqlPattern.test(normalizedInput) || htmlPattern.test(normalizedInput)) {
     return 'I sent an injection to the database!!!';
   }
-  
-  // Replace HTML tags and potentially dangerous characters
   return text
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;') 
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;')
-    .replace(/`/g, '&#96;');
+    .replace(/</g, '<')
+    .replace(/>/g, '>') 
+    .replace(/&/g, '&')
+    .replace(/"/g, '"')
 };
 
 export default function ChatComponent({ messages }: { messages: ChatMessage[] }) {
@@ -54,110 +54,190 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
   const supabaseAuth = getSupabaseAuth();
   const [showChat, setShowChat] = useState(false);
   const [chats, setChats] = useState<ChatMessage[]>(messages || []);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatInputRef = useRef<HTMLTextAreaElement>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<string>("User");
+  const { isEditCooldownActive, triggerGlobalEditCooldown, globalCooldownError } = useEditCooldown();
+  
+  const [currentUserDetails, setCurrentUserDetails] = useState<{
+    id: string | null;
+    fullName: string | null;
+    avatarUrl: string | null;
+  }>({
+    id: null,
+    fullName: "User", // Default/initial full name
+    avatarUrl: null,   // Default/initial avatar
+  });
+
   const [channel, setChannel] = useState<ReturnType<typeof supabase.channel> | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [charCount, setCharCount] = useState(0);
+  const [charCount, setCharCount] = useState(0); // Already present, ensure it's used if needed.
   
   useEffect(() => {
-    // Get the current user when component mounts
-    const fetchUser = async () => {
+    // Get the current user's details when component mounts
+    const fetchCurrentUserDetails = async () => {
       const user = await supabaseAuth.getUser();
-      if (user) {
-        // Use email or id as the user identifier
-        setCurrentUser(user.id);
+
+
+      if (user && user.id) {
+        const userId = user.id;
+        let fetchedFullName: string | null = null;
+        let fetchedAvatarUrl: string | null = null;
+
+        // Fetch Full Name:
+        // 1. From user_metadata
+        fetchedFullName = user.user_metadata?.full_name || user.user_metadata?.name || null;
+        // 2. If not in metadata, try 'contributor' table
+        if (!fetchedFullName) {
+          try {
+            const { data: contributor, error: contributorError } = await supabase
+              .from("contributor")
+              .select("name")
+              .eq("contributorid", userId)
+              .single();
+            if (contributorError && contributorError.code !== 'PGRST116') { // PGRST116: 0 rows, not an error here
+                throw contributorError;
+            }
+            if (contributor) {
+              fetchedFullName = contributor.name;
+            }
+          } catch (e) {
+            console.error("Error fetching current user's full name from contributor:", e);
+          }
+        }
+
+        // Fetch Avatar URL:
+        // 1. From user_metadata
+        fetchedAvatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+        // 2. If not in metadata, try RPC 'get_user_avatar'
+        if (!fetchedAvatarUrl) {
+          try {
+            const { data: avatarRpcResult, error: avatarRpcError } = await supabase
+              .rpc('get_user_avatar', { user_id: userId });
+            if (avatarRpcError) {
+                throw avatarRpcError;
+            }
+            if (avatarRpcResult) {
+              fetchedAvatarUrl = avatarRpcResult.avatar_url || avatarRpcResult.picture || null;
+            }
+          } catch (e) {
+            console.error("Error fetching current user avatar via RPC:", e);
+          }
+        }
+        
+        setCurrentUserDetails({
+          id: userId,
+          fullName: fetchedFullName || "User", // Fallback name
+          avatarUrl: fetchedAvatarUrl,
+        });
+      } else {
+         setCurrentUserDetails({ id: null, fullName: "User", avatarUrl: null });
       }
     };
     
-    fetchUser();
+    fetchCurrentUserDetails();
     
-    // Create a new broadcast channel
     const newChannel = supabase.channel('chat-room');
     
     newChannel
       .on('broadcast', { event: 'message' }, (payload) => {
-        // Add the received message to our chat state
         const broadcastMessage = payload.payload as ChatMessage;
         setChats((prevChats) => [...prevChats, broadcastMessage]);
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
           setIsConnected(true);
+        } else {
+          setIsConnected(false);
         }
       });
     
     setChannel(newChannel);
     
     return () => {
-      // Clean up the channel when component unmounts
-      supabase.removeChannel(newChannel);
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
     };
-  }, []);
+  }, [supabase, supabaseAuth]); // Added supabase and supabaseAuth to dependencies
 
-  // Add new effect to scroll to bottom when new messages are added
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chats]);
 
-  // Add new effect to scroll to bottom when chat is opened
   useEffect(() => {
     if (showChat) {
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100); // Small delay to ensure the chat container is fully rendered
+      }, 100);
     }
   }, [showChat]);
 
+  useEffect(() => {
+    if (isEditCooldownActive) {
+      setMessage("");
+      setCharCount(0);
+      if (chatInputRef.current) {
+        chatInputRef.current.style.height = '32px'; // Reset height
+      }
+    }
+  }, [isEditCooldownActive]);
+
   const sendMessage = async () => {
-    if (!message.trim() || !channel || !isConnected) return;
+    if (isEditCooldownActive || !message.trim() || !channel || !isConnected || !currentUserDetails.id) {
+        if(!currentUserDetails.id) console.warn("Cannot send message: current user ID is not available.");
+        return;
+    }
     
-    // Get the current message content from textarea and sanitize it
-    const messageContent = sanitizeText(message.trim());
-    
-    // Create a new message object
+    const originalMessage = message.trim();
+    const messageContent = sanitizeText(originalMessage);
+
     const newMessage: ChatMessage = {
       chatmessageid: crypto.randomUUID(),
-      sentby: currentUser,
+      sentby: currentUserDetails.id, // Use current user's ID
       content: messageContent,
       datecreated: new Date().toISOString(),
       isarchived: false
     };
-    
-    // Update local state immediately for the sender
+
+    if (messageContent === 'I sent an injection to the database!!!' && originalMessage !== messageContent) {
+      triggerGlobalEditCooldown();
+      // Do not proceed to send or save this message
+      return; 
+    }
+
     setChats((prevChats) => [...prevChats, newMessage]);
-    
-    // Clear the input field
     setMessage("");
     setCharCount(0);
     
-    // Reset textarea height to default
-    const textarea = document.querySelector('textarea');
-    if (textarea) {
-      textarea.style.height = '32px';
+    if (chatInputRef.current) chatInputRef.current.style.height = '32px';
+    
+    try {
+        await channel.send({
+            type: 'broadcast',
+            event: 'message',
+            payload: newMessage,
+        });
+    } catch (error) {
+        console.error("Failed to broadcast message:", error);
+        // Potentially roll back adding the message to local state or show an error
+        return;
     }
-    
-    // Send the message via broadcast channel
-    await channel.send({
-      type: 'broadcast',
-      event: 'message',
-      payload: newMessage,
-    });
-    
-    // Log what we're sending to the database
+        
     const dbPayload = { 
-      sentby: currentUser,
+      sentby: currentUserDetails.id,
       content: messageContent,
+      // chatmessageid and datecreated might be handled by DB defaults/triggers
     };
     console.log('Sending to database:', dbPayload);
     
-    // Save to database for persistence
     try {
-      await supabase.from("chatmessage").insert([dbPayload]);
+      const { error: insertError } = await supabase.from("chatmessage").insert([dbPayload]);
+      if (insertError) throw insertError;
     } catch (error) {
       console.error("Failed to save message to database:", error);
+      // Handle failed DB save, e.g., notify user, maybe remove from local `chats`
     }
   };
 
@@ -174,7 +254,7 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
           </svg>
           : 
           <svg width="142" height="18" viewBox="0 0 142 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0.942813 7.4C0.942813 6.30133 1.18815 5.32 1.67881 4.456C2.18015 3.58133 2.85748 2.904 3.71081 2.424C4.57481 1.93333 5.54015 1.688 6.60681 1.688C7.85481 1.688 8.94815 2.008 9.88681 2.648C10.8255 3.288 11.4815 4.17333 11.8548 5.304H9.27881C9.02281 4.77067 8.66015 4.37067 8.19081 4.104C7.73215 3.83733 7.19881 3.704 6.59081 3.704C5.94015 3.704 5.35881 3.85867 4.84681 4.168C4.34548 4.46667 3.95081 4.89333 3.66281 5.448C3.38548 6.00267 3.24681 6.65333 3.24681 7.4C3.24681 8.136 3.38548 8.78667 3.66281 9.352C3.95081 9.90667 4.34548 10.3387 4.84681 10.648C5.35881 10.9467 5.94015 11.096 6.59081 11.096C7.19881 11.096 7.73215 10.9627 8.19081 10.696C8.66015 10.4187 9.02281 10.0133 9.27881 9.48H11.8548C11.4815 10.6213 10.8255 11.512 9.88681 12.152C8.95881 12.7813 7.86548 13.096 6.60681 13.096C5.54015 13.096 4.57481 12.856 3.71081 12.376C2.85748 11.8853 2.18015 11.208 1.67881 10.344C1.18815 9.48 0.942813 8.49867 0.942813 7.4ZM17.7041 13.144C16.8507 13.144 16.0827 12.9573 15.4001 12.584C14.7174 12.2 14.1787 11.6613 13.7841 10.968C13.4001 10.2747 13.2081 9.47467 13.2081 8.568C13.2081 7.66133 13.4054 6.86133 13.8001 6.168C14.2054 5.47467 14.7547 4.94133 15.4481 4.568C16.1414 4.184 16.9147 3.992 17.7681 3.992C18.6214 3.992 19.3947 4.184 20.0881 4.568C20.7814 4.94133 21.3254 5.47467 21.7201 6.168C22.1254 6.86133 22.3281 7.66133 22.3281 8.568C22.3281 9.47467 22.1201 10.2747 21.7041 10.968C21.2987 11.6613 20.7441 12.2 20.0401 12.584C19.3467 12.9573 18.5681 13.144 17.7041 13.144ZM17.7041 11.192C18.1094 11.192 18.4881 11.096 18.8401 10.904C19.2027 10.7013 19.4907 10.4027 19.7041 10.008C19.9174 9.61333 20.0241 9.13333 20.0241 8.568C20.0241 7.72533 19.8001 7.08 19.3521 6.632C18.9147 6.17333 18.3761 5.944 17.7361 5.944C17.0961 5.944 16.5574 6.17333 16.1201 6.632C15.6934 7.08 15.4801 7.72533 15.4801 8.568C15.4801 9.41067 15.6881 10.0613 16.1041 10.52C16.5307 10.968 17.0641 11.192 17.7041 11.192ZM34.9792 4.008C36.0672 4.008 36.9419 4.344 37.6032 5.016C38.2752 5.67733 38.6112 6.60533 38.6112 7.8V13H36.3712V8.104C36.3712 7.41067 36.1952 6.88267 35.8432 6.52C35.4912 6.14667 35.0112 5.96 34.4032 5.96C33.7952 5.96 33.3099 6.14667 32.9472 6.52C32.5952 6.88267 32.4192 7.41067 32.4192 8.104V13H30.1792V8.104C30.1792 7.41067 30.0032 6.88267 29.6512 6.52C29.2992 6.14667 28.8192 5.96 28.2112 5.96C27.5925 5.96 27.1019 6.14667 26.7392 6.52C26.3872 6.88267 26.2112 7.41067 26.2112 8.104V13H23.9712V4.136H26.2112V5.208C26.4992 4.83467 26.8672 4.54133 27.3152 4.328C27.7739 4.11467 28.2752 4.008 28.8192 4.008C29.5125 4.008 30.1312 4.15733 30.6752 4.456C31.2192 4.744 31.6405 5.16 31.9392 5.704C32.2272 5.192 32.6432 4.78133 33.1872 4.472C33.7419 4.16267 34.3392 4.008 34.9792 4.008ZM51.7448 4.008C52.8328 4.008 53.7075 4.344 54.3688 5.016C55.0408 5.67733 55.3768 6.60533 55.3768 7.8V13H53.1368V8.104C53.1368 7.41067 52.9608 6.88267 52.6088 6.52C52.2568 6.14667 51.7768 5.96 51.1688 5.96C50.5608 5.96 50.0755 6.14667 49.7128 6.52C49.3608 6.88267 49.1848 7.41067 49.1848 8.104V13H46.9448V8.104C46.9448 7.41067 46.7688 6.88267 46.4168 6.52C46.0648 6.14667 45.5848 5.96 44.9768 5.96C44.3581 5.96 43.8675 6.14667 43.5048 6.52C43.1528 6.88267 42.9768 7.41067 42.9768 8.104V13H40.7368V4.136H42.9768V5.208C43.2648 4.83467 43.6328 4.54133 44.0808 4.328C44.5395 4.11467 45.0408 4.008 45.5848 4.008C46.2781 4.008 46.8968 4.15733 47.4408 4.456C47.9848 4.744 48.4061 5.16 48.7048 5.704C48.9928 5.192 49.4088 4.78133 49.9528 4.472C50.5075 4.16267 51.1048 4.008 51.7448 4.008ZM65.8704 4.136V13H63.6144V11.88C63.3264 12.264 62.9478 12.568 62.4784 12.792C62.0198 13.0053 61.5184 13.112 60.9744 13.112C60.2811 13.112 59.6678 12.968 59.1344 12.68C58.6011 12.3813 58.1798 11.9493 57.8704 11.384C57.5718 10.808 57.4224 10.1253 57.4224 9.336V4.136H59.6624V9.016C59.6624 9.72 59.8384 10.264 60.1904 10.648C60.5424 11.0213 61.0224 11.208 61.6304 11.208C62.2491 11.208 62.7344 11.0213 63.0864 10.648C63.4384 10.264 63.6144 9.72 63.6144 9.016V4.136H65.8704ZM72.9926 4.008C74.0486 4.008 74.9019 4.344 75.5526 5.016C76.2032 5.67733 76.5286 6.60533 76.5286 7.8V13H74.2886V8.104C74.2886 7.4 74.1126 6.86133 73.7606 6.488C73.4086 6.104 72.9286 5.912 72.3206 5.912C71.7019 5.912 71.2112 6.104 70.8486 6.488C70.4966 6.86133 70.3206 7.4 70.3206 8.104V13H68.0806V4.136H70.3206V5.24C70.6192 4.856 70.9979 4.55733 71.4566 4.344C71.9259 4.12 72.4379 4.008 72.9926 4.008ZM79.7947 3.08C79.4 3.08 79.0694 2.95733 78.8027 2.712C78.5467 2.456 78.4187 2.14133 78.4187 1.768C78.4187 1.39467 78.5467 1.08533 78.8027 0.839999C79.0694 0.583999 79.4 0.455999 79.7947 0.455999C80.1894 0.455999 80.5147 0.583999 80.7707 0.839999C81.0374 1.08533 81.1707 1.39467 81.1707 1.768C81.1707 2.14133 81.0374 2.456 80.7707 2.712C80.5147 2.95733 80.1894 3.08 79.7947 3.08ZM80.8987 4.136V13H78.6587V4.136H80.8987ZM85.7198 5.976V10.264C85.7198 10.5627 85.7891 10.7813 85.9278 10.92C86.0771 11.048 86.3225 11.112 86.6638 11.112H87.7038V13H86.2958C84.4078 13 83.4638 12.0827 83.4638 10.248V5.976H82.4078V4.136H83.4638V1.944H85.7198V4.136H87.7038V5.976H85.7198ZM97.7949 4.136L92.3069 17.192H89.9229L91.8429 12.776L88.2909 4.136H90.8029L93.0909 10.328L95.4109 4.136H97.7949ZM102.271 7.4C102.271 6.30133 102.516 5.32 103.007 4.456C103.508 3.58133 104.186 2.904 105.039 2.424C105.903 1.93333 106.868 1.688 107.935 1.688C109.183 1.688 110.276 2.008 111.215 2.648C112.154 3.288 112.81 4.17333 113.183 5.304H110.607C110.351 4.77067 109.988 4.37067 109.519 4.104C109.06 3.83733 108.527 3.704 107.919 3.704C107.268 3.704 106.687 3.85867 106.175 4.168C105.674 4.46667 105.279 4.89333 104.991 5.448C104.714 6.00267 104.575 6.65333 104.575 7.4C104.575 8.136 104.714 8.78667 104.991 9.352C105.279 9.90667 105.674 10.3387 106.175 10.648C106.687 10.9467 107.268 11.096 107.919 11.096C108.527 11.096 109.06 10.9627 109.519 10.696C109.988 10.4187 110.351 10.0133 110.607 9.48H113.183C112.81 10.6213 112.154 11.512 111.215 12.152C110.287 12.7813 109.194 13.096 107.935 13.096C106.868 13.096 105.903 12.856 105.039 12.376C104.186 11.8853 103.508 11.208 103.007 10.344C102.516 9.48 102.271 8.49867 102.271 7.4ZM120.088 4.008C120.76 4.008 121.358 4.15733 121.88 4.456C122.403 4.744 122.808 5.176 123.096 5.752C123.395 6.31733 123.544 7 123.544 7.8V13H121.304V8.104C121.304 7.4 121.128 6.86133 120.776 6.488C120.424 6.104 119.944 5.912 119.336 5.912C118.718 5.912 118.227 6.104 117.864 6.488C117.512 6.86133 117.336 7.4 117.336 8.104V13H115.096V1.16H117.336V5.24C117.624 4.856 118.008 4.55733 118.488 4.344C118.968 4.12 119.502 4.008 120.088 4.008ZM125.098 8.536C125.098 7.64 125.274 6.84533 125.626 6.152C125.989 5.45867 126.474 4.92533 127.082 4.552C127.701 4.17867 128.389 3.992 129.146 3.992C129.808 3.992 130.384 4.12533 130.874 4.392C131.376 4.65867 131.776 4.99467 132.074 5.4V4.136H134.33V13H132.074V11.704C131.786 12.12 131.386 12.4667 130.874 12.744C130.373 13.0107 129.792 13.144 129.13 13.144C128.384 13.144 127.701 12.952 127.082 12.568C126.474 12.184 125.989 11.6453 125.626 10.952C125.274 10.248 125.098 9.44267 125.098 8.536ZM132.074 8.568C132.074 8.024 131.968 7.56 131.754 7.176C131.541 6.78133 131.253 6.48267 130.89 6.28C130.528 6.06667 130.138 5.96 129.722 5.96C129.306 5.96 128.922 6.06133 128.57 6.264C128.218 6.46667 127.93 6.76533 127.706 7.16C127.493 7.544 127.386 8.00267 127.386 8.536C127.386 9.06933 127.493 9.53867 127.706 9.944C127.93 10.3387 128.218 10.6427 128.57 10.856C128.933 11.0693 129.317 11.176 129.722 11.176C130.138 11.176 130.528 11.0747 130.89 10.872C131.253 10.6587 131.541 10.36 131.754 9.976C131.968 9.58133 132.074 9.112 132.074 8.568ZM139.126 5.976V10.264C139.126 10.5627 139.195 10.7813 139.334 10.92C139.483 11.048 139.729 11.112 140.07 11.112H141.11V13H139.702C137.814 13 136.87 12.0827 136.87 10.248V5.976H135.814V4.136H136.87V1.944H139.126V4.136H141.11V5.976H139.126Z" fill="#1E1C14"/>
+            <path d="M0.942813 7.4C0.942813 6.30133 1.18815 5.32 1.67881 4.456C2.18015 3.58133 2.85748 2.904 3.71081 2.424C4.57481 1.93333 5.54015 1.688 6.60681 1.688C7.85481 1.688 8.94815 2.008 9.88681 2.648C10.8255 3.288 11.4815 4.17333 11.8548 5.304H9.27881C9.02281 4.77067 8.66015 4.37067 8.19081 4.104C7.73215 3.83733 7.19881 3.704 6.59081 3.704C5.94015 3.704 5.35881 3.85867 4.84681 4.168C4.34548 4.46667 3.95081 4.89333 3.66281 5.448C3.38548 6.00267 3.24681 6.65333 3.24681 7.4C3.24681 8.136 3.38548 8.78667 3.66281 9.352C3.95081 9.90667 4.34548 10.3387 4.84681 10.648C5.35881 10.9467 5.94015 11.096 6.59081 11.096C7.19881 11.096 7.73215 10.9627 8.19081 10.696C8.66015 10.4187 9.02281 10.0133 9.27881 9.48H11.8548C11.4815 10.6213 10.8255 11.512 9.88681 12.152C8.95881 12.7813 7.86548 13.096 6.60681 13.096C5.54015 13.096 4.57481 12.856 3.71081 12.376C2.85748 11.8853 2.18015 11.208 1.67881 10.344C1.18815 9.48 0.942813 8.49867 0.942813 7.4ZM17.7041 13.144C16.8507 13.144 16.0827 12.9573 15.4001 12.584C14.7174 12.2 14.1787 11.6613 13.7841 10.968C13.4001 10.2747 13.2081 9.47467 13.2081 8.568C13.2081 7.66133 13.4054 6.86133 13.8001 6.168C14.2054 5.47467 14.7547 4.94133 15.4481 4.568C16.1414 4.184 16.9147 3.992 17.7681 3.992C18.6214 3.992 19.3947 4.184 20.0881 4.568C20.7814 4.94133 21.3254 5.47467 21.7201 6.168C22.1254 6.86133 22.3281 7.66133 22.3281 8.568C22.3281 9.47467 22.1201 10.2747 21.7041 10.968C21.2987 11.6613 20.7441 12.2 20.0401 12.584C19.3467 12.9573 18.5681 13.144 17.7041 13.144ZM17.7041 11.192C18.1094 11.192 18.4881 11.096 18.8401 10.904C19.2027 10.7013 19.4907 10.4026 19.7041 10.008C19.9174 9.61333 20.0241 9.13333 20.0241 8.568C20.0241 7.72533 19.8001 7.08 19.3521 6.632C18.9147 6.17333 18.3761 5.944 17.7361 5.944C17.0961 5.944 16.5574 6.17333 16.1201 6.632C15.6934 7.08 15.4801 7.72533 15.4801 8.568C15.4801 9.41067 15.6881 10.0613 16.1041 10.52C16.5307 10.968 17.0641 11.192 17.7041 11.192ZM34.9792 4.008C36.0672 4.008 36.9419 4.344 37.6032 5.016C38.2752 5.67733 38.6112 6.60533 38.6112 7.8V13H36.3712V8.104C36.3712 7.41067 36.1952 6.88267 35.8432 6.52C35.4912 6.14667 35.0112 5.96 34.4032 5.96C33.7952 5.96 33.3099 6.14667 32.9472 6.52C32.5952 6.88267 32.4192 7.41067 32.4192 8.104V13H30.1792V8.104C30.1792 7.41067 30.0032 6.88267 29.6512 6.52C29.2992 6.14667 28.8192 5.96 28.2112 5.96C27.5925 5.96 27.1019 6.14667 26.7392 6.52C26.3872 6.88267 26.2112 7.41067 26.2112 8.104V13H23.9712V4.136H26.2112V5.208C26.4992 4.83467 26.8672 4.54133 27.3152 4.328C27.7739 4.11467 28.2752 4.008 28.8192 4.008C29.5125 4.008 30.1312 4.15733 30.6752 4.456C31.2192 4.744 31.6405 5.16 31.9392 5.704C32.2272 5.192 32.6432 4.78133 33.1872 4.472C33.7419 4.16267 34.3392 4.008 34.9792 4.008ZM51.7448 4.008C52.8328 4.008 53.7075 4.344 54.3688 5.016C55.0408 5.67733 55.3768 6.60533 55.3768 7.8V13H53.1368V8.104C53.1368 7.41067 52.9608 6.88267 52.6088 6.52C52.2568 6.14667 51.7768 5.96 51.1688 5.96C50.5608 5.96 50.0755 6.14667 49.7128 6.52C49.3608 6.88267 49.1848 7.41067 49.1848 8.104V13H46.9448V8.104C46.9448 7.41067 46.7688 6.88267 46.4168 6.52C46.0648 6.14667 45.5848 5.96 44.9768 5.96C44.3581 5.96 43.8675 6.14667 43.5048 6.52C43.1528 6.88267 42.9768 7.41067 42.9768 8.104V13H40.7368V4.136H42.9768V5.208C43.2648 4.83467 43.6328 4.54133 44.0808 4.328C44.5395 4.11467 45.0408 4.008 45.5848 4.008C46.2781 4.008 46.8968 4.15733 47.4408 4.456C47.9848 4.744 48.4061 5.16 48.7048 5.704C48.9928 5.192 49.4088 4.78133 49.9528 4.472C50.5075 4.16267 51.1048 4.008 51.7448 4.008ZM65.8704 4.136V13H63.6144V11.88C63.3264 12.264 62.9478 12.568 62.4784 12.792C62.0198 13.0053 61.5184 13.112 60.9744 13.112C60.2811 13.112 59.6678 12.968 59.1344 12.68C58.6011 12.3813 58.1798 11.9493 57.8704 11.384C57.5718 10.808 57.4224 10.1253 57.4224 9.336V4.136H59.6624V9.016C59.6624 9.72 59.8384 10.264 60.1904 10.648C60.5424 11.0213 61.0224 11.208 61.6304 11.208C62.2491 11.208 62.7344 11.0213 63.0864 10.648C63.4384 10.264 63.6144 9.72 63.6144 9.016V4.136H65.8704ZM72.9926 4.008C74.0486 4.008 74.9019 4.344 75.5526 5.016C76.2032 5.67733 76.5286 6.60533 76.5286 7.8V13H74.2886V8.104C74.2886 7.4 74.1126 6.86133 73.7606 6.488C73.4086 6.104 72.9286 5.912 72.3206 5.912C71.7019 5.912 71.2112 6.104 70.8486 6.488C70.4966 6.86133 70.3206 7.4 70.3206 8.104V13H68.0806V4.136H70.3206V5.24C70.6192 4.856 70.9979 4.55733 71.4566 4.344C71.9259 4.12 72.4379 4.008 72.9926 4.008ZM79.7947 3.08C79.4 3.08 79.0694 2.95733 78.8027 2.712C78.5467 2.456 78.4187 2.14133 78.4187 1.768C78.4187 1.39467 78.5467 1.08533 78.8027 0.839999C79.0694 0.583999 79.4 0.455999 79.7947 0.455999C80.1894 0.455999 80.5147 0.583999 80.7707 0.839999C81.0374 1.08533 81.1707 1.39467 81.1707 1.768C81.1707 2.14133 81.0374 2.456 80.7707 2.712C80.5147 2.95733 80.1894 3.08 79.7947 3.08ZM80.8987 4.136V13H78.6587V4.136H80.8987ZM85.7198 5.976V10.264C85.7198 10.5627 85.7891 10.7813 85.9278 10.92C86.0771 11.048 86.3225 11.112 86.6638 11.112H87.7038V13H86.2958C84.4078 13 83.4638 12.0827 83.4638 10.248V5.976H82.4078V4.136H83.4638V1.944H85.7198V4.136H87.7038V5.976H85.7198ZM97.7949 4.136L92.3069 17.192H89.9229L91.8429 12.776L88.2909 4.136H90.8029L93.0909 10.328L95.4109 4.136H97.7949ZM102.271 7.4C102.271 6.30133 102.516 5.32 103.007 4.456C103.508 3.58133 104.186 2.904 105.039 2.424C105.903 1.93333 106.868 1.688 107.935 1.688C109.183 1.688 110.276 2.008 111.215 2.648C112.154 3.288 112.81 4.17333 113.183 5.304H110.607C110.351 4.77067 109.988 4.37067 109.519 4.104C109.06 3.83733 108.527 3.704 107.919 3.704C107.268 3.704 106.687 3.85867 106.175 4.168C105.674 4.46667 105.279 4.89333 104.991 5.448C104.714 6.00267 104.575 6.65333 104.575 7.4C104.575 8.136 104.714 8.78667 104.991 9.352C105.279 9.90667 105.674 10.3387 106.175 10.648C106.687 10.9467 107.268 11.096 107.919 11.096C108.527 11.096 109.06 10.9627 109.519 10.696C109.988 10.4187 110.351 10.0133 110.607 9.48H113.183C112.81 10.6213 112.154 11.512 111.215 12.152C110.287 12.7813 109.194 13.096 107.935 13.096C106.868 13.096 105.903 12.856 105.039 12.376C104.186 11.8853 103.508 11.208 103.007 10.344C102.516 9.48 102.271 8.49867 102.271 7.4ZM120.088 4.008C120.76 4.008 121.358 4.15733 121.88 4.456C122.403 4.744 122.808 5.176 123.096 5.752C123.395 6.31733 123.544 7 123.544 7.8V13H121.304V8.104C121.304 7.4 121.128 6.86133 120.776 6.488C120.424 6.104 119.944 5.912 119.336 5.912C118.718 5.912 118.227 6.104 117.864 6.488C117.512 6.86133 117.336 7.4 117.336 8.104V13H115.096V1.16H117.336V5.24C117.624 4.856 118.008 4.55733 118.488 4.344C118.968 4.12 119.502 4.008 120.088 4.008ZM125.098 8.536C125.098 7.64 125.274 6.84533 125.626 6.152C125.989 5.45867 126.474 4.92533 127.082 4.552C127.701 4.17867 128.389 3.992 129.146 3.992C129.808 3.992 130.384 4.12533 130.874 4.392C131.376 4.65867 131.776 4.99467 132.074 5.4V4.136H134.33V13H132.074V11.704C131.786 12.12 131.386 12.4667 130.874 12.744C130.373 13.0107 129.792 13.144 129.13 13.144C128.384 13.144 127.701 12.952 127.082 12.568C126.474 12.184 125.989 11.6453 125.626 10.952C125.274 10.248 125.098 9.44267 125.098 8.536ZM132.074 8.568C132.074 8.024 131.968 7.56 131.754 7.176C131.541 6.78133 131.253 6.48267 130.89 6.28C130.528 6.06667 130.138 5.96 129.722 5.96C129.306 5.96 128.922 6.06133 128.57 6.264C128.218 6.46667 127.93 6.76533 127.706 7.16C127.493 7.544 127.386 8.00267 127.386 8.536C127.386 9.06933 127.493 9.53867 127.706 9.944C127.93 10.3387 128.218 10.6427 128.57 10.856C128.933 11.0693 129.317 11.176 129.722 11.176C130.138 11.176 130.528 11.0747 130.89 10.872C131.253 10.6587 131.541 10.36 131.754 9.976C131.968 9.58133 132.074 9.112 132.074 8.568ZM139.126 5.976V10.264C139.126 10.5627 139.195 10.7813 139.334 10.92C139.483 11.048 139.729 11.112 140.07 11.112H141.11V13H139.702C137.814 13 136.87 12.0827 136.87 10.248V5.976H135.814V4.136H136.87V1.944H139.126V4.136H141.11V5.976H139.126Z" fill="#1E1C14"/>
           </svg>     
         }
       </Button>
@@ -190,6 +270,9 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
             </button>
           </div>
 
+          {isEditCooldownActive && globalCooldownError && (
+            <p className="text-red-500 text-xs p-2 bg-white text-center">{globalCooldownError}</p>
+          )}
           {/* Messages */}
           <div 
             className="p-2 space-y-1 h-96 max-h-96 bg-[#F0F0F0] flex flex-col overflow-y-auto
@@ -208,6 +291,7 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
                   sentBy={chat.sentby}
                   context={chat.content}
                   dateCreated={chat.datecreated}
+                  viewingUserId={currentUserDetails.id}
                 />
               ))
             ) : (
@@ -220,13 +304,16 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
           <div className="flex items-center p-3 bg-white relative">
             <div className="flex-grow relative flex items-center justify-between bg-[#F0F0F0] rounded-full">
               <textarea 
+                ref={chatInputRef}
                 maxLength={MAX_CHAR_LIMIT}
                 className="flex-grow p-2 text-sm bg-transparent text-black outline-none pl-4 resize-none overflow-hidden max-h-10"
                 placeholder="Say hi to everyone!"
                 value={message}
+                disabled={isEditCooldownActive}
                 onChange={(e) => {
+                  if (isEditCooldownActive) return;
                   setMessage(e.target.value);
-                  // Auto-resize the textarea
+                  setCharCount(e.target.value.length); // Update char count
                   e.target.style.height = 'auto';
                   e.target.style.height = `${Math.min(e.target.scrollHeight, 80)}px`;
                 }}
@@ -235,10 +322,10 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
                 style={{
                   resize: 'none',
                   minHeight: '32px',
-                  maxHeight: '120px',
-                  width: '160px', // Fixed width in pixels
-                  maxWidth: '200px', // Maximum width
-                  overflow: 'hidden',
+                  maxHeight: '120px', // Increased maxHeight a bit just in case
+                  width: '160px', 
+                  maxWidth: '200px',
+                  overflow: 'hidden', 
                 }}
               />
               <Popover onOpenChange={setIsOpen} open={isOpen}>
@@ -254,7 +341,8 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
                     className="h-[170px] w-[250px]"
                     onEmojiSelect={({ emoji }) => {
                       setIsOpen(false)
-                      setMessage(prevMessage => prevMessage + emoji) // Append the emoji to the existing text
+                      setMessage(prevMessage => prevMessage + emoji) 
+                      setCharCount(prevCharCount => prevCharCount + emoji.length); // Update char count
                     }}
                   >
                     <EmojiPickerSearch />
@@ -265,7 +353,8 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
             </div>          
           <button 
             onClick={sendMessage} 
-            className="p-2 text-gray-500 ml-1"
+            disabled={isEditCooldownActive || !currentUserDetails.id || !isConnected || message.trim().length === 0} // Disable if no user, not connected, or message empty
+            className="p-2 text-gray-500 ml-1 disabled:opacity-50"
           >
             <Send size={20} />
           </button>

@@ -203,10 +203,10 @@ const StoreCard: React.FC<StoreComponentProps> = ({
     if (fetchErr) { console.error("Error fetching current status FK:", fetchErr); return; }
     let statusIdToUpdate = existingStatus?.storestatus;
     if (statusIdToUpdate) {
-      const { error: updateErr } = await supabase.from('storestatus').update({ status: newStatus, lastupdated: new Date().toISOString(), contributor: currentUser }).eq('storestatusid', statusIdToUpdate);
+      const { error: updateErr } = await supabase.from('storestatus').update({ status: newStatus }).eq('storestatusid', statusIdToUpdate);
       if (updateErr) { console.error("Error updating status:", updateErr); return; }
     } else {
-      const { data: newStatusData, error: insertErr } = await supabase.from('storestatus').insert({ status: newStatus, lastupdated: new Date().toISOString(), contributor: currentUser }).select('storestatusid').single();
+      const { data: newStatusData, error: insertErr } = await supabase.from('storestatus').insert({ status: newStatus }).select('storestatusid').single();
       if (insertErr || !newStatusData) { console.error("Error creating status:", insertErr); return; }
       statusIdToUpdate = newStatusData.storestatusid;
       const { error: linkErr } = await supabase.from('store').update({ storestatus: statusIdToUpdate }).eq('storeid', storeId);

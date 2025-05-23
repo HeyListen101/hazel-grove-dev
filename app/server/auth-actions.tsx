@@ -46,7 +46,8 @@ function isValidEmail(email: string): boolean {
     "protonmail.es",
     "protonmail.it",
     "protonmail.net",
-    "protonmail.co.uk", 
+    "protonmail.co.uk",
+    "vsu.edu.ph"
   ];
 
   const domain = trimmed.split("@")[1];
