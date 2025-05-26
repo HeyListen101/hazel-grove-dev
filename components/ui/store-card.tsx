@@ -39,9 +39,56 @@ type StoreComponentProps = {
 }
 
 const pageVariants: Variants = {
-  initial: (direction: number) => ({ x: direction > 0 ? "50%" : "-50%", opacity: 0 }),
-  enter: { x: 0, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 30, restDelta: 0.001 } },
-  exit: (direction: number) => ({ x: direction < 0 ? "50%" : "-50%", opacity: 0, transition: { type: "spring", stiffness: 300, damping: 30, restDelta: 0.001 } }),
+  initial: (direction: number) => ({ 
+    x: direction > 0 ? "50%" : "-50%", 
+    opacity: 0,
+    scale: 0.95
+  }),
+  enter: { 
+    x: 0, 
+    opacity: 1, 
+    scale: 1,
+    transition: { 
+      type: "spring", 
+      stiffness: 100, // Reduced from 300
+      damping: 20,    // Reduced from 30
+      mass: 1,
+      restDelta: 0.001,
+      duration: 0.6   // Added explicit duration
+    } 
+  },
+  exit: (direction: number) => ({ 
+    x: direction < 0 ? "50%" : "-50%", 
+    opacity: 0,
+    scale: 0.95,
+    transition: { 
+      type: "spring", 
+      stiffness: 100, 
+      damping: 20, 
+      mass: 1,
+      restDelta: 0.001,
+      duration: 0.4
+    } 
+  }),
+};
+
+
+const productItemVariants: Variants = {
+  hidden: { 
+    opacity: 0, 
+    y: 20, 
+    scale: 0.95 
+  },
+  visible: (index: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      delay: index * 0.1, // Stagger effect
+      duration: 0.4,
+      ease: "easeOut"
+    }
+  })
 };
 
 // Security function from the new (good security) version
@@ -582,7 +629,7 @@ const StoreCard: React.FC<StoreComponentProps> = ({
                 {!scareTacticsEnabled && isEditCooldownActive && globalCooldownError && <p className="text-xs text-red-500 mt-1">{globalCooldownError}</p>}
               </div>
               <div className="overflow-y-auto flex-grow px-3 md:px-4 pt-1 pb-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full" >
-                {loading && !products.length && !isEditing ? ( <p>Loading...</p>
+                {loading && !products.length && !isEditing ? ( <p>Loading products...</p>
                 ) : (isEditing ? draftProducts.filter(p => !p._isDeleted && !p._isNew).length === 0 : products.length === 0) && newlyAddedDraftProducts.length === 0 && !isEditing && !localError && !(isEditCooldownActive && globalCooldownError) ? ( 
                   <p className="text-gray-500 text-center py-4"> {isEditing ? "No existing products to edit. Add some!" : "No products found."} </p>
                 ) : (
@@ -597,8 +644,11 @@ const StoreCard: React.FC<StoreComponentProps> = ({
                     <div className="overflow-x-hidden"> 
                       <AnimatePresence mode="wait" custom={paginationDirection}>
                         <motion.div key={currentPage} custom={paginationDirection} variants={pageVariants} initial="initial" animate="enter" exit="exit" className="space-y-1.5 mt-1" >
-                          {paginatedProductsToDisplay.map((product) => (
-                            <motion.div key={product.productid} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, transition: {duration: 0.2} }} transition={{ type: "spring", stiffness: 300, damping: 30, duration: 0.2 }} className="grid grid-cols-[1fr_auto_auto] items-center gap-x-2 md:gap-x-3 py-1.5 border-b border-gray-100" >
+                          {paginatedProductsToDisplay.map((product, index) => (
+                            <motion.div key={product.productid} 
+                            layout 
+                            custom={index}
+                            variants={productItemVariants} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, transition: {duration: 0.2} }} transition={{ type: "spring", stiffness: 300, damping: 30, duration: 0.2 }} className="grid grid-cols-[1fr_auto_auto] items-center gap-x-2 md:gap-x-3 py-1.5 border-b border-gray-100" >
                               {isEditing ? (
                                 <>
                                   <input 

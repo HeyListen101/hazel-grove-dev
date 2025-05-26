@@ -242,7 +242,7 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
   };
 
   return (
-    <div className="fixed bottom-6 left-7 flex items-center z-10">
+    <div className="fixed bottom-6 right-7 flex items-center z-10">
       <Button 
         variant={"chat"}
         onClick={() => setShowChat(!showChat)}
@@ -259,7 +259,7 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
         }
       </Button>
       {showChat && (
-        <div className="absolute bottom-12 left-0 w-80 bg-white shadow-lg rounded-lg flex flex-col overflow-hidden">
+        <div className="absolute bottom-12 right-0 w-80 bg-white shadow-lg rounded-lg flex flex-col overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between w-full py-4 px-4 border-b -mb-2">
             <svg width="153" height="20" viewBox="0 0 153 20" fill="none" xmlns="http://www.w3.org/2000/svg">
