@@ -67,12 +67,11 @@ export default async function AuthComponent() {
       <form action={signOutAction}>
         <Button 
           type="submit" 
-          variant="ghost" // Ghost or outline can work well here
+          variant="ghost"
           size="sm" 
           className="text-red-600 hover:bg-red-50 hover:text-red-700 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md"
         >
           <LogOut size={16} />
-          <span>Sign out</span>
         </Button>
       </form>
 
