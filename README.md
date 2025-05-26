@@ -9,7 +9,36 @@ A web-based VSU Market Directory designed to help students, faculty, staff, and 
 | HG.010.003 | 2025-04-07 |
 | HG.010.004 | 2025-05-05 |
 | HG.011.000 | 2025-05-15 |
+| HG.011.001 | 2025-05-26 |
 | ... | ... |
+
+## HG.011.001 Release Notes
+- Update favicon.ico for browser tab
+- Cleaned map component
+- Reconciled with old friends
+- Search bar quick fix
+- Updated UI again
+- Fixed files now
+- Search bar works now
+- Fixed search bar spawning store component
+- Revert to "Updated Store Card Security"
+- Swapped Buttons
+- Updating UI
+- Full Security Implemented
+- Updated Store Card Security
+- Base Version Fully Working now
+- Deleted settings page
+- Updated Security
+- Updating store card again
+- Updating Store Component again
+- Updated Community Chat
+- Updated User Authentication
+- Updated User Authentication
+- System Optimization
+- Optimized System
+- Updated Mobile layout
+- Updated UI/UX
+- Cleaned Files
 
 ## HG.011.000 Release Notes
 - Updated jest tests

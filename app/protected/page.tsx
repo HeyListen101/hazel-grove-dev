@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import AuthBar from "@/components/header-auth";
+import AuthComponent from "@/components/header-auth";
 import { SearchBar } from "@/components/search-bar";
 import ChatBox from "@/components/chat-component";
 import MapComponent from "@/components/map-component";
