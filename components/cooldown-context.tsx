@@ -23,6 +23,12 @@ export const EditCooldownProvider = ({ children }: { children: ReactNode }) => {
   const [cooldownEndTime, setCooldownEndTime] = useState<number | null>(null);
   const [cooldownError, setCooldownError] = useState<string | null>(null);
 
+  // Function to generate the current error message
+  const generateCooldownErrorMessage = (endTime: number) => {
+    const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000 / 60));
+    return `Typing is temporarily disabled due to a previous malicious input attempt. Please try again in ${remaining} mins.`;
+  };
+
   // Effect to initialize from localStorage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') { // Ensure localStorage is available
@@ -32,7 +38,7 @@ export const EditCooldownProvider = ({ children }: { children: ReactNode }) => {
             if (!isNaN(storedEndTime) && storedEndTime > Date.now()) {
                 setCooldownEndTime(storedEndTime);
                 setIsCooldownActive(true);
-                setCooldownError(`Typing is temporarily disabled due to a previous malicious input attempt. Please try again in ${Math.max(0, Math.ceil((storedEndTime - Date.now()) / 1000 / 60))} mins.`);
+                setCooldownError(generateCooldownErrorMessage(storedEndTime));
                 console.log("Global edit cooldown restored from localStorage.");
             } else {
                 // Stored time is invalid or in the past, clear it
@@ -41,6 +47,26 @@ export const EditCooldownProvider = ({ children }: { children: ReactNode }) => {
         }
     }
   }, []); // Run only once on mount
+
+  // Effect to update error message in real time
+  useEffect(() => {
+    let updateInterval: NodeJS.Timeout;
+    
+    if (isCooldownActive && cooldownEndTime) {
+      // Update the error message every minute
+      updateInterval = setInterval(() => {
+        if (cooldownEndTime > Date.now()) {
+          setCooldownError(generateCooldownErrorMessage(cooldownEndTime));
+        }
+      }, 60000); // Update every minute
+    }
+    
+    return () => {
+      if (updateInterval) {
+        clearInterval(updateInterval);
+      }
+    };
+  }, [isCooldownActive, cooldownEndTime]);
 
   // Effect to manage the timer and clear localStorage when cooldown ends
   useEffect(() => {
@@ -80,7 +106,7 @@ export const EditCooldownProvider = ({ children }: { children: ReactNode }) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem(LOCAL_STORAGE_COOLDOWN_KEY, endTime.toString());
     }
-    setCooldownError(`Malicious input attempt. Editing disabled globally for ${COOLDOWN_DURATION_MS / 1000 / 60} minutes.`);
+    setCooldownError(generateCooldownErrorMessage(endTime));
   };
 
   const getGlobalCooldownRemainingTime = () => {
