@@ -55,12 +55,12 @@ export default function MessageComponent({ sentBy, context, dateCreated, viewing
       }
 
       try {
-        const supabaseDbClient = createClient();
+        const supabase = createClient();
         let fetchedFullName: string | null = null;
         let fetchedAvatarUrl: string | null = null;
         
         // 1. Fetch Full Name (for header and to derive a better fallback display name)
-        const { data: contributor, error: contributorError } = await supabaseDbClient
+        const { data: contributor, error: contributorError } = await supabase
           .from("contributor")
           .select("name")
           .eq("contributorid", sentBy)
