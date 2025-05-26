@@ -112,7 +112,7 @@ const SearchBar = () => {
 
       if (signal.aborted) { console.log('Initial searches aborted'); return; }
 
-      if (productNameMatches.error) console.error('Error fetching products by name:', JSON.stringify(productNameMatches.error, null, 2));
+      if (productNameMatches.error) console.log('Error fetching products by name:', JSON.stringify(productNameMatches.error, null, 2));
       else if (productNameMatches.data) {
         const productResults = productNameMatches.data
           .filter(item => item.store)
@@ -126,7 +126,7 @@ const SearchBar = () => {
         combinedResults.push(...productResults);
       }
 
-      if (storeNameMatches.error) console.error('Error fetching stores by name:', JSON.stringify(storeNameMatches.error, null, 2));
+      if (storeNameMatches.error) console.log('Error fetching stores by name:', JSON.stringify(storeNameMatches.error, null, 2));
       else if (storeNameMatches.data && storeNameMatches.data.length > 0) {
         const matchedStoreIds = storeNameMatches.data.map(s => s.storeid);
         const productNameOrConditions = queryTokens.map(token => `name.ilike.%${token}%`).join(',');
@@ -139,7 +139,7 @@ const SearchBar = () => {
 
         if (signal.aborted) { console.log('Products in stores search aborted'); return; }
 
-        if (productsInStoresError) console.error('Error fetching products in stores:', JSON.stringify(productsInStoresError, null, 2));
+        if (productsInStoresError) console.log('Error fetching products in stores:', JSON.stringify(productsInStoresError, null, 2));
         else if (productsInStores) {
           const storeProductResults = productsInStores
             .filter(item => item.store)
@@ -178,7 +178,7 @@ const SearchBar = () => {
       if (error.name === 'AbortError' || (error.message && error.message.includes('aborted'))) {
         console.log('Search operation was intentionally aborted.');
       } else {
-        console.error('Error in handleSearch:', error);
+  console.log('Error in handleSearch:', error);
         setSearchResults([]);
       }
     } finally {
