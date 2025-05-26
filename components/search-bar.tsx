@@ -251,7 +251,7 @@ const SearchBar = () => {
     try {
       const { data: store, error } = await supabase
         .from('store')
-        .select(`*, storestatus:storestatus(isopen)`) 
+        .select(`*, storestatus:storestatus(*)`) 
         .eq('storeid', id)
         .single();
       if (error) { console.log('Error fetching store:', JSON.stringify(error, null, 2)); return null; }
