@@ -1,8 +1,8 @@
-import { ThemeProvider } from "next-themes";
-import { Poppins } from "next/font/google";
 import "./globals.css";
-import PreventZoomWrapper from "@/components/prevent-zoom-wrapper";
+import { Poppins } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 import ResolutionGuard from "@/components/resolution-context";
+import { EditCooldownProvider } from "@/components/cooldown-context";
 
 const poppins = Poppins({
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'], 
@@ -30,13 +30,13 @@ export default function RootLayout({
           [&::-webkit-scrollbar-thumb]:bg-gray-400
         "
       >
-        <PreventZoomWrapper>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <ResolutionGuard minWidth={410} minHeight={450}>
-              {children}
+            <ResolutionGuard minWidth={375} minHeight={375}>
+              <EditCooldownProvider>
+                {children}
+              </EditCooldownProvider>
             </ResolutionGuard>
           </ThemeProvider>
-        </PreventZoomWrapper>
       </body>
     </html>
   );

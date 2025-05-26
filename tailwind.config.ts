@@ -19,9 +19,10 @@ const config = {
     },
     extend: {
       screens: {
+        xs: "375px",
         sm: "630px",
-        md: "767px",
-        lg: "1024px",
+        md: "526px",
+        lg: "1018px",
         xl: "1347px",
         "px1100": "1100px",
         "2xl": "1699px", 

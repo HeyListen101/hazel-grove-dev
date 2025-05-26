@@ -1,20 +1,14 @@
+// src
 import { signOutAction } from "@/app/server/auth-actions";
 import Link from "next/link";
-import { Button } from "./ui/button";
+import { Button } from "./ui/button"; // Assuming this is your shadcn/ui Button
 import { createClient } from "@/utils/supabase/server";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { LogOut } from "lucide-react";
 
-export default async function AuthButton() {
+export default async function AuthComponent() {
   const supabase = await createClient();
 
-  // Get authenticated user
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -23,69 +17,67 @@ export default async function AuthButton() {
   let avatarUrl = null;
 
   if (user) {
-    // Get contributor name
-    const { data: contributor, error } = await supabase
+    const { data: contributor } = await supabase
       .from("contributor")
       .select("name")
-      .eq("contributorid", user?.id)
+      .eq("contributorid", user.id) // Use user.id directly
       .single();
 
-    if (error) {
-      console.log("Error fetching contributor:", error);
-    } else {
-      console.log(user?.user_metadata?.avatar_url);
-      contributorName = contributor?.name;
+    // No need to log error here unless debugging, as it's handled by fallback
+    if (contributor) {
+      contributorName = contributor.name;
     }
 
-    // Get avatar URL from user metadata
-    avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
+    avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
   }
 
-  const getInitials = (name: string) => {
+  const getInitials = (name: string | null) => { // Allow name to be null
     if (!name) return "U";
     
     const parts = name.split(' ');
     if (parts.length === 1) {
-      // For single name, return first letter
       return parts[0].charAt(0).toUpperCase();
     } else {
-      // For multiple names, return first letter of first and last name
       return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
     }
   };
 
   return user ? (
-    <div className="flex items-center gap-2 bg-white rounded-[75px] shadow-sm p-0 sm:pl-[20px]">
-      <span className="hidden sm:inline text-[#222] text-[0.8rem] font-bold">Hey, {contributorName || "you're not supposed to be here"}!</span>
+    // Logged-in state: Avatar, Name, and Sign Out Button
+    <div className="flex items-center gap-4"> {/* Main container for logged-in elements */}
       
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative p-0 h-9 w-9 rounded-full overflow-hidden">
-            <Avatar className="h-full w-full text-white">
-              <AvatarImage 
-                src={avatarUrl || ""} 
-                alt={contributorName || "User"} 
-                className="object-cover"
-              />
-              <AvatarFallback className="bg-[#13783e] text-blue-600">
-                {getInitials(contributorName || "")}
-              </AvatarFallback>
-            </Avatar>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="bg-white border border-gray-200 shadow-md rounded-md p-1 w-48">
-          <form action={signOutAction} className="w-full">
-            <DropdownMenuItem asChild className="rounded-sm px-3 py-2 text-sm hover:bg-red-50 cursor-pointer">
-              <div className="flex items-center gap-2 text-red-600 w-full">
-                <LogOut size={16} />
-                <button type="submit" className="text-sm font-normal">Sign out</button>
-              </div>
-            </DropdownMenuItem>
-          </form>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {/* User Greeting & Avatar */}
+      <div className="flex items-center gap-2">
+        <Avatar className="h-9 w-9"> {/* Standard avatar size */}
+          <AvatarImage 
+            src={avatarUrl || ""} 
+            alt={contributorName || "User"} 
+            className="object-cover"
+          />
+          <AvatarFallback className="bg-[#13783e] text-white font-medium"> {/* Ensure good contrast and readability */}
+            {getInitials(contributorName)}
+          </AvatarFallback>
+        </Avatar>
+        <span className="hidden sm:inline text-gray-700 text-sm font-medium">
+          Hey, {contributorName || "you're not supposed to be here..."}!
+        </span>
+      </div>
+
+      {/* Sign Out Form and Button */}
+      <form action={signOutAction}>
+        <Button 
+          type="submit" 
+          variant="ghost"
+          size="sm" 
+          className="text-red-600 hover:bg-red-50 hover:text-red-700 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md"
+        >
+          <LogOut size={16} />
+        </Button>
+      </form>
+
     </div>
   ) : (
+    // Logged-out state: Sign In and Sign Up Buttons
     <div className="flex gap-2">
       <Button asChild size="default" variant={"outline"}>
         <Link href="/sign-in">Sign in</Link>
