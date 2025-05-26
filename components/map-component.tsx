@@ -325,7 +325,6 @@ export default function MapComponent() {
   };
 
   return (
-    // #13783e #F07474
     <div className='map-mobile-absolute'>
       <TransformWrapper
       initialScale={typeof window !== 'undefined' && window.innerWidth <= 526 ? 0.94 : 1}
@@ -429,12 +428,6 @@ export default function MapComponent() {
                   colEnd={selectedBlockCoords.colEnd}
                 />
               )}
-              {/* Loading Indicator
-              {isSelectionLoading && (
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <LoadingIndicator/>
-                </div>    
-              )} */}
               </div>
             </TransformComponent>
           <Controls/>

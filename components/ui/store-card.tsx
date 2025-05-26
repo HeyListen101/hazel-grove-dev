@@ -376,7 +376,7 @@ const StoreCard: React.FC<StoreComponentProps> = ({
 
   return (
     <>
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {scareTacticsEnabled && showSecurityAlertDialog && (
             <motion.div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-80 p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowSecurityAlertDialog(false)} >
                 <motion.div className="bg-black p-6 sm:p-8 rounded-xl shadow-2xl text-center max-w-sm w-full border border-red-700" initial={{ scale: 0.7, opacity: 0, y: -50 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.7, opacity: 0, y: -50 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} onClick={(e) => e.stopPropagation()} >
@@ -385,11 +385,11 @@ const StoreCard: React.FC<StoreComponentProps> = ({
                 </motion.div>
             </motion.div>
         )}
-    </AnimatePresence>
+    </AnimatePresence> */}
 
       <AnimatePresence mode="wait" initial={true}> 
         {isSelected && storeId && (
-          <motion.div ref={componentRef} key={storeId} className="bg-white grid grid-rows-[140px_1fr] md:grid-rows-[120px_1fr] h-full rounded-[15px] shadow-md overflow-hidden" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.35, ease: "easeInOut" }} >
+          <motion.div ref={componentRef} key={storeId} className="bg-white grid grid-rows-[140px_1fr] md:grid-rows-[120px_1fr] h-full rounded-[15px] shadow-md overflow-hidden" initial={{ opacity: 0, y: 0, x: -100 }} animate={{ opacity: 1, y: 0, x: 0 }} exit={{ opacity: 0, y: 0, x: 100}} transition={{ duration: 0.35, ease: "easeInOut" }} >
             <motion.div className="w-full relative h-full" layoutId={`background-container-${storeId}`} >
               <motion.img layoutId={`background-image-${storeId}`} src={BackgroundImage.src} alt="Background" className="absolute z-0 w-full h-full object-cover rounded-t-[15px]" />
               <motion.div className="absolute z-1 bg-black bg-opacity-40 w-full h-full rounded-t-[15px]" />

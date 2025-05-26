@@ -13,10 +13,10 @@ export default function VisitaPlaceholder() {
         gridColumnStart: 5,
         gridColumnEnd: 16,
       }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
+      initial={{ opacity: 0, y: 0, x: -10 }}
+      animate={{ opacity: 1, y: 0, x: 0 }}
+      exit={{ opacity: 0, y: 0, x: 10}}
+      transition={{ duration: 0.35, ease: "easeInOut" }}
     >
       <h1 className="absolute top-16 w-full h-full text-4xl md:text-5xl lg:text-6xl font-bold">
         Welcome<br/>

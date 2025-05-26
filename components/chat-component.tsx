@@ -79,7 +79,6 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
     const fetchCurrentUserDetails = async () => {
       const user = await supabaseAuth.getUser();
 
-
       if (user && user.id) {
         const userId = user.id;
         let fetchedFullName: string | null = null;
@@ -116,7 +115,7 @@ export default function ChatComponent({ messages }: { messages: ChatMessage[] })
             const { data: avatarRpcResult, error: avatarRpcError } = await supabase
               .rpc('get_user_avatar', { user_id: userId });
             if (avatarRpcError) {
-                throw avatarRpcError;
+                console.log(avatarRpcError);
             }
             if (avatarRpcResult) {
               fetchedAvatarUrl = avatarRpcResult.avatar_url || avatarRpcResult.picture || null;
