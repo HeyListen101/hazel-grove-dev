@@ -9,7 +9,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useMapSearch } from '@/components/map-search-context';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { mapData, colors, svgPathVal } from './assets/background-images/map';
-import BackgroundImage from '@/components/assets/background-images/Background.png';
 
 type TooltipPosition = 'top' | 'right' | 'bottom' | 'left' | null;
 
@@ -325,18 +324,20 @@ export default function MapComponent() {
   };
 
   return (
+    // #13783e #F07474
     <div className='map-mobile-absolute'>
       <TransformWrapper
       initialScale={typeof window !== 'undefined' && window.innerWidth <= 526 ? 0.94 : 1}
       limitToBounds={true}
       centerOnInit={true}
       >
-        <main className="bg-white flex flex-col items-center justify-center overflow-hidden fixed inset-0">
+        <main className="bg-white flex flex-col items-center overflow-hidden absolute top-0 inset-x-0 bottom-0">
+          {/* Use CSS to maintain the proper aspect ratio */}
           <TransformComponent 
             contentStyle={{
               width: '95vw', 
-              height: 'calc(95vw * 0.5)',
-              maxHeight: '80vh',
+              height: 'calc(95vw * 0.5)', // Maintain 2:1 aspect ratio (40:20 grid)
+              maxHeight: '80vh',  // Limit maximum height on taller screens
             }}
           >
             <div
@@ -357,52 +358,10 @@ export default function MapComponent() {
               <MapBlock rowStart={17} rowEnd={18} colStart={24} colEnd={37} height={30} defaultColor={colors.f} pointerEvents={false}/>
               <MapBlock rowStart={20} rowEnd={21} colStart={24} colEnd={34} height={30} defaultColor={colors.f} pointerEvents={false}/>
               <MapBlock rowStart={7} rowEnd={17} colStart={25} colEnd={33} defaultColor={colors.e} icon={svgPathVal.park} viewBox="0 0 100 100" pointerEvents={false}/>
-              {/* Visita Placeholder - always visible, styled like store-component */}
-              <div
-                className="
-                  w-full h-[95vh] sm:h-[50vh]
-                  bg-white overflow-hidden
-                  shadow-lg pointer-events-auto
-                  md:absolute md:rounded-[15px] md:z-[20] md:h-auto md:w-auto
-                  store-mobile-absolute
-                "
-                style={{
-                  gridRowStart: 1,
-                  gridRowEnd: 21,
-                  gridColumnStart: 1,
-                  gridColumnEnd: 17,
-                  // Desktop absolute positioning from store-component
-                  left: '12.5%',
-                  top: '25%',
-                  width: '27.5%',
-                  height: '70%',
-                }}
-              >
-                <div 
-                  className="w-full h-full bg-cover bg-center rounded-[15px] flex flex-col items-center justify-center text-center relative"
-                  style={{
-                    background: `url(${BackgroundImage.src})`,
-                    backgroundSize: "100% 100%",
-                  }}
-                >
-                  <h1 className="absolute top-16 w-full h-full text-4xl md:text-5xl lg:text-6xl font-bold">
-                    Welcome<br/>
-                    to<br/>
-                    Visita
-                  </h1>
-                  <h1 className="absolute bottom-10 text-[12px] lg:text-lg">
-                    Try <span className="font-bold">clicking </span>
-                    one of the store boxes!<br/>
-                    <span className="font-bold text-[#F07474]">Red </span>
-                    boxes means
-                    <span className="font-bold text-[#F07474]"> closed</span>.
-                  </h1>
-                </div>
-              </div>
-              
               {/* Map all store blocks from mapData */}
               {mapData.map((block, index) => (
                 <MapBlock
+                  // id={block.storeId} // add this if you want to debug
                   key={index}
                   storeId={block.storeId || ''}
                   rowStart={block.rowStart}
@@ -416,10 +375,10 @@ export default function MapComponent() {
                   tooltipPosition={block.position as TooltipPosition}
                 />
               ))}
-              
               {/* Selected Store Tooltip */}
               {selectedStoreId && selectedBlockCoords.rowStart && (
                 <MapTooltip
+                  // id={selectedStoreId} // add this if you want to debug
                   name={storeName || "Unknown Store"}
                   position={tooltipPosition}
                   rowStart={selectedBlockCoords.rowStart}
@@ -428,6 +387,12 @@ export default function MapComponent() {
                   colEnd={selectedBlockCoords.colEnd}
                 />
               )}
+              {/* Loading Indicator
+              {isSelectionLoading && (
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  <LoadingIndicator/>
+                </div>    
+              )} */}
               </div>
             </TransformComponent>
           <Controls/>
